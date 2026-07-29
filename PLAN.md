@@ -1,5 +1,16 @@
 # Kế hoạch chi tiết — Nô Lệ Làm Phim
 
+## Kiến trúc
+
+| Nền tảng | Công nghệ |
+|----------|-----------|
+| Android  | Flutter   |
+| iOS      | Flutter   |
+| TV       | Flutter   |
+| **Web**  | **Next.js (TypeScript)** — fork riêng, load nhanh, SEO tốt, dễ build |
+
+Cả 4 nền tảng dùng chung API: `https://vsmov.com/api`
+
 ## Sprint 1: Khởi tạo & Hạ tầng
 
 ### Bước 1.1: Tạo Flutter project
@@ -294,19 +305,50 @@ Hoặc check `SystemChrome` / custom platform detection.
 - Horizontal sections (auto scroll)
 - Voice search hỗ trợ
 
-## Sprint 8: Web Adaptation
+## Sprint 8: Web với Next.js (fork riêng)
 
-### Bước 8.1: Responsive Layout
-- Mobile ( < 600px ): Bottom nav, single column
-- Tablet ( 600-1024px ): Bottom nav hoặc sidebar, 2-3 cột grid
-- Desktop ( > 1024px ): Sidebar nav, multi-column grid
-- TV detection riêng
+### Bước 8.1: Tạo Next.js project
+```bash
+npx create-next-app@latest web --typescript --tailwind --app
+```
 
-### Bước 8.2: Web-specific
-- SEO: `flutter_config` meta tags
-- Keyboard shortcuts (Enter để play, Esc để back)
-- Route guard: không cho vào WatchScreen trên web? (hoặc vẫn cho)
-- PWA support: manifest.json + service worker
+### Bước 8.2: Thư mục đề xuất
+```
+web/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx              # Home
+│   │   ├── search/page.tsx       # Search
+│   │   ├── phim/[slug]/page.tsx  # Movie detail
+│   │   └── xem/[slug]/[ep]/page.tsx  # Watch
+│   ├── components/
+│   │   ├── MovieCard.tsx
+│   │   ├── MovieGrid.tsx
+│   │   └── VideoPlayer.tsx
+│   ├── lib/
+│   │   ├── api.ts                # API client (fetch/axios)
+│   │   └── types.ts              # TypeScript types
+│   └── styles/
+├── public/
+└── package.json
+```
+
+### Bước 8.3: API Client (lib/api.ts)
+```typescript
+const BASE_URL = 'https://vsmov.com/api';
+
+export async function fetchMovies(page = 1) {
+  const res = await fetch(`${BASE_URL}/danh-sach/phim-moi-cap-nhat?page=${page}`);
+  return res.json();
+}
+```
+
+### Bước 8.4: Tính năng
+- Server Side Rendering (SSR) cho SEO
+- ISR (Incremental Static Regeneration) cho trang phim
+- Video player dùng HTML5 `<video>` tag
+- Responsive với Tailwind CSS
+- Dark mode mặc định
 
 ## Sprint 9: Polish & Hoàn thiện
 
@@ -350,3 +392,11 @@ Home ──► Chi tiết phim ──► Xem phim
   │
   └──► Actor ──► DS phim ──► Chi tiết ──► Xem
 ```
+
+---
+
+## Ghi chú
+
+- **Flutter** codebase chính: Android, iOS, TV
+- **Next.js** (thư mục `web/`): Web app riêng, SSR, SEO, load nhanh
+- Cả hai đều dùng chung API `https://vsmov.com/api`
