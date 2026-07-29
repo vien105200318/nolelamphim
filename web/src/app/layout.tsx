@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   description: "Xem phim đa nền tảng",
 };
 
+export const viewport = {
+  themeColor: "#0D0D0D",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,9 +29,9 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0D0D0D] text-white">
+      <body className="min-h-full flex flex-col">
         {children}
       </body>
     </html>

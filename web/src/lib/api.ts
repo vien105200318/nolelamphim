@@ -1,78 +1,106 @@
-const BASE_URL = 'https://vsmov.com/api'
-const DEFAULT_REVALIDATE = 60 // 1 phút cache
+import type {
+  Movie,
+  Category,
+  Country,
+  DataListResponse,
+  MovieDetailResponse,
+} from './types'
 
-async function fetchAPI<T>(path: string, params?: Record<string, string | number>): Promise<T> {
+const BASE_URL = 'https://vsmov.com/api'
+
+async function fetchAPI<T>(
+  path: string,
+  params?: Record<string, string | number>,
+  fallback?: T,
+): Promise<T> {
   const url = new URL(`${BASE_URL}${path}`)
   if (params) {
-    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)))
+    Object.entries(params).forEach(([k, v]) =>
+      url.searchParams.set(k, String(v)),
+    )
   }
   const res = await fetch(url.toString(), {
-    next: { revalidate: DEFAULT_REVALIDATE },
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
   })
-  if (!res.ok) throw new Error(`API error: ${res.status}`)
-  return res.json()
+  if (!res.ok) {
+    if (fallback !== undefined) return fallback
+    throw new Error(`API error: ${res.status} for ${url.toString()}`)
+  }
+  const text = await res.text()
+  try {
+    return JSON.parse(text)
+  } catch {
+    if (fallback !== undefined) return fallback
+    throw new Error(`Invalid JSON from ${url.toString()}`)
+  }
 }
 
-// --- Home ---
+type MovieList = { status: boolean; items: Movie[] }
+
 export function getNewMovies(page = 1) {
-  return fetchAPI<{ status: boolean; items: import('./types').Movie[] }>(
-    '/danh-sach/phim-moi-cap-nhat',
-    { page }
-  )
+  return fetchAPI<MovieList>('/danh-sach/phim-moi-cap-nhat', { page })
 }
 
 export function getSubteam(limit = 20) {
-  return fetchAPI<{ status: boolean; items: import('./types').Movie[] }>(
-    '/danh-sach/subteam',
-    { limit }
-  )
+  return fetchAPI<MovieList>('/danh-sach/subteam', { limit }, { status: false, items: [] })
 }
 
-// --- Search ---
 export function searchMovies(keyword: string, page = 1, limit = 20) {
-  return fetchAPI<{ status: boolean; items: import('./types').Movie[] }>(
-    '/tim-kiem',
-    { keyword, page, limit }
-  )
+  return fetchAPI<MovieList>('/tim-kiem', { keyword, page, limit })
 }
 
-// --- Categories ---
 export function getCategories() {
-  return fetchAPI<import('./types').DataListResponse<import('./types').Category>>('/the-loai')
+  return fetchAPI<DataListResponse<Category>>('/the-loai')
 }
 
 export function getMoviesByCategory(
   slug: string,
-  params?: { limit?: number; page?: number; year?: string; country?: string; type?: string; status?: string }
+  params?: {
+    limit?: number
+    page?: number
+    year?: string
+    country?: string
+    type?: string
+    status?: string
+  },
 ) {
-  return fetchAPI<{ status: boolean; items: import('./types').Movie[] }>(`/the-loai/${slug}`, params)
+  return fetchAPI<MovieList>(`/the-loai/${slug}`, params)
 }
 
-// --- Countries ---
 export function getCountries() {
-  return fetchAPI<import('./types').DataListResponse<import('./types').Country>>('/quoc-gia')
+  return fetchAPI<DataListResponse<Country>>('/quoc-gia')
 }
 
 export function getMoviesByCountry(
   slug: string,
-  params?: { limit?: number; page?: number; year?: string; type?: string; status?: string }
+  params?: {
+    limit?: number
+    page?: number
+    year?: string
+    type?: string
+    status?: string
+  },
 ) {
-  return fetchAPI<{ status: boolean; items: import('./types').Movie[] }>(`/quoc-gia/${slug}`, params)
+  return fetchAPI<MovieList>(`/quoc-gia/${slug}`, params)
 }
 
-// --- Years ---
 export function getYears() {
-  return fetchAPI<import('./types').DataListResponse<import('./types').Category>>('/nam')
+  return fetchAPI<DataListResponse<Category>>('/nam')
 }
 
 export function getMoviesByYear(
   year: string,
-  params?: { limit?: number; page?: number; type?: string; status?: string }
+  params?: {
+    limit?: number
+    page?: number
+    type?: string
+    status?: string
+  },
 ) {
-  return fetchAPI<{ status: boolean; items: import('./types').Movie[] }>(`/nam/${year}`, params)
+  return fetchAPI<MovieList>(`/nam/${year}`, params)
 }
 
-// --- Movie Detail ---
 export function getMovieDetail(slug: string) {
-  return fetchAPI<import('./types').MovieDetailResponse>(`/phim/${slug}`)
+  return fetchAPI<MovieDetailResponse>(`/phim/${slug}`)
 }
