@@ -1,25 +1,17 @@
 import Link from "next/link";
 import type { Movie } from "@/lib/types";
 
-export default function MovieCard({ movie }: { movie: Movie }) {
+export default function MovieCard({ movie, dot }: { movie: Movie; dot?: 'new' | 'hot' }) {
   return (
     <Link href={`/phim/${movie.slug}`} className="group block">
-      <div className="aspect-[2/3] rounded-lg overflow-hidden bg-bg-card relative">
+      <div className="aspect-[2/3] rounded-xl overflow-hidden bg-bg-card relative">
         {movie.thumb_url ? (
-          <>
-            <img
-              src={movie.thumb_url}
-              alt={movie.name}
-              className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-black/0 transition duration-300 group-hover:bg-black/20" />
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition duration-300">
-              <svg className="w-6 h-6 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          </>
+          <img
+            src={movie.thumb_url}
+            alt={movie.name}
+            className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-text-muted">
             <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -27,13 +19,32 @@ export default function MovieCard({ movie }: { movie: Movie }) {
             </svg>
           </div>
         )}
+        {dot && (
+          <span className={`absolute top-3 left-3 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase ${
+            dot === 'new'
+              ? 'bg-[#4A9EFF] text-white shadow-[0_0_10px_rgba(74,158,255,0.4)]'
+              : 'bg-gradient-to-r from-[#FF6B9D] to-[#C44BED] text-white shadow-[0_0_10px_rgba(196,75,237,0.4)]'
+          }`}>
+            {dot === 'new' ? 'Mới' : 'Hot'}
+          </span>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
       </div>
-      <h3 className="mt-2 text-sm font-medium text-text-primary line-clamp-2 leading-snug group-hover:text-primary transition-colors duration-200">
-        {movie.name}
-      </h3>
-      {movie.year && (
-        <p className="text-[11px] text-text-muted mt-0.5">{movie.year}</p>
-      )}
+      <div className="mt-2.5 px-0.5">
+        <h3 className="text-sm font-medium text-text-primary leading-snug line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#FF6B9D] group-hover:to-[#4A9EFF] transition-all duration-300">
+          {movie.name}
+        </h3>
+        {movie.year && (
+          <p className="text-[11px] text-text-muted mt-1">{movie.year}</p>
+        )}
+      </div>
     </Link>
   );
 }

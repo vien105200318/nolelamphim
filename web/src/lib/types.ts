@@ -13,6 +13,7 @@ export interface Movie {
   status?: string
   episode_current?: string
   episode_total?: string
+  keywords?: string
 }
 
 export interface Category {
@@ -27,16 +28,16 @@ export interface Country {
   slug: string
 }
 
-export interface EpisodeData {
+export interface EpisodeItem {
   name: string
   slug: string
-  filename?: string
-  link_embed: string
+  embed: string
+  m3u8?: string
 }
 
 export interface EpisodeServer {
   server_name: string
-  server_data: EpisodeData[]
+  list: EpisodeItem[]
 }
 
 export interface MovieDetail extends Movie {

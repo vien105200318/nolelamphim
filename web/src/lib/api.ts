@@ -2,6 +2,7 @@ import type {
   Movie,
   Category,
   Country,
+  EpisodeServer,
   DataListResponse,
   MovieDetailResponse,
 } from './types'
@@ -103,4 +104,42 @@ export function getMoviesByYear(
 
 export function getMovieDetail(slug: string) {
   return fetchAPI<MovieDetailResponse>(`/phim/${slug}`)
+}
+
+export async function getMovieEpisodes(
+  slug: string,
+): Promise<{ status: boolean; episodes: EpisodeServer[] }> {
+  try {
+    const res = await fetch(`https://vsmov.com/phim/${slug}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+    })
+    const html = await res.text()
+
+    const start = html.indexOf('[{"server_name"')
+    if (start < 0) return { status: false, episodes: [] }
+
+    let depth = 0
+    let inStr = false
+    let end = start
+    for (let i = start; i < html.length; i++) {
+      const ch = html[i]
+      if (ch === '\\' && inStr) continue
+      if (ch === '"') { inStr = !inStr; continue }
+      if (inStr) continue
+      if (ch === '[') depth++
+      if (ch === ']') { depth--; if (depth === 0) { end = i + 1; break } }
+    }
+
+    let raw = html.slice(start, end)
+    raw = raw.replace(/[\x00-\x1f\x7f]/g, '')
+    raw = raw.replace(/\\\//g, '/')
+    raw = raw.replace(/\\"/g, '"')
+    raw = raw.replace(/\\n/g, '')
+    raw = raw.replace(/\\r/g, '')
+
+    const episodes: EpisodeServer[] = JSON.parse(raw)
+    return { status: true, episodes }
+  } catch {
+    return { status: false, episodes: [] }
+  }
 }
