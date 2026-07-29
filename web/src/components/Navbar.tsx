@@ -8,6 +8,7 @@ const links = [
   { href: '/search', label: 'Tìm kiếm' },
   { href: '/favorites', label: 'Yêu thích' },
   { href: '/recent', label: 'Đã xem' },
+  { href: '/download', label: 'Tải App' },
 ]
 
 export default function Navbar() {
