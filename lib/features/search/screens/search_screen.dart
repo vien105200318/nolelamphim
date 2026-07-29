@@ -23,11 +23,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(categoriesProvider);
-      ref.read(countriesProvider);
-      ref.read(yearsProvider);
-    });
   }
 
   @override
