@@ -28,31 +28,10 @@ export default function WatchPage({
   }, [slug])
 
   useEffect(() => {
-    fetch(`https://vsmov.com/phim/${slug}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-    })
-      .then((r) => r.text())
-      .then((html) => {
-        const start = html.indexOf('[{"server_name"')
-        if (start < 0) return
-        let depth = 0
-        let inStr = false
-        let end = start
-        for (let i = start; i < html.length; i++) {
-          const ch = html[i]
-          if (ch === '\\' && inStr) continue
-          if (ch === '"') { inStr = !inStr; continue }
-          if (inStr) continue
-          if (ch === '[') depth++
-          if (ch === ']') { depth--; if (depth === 0) { end = i + 1; break } }
-        }
-        let raw = html.slice(start, end)
-        raw = raw.replace(/[\x00-\x1f\x7f]/g, '')
-        raw = raw.replace(/\\\//g, '/')
-        raw = raw.replace(/\\"/g, '"')
-        raw = raw.replace(/\\n/g, '').replace(/\\r/g, '')
-        const eps: EpisodeServer[] = JSON.parse(raw)
-        setEpisodes(eps)
+    fetch(`/api/episodes?slug=${slug}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.status) setEpisodes(data.episodes)
       })
   }, [slug])
 
