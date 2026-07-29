@@ -21,7 +21,6 @@ Country _$CountryFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Country {
-  @JsonKey(name: '_id')
   int get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get slug => throw _privateConstructorUsedError;
@@ -40,7 +39,7 @@ abstract class $CountryCopyWith<$Res> {
   factory $CountryCopyWith(Country value, $Res Function(Country) then) =
       _$CountryCopyWithImpl<$Res, Country>;
   @useResult
-  $Res call({@JsonKey(name: '_id') int id, String name, String slug});
+  $Res call({int id, String name, String slug});
 }
 
 /// @nodoc
@@ -86,7 +85,7 @@ abstract class _$$CountryImplCopyWith<$Res> implements $CountryCopyWith<$Res> {
   ) = __$$CountryImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: '_id') int id, String name, String slug});
+  $Res call({int id, String name, String slug});
 }
 
 /// @nodoc
@@ -126,7 +125,7 @@ class __$$CountryImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CountryImpl implements _Country {
   const _$CountryImpl({
-    @JsonKey(name: '_id') required this.id,
+    required this.id,
     required this.name,
     required this.slug,
   });
@@ -135,7 +134,6 @@ class _$CountryImpl implements _Country {
       _$$CountryImplFromJson(json);
 
   @override
-  @JsonKey(name: '_id')
   final int id;
   @override
   final String name;
@@ -177,7 +175,7 @@ class _$CountryImpl implements _Country {
 
 abstract class _Country implements Country {
   const factory _Country({
-    @JsonKey(name: '_id') required final int id,
+    required final int id,
     required final String name,
     required final String slug,
   }) = _$CountryImpl;
@@ -185,7 +183,6 @@ abstract class _Country implements Country {
   factory _Country.fromJson(Map<String, dynamic> json) = _$CountryImpl.fromJson;
 
   @override
-  @JsonKey(name: '_id')
   int get id;
   @override
   String get name;

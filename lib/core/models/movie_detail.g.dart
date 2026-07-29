@@ -38,12 +38,12 @@ _$MovieDetailImpl _$$MovieDetailImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      category:
+      categories:
           (json['category'] as List<dynamic>?)
               ?.map((e) => Category.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      country:
+      countries:
           (json['country'] as List<dynamic>?)
               ?.map((e) => Country.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -81,7 +81,7 @@ Map<String, dynamic> _$$MovieDetailImplToJson(_$MovieDetailImpl instance) =>
       'showtimes': instance.showtimes,
       'actor': instance.actors,
       'director': instance.directors,
-      'category': instance.category,
-      'country': instance.country,
+      'category': instance.categories,
+      'country': instance.countries,
       'episodes': instance.episodes,
     };

@@ -33,8 +33,8 @@ class MovieDetail with _$MovieDetail {
     String? showtimes,
     @JsonKey(name: 'actor') @Default([]) List<String> actors,
     @JsonKey(name: 'director') @Default([]) List<String> directors,
-    @Default([]) List<Category> category,
-    @Default([]) List<Country> country,
+    @JsonKey(name: 'category') @Default([]) List<Category> categories,
+    @JsonKey(name: 'country') @Default([]) List<Country> countries,
     @Default([]) List<EpisodeServer> episodes,
   }) = _MovieDetail;
 

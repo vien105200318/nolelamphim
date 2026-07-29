@@ -56,8 +56,10 @@ mixin _$MovieDetail {
   List<String> get actors => throw _privateConstructorUsedError;
   @JsonKey(name: 'director')
   List<String> get directors => throw _privateConstructorUsedError;
-  List<Category> get category => throw _privateConstructorUsedError;
-  List<Country> get country => throw _privateConstructorUsedError;
+  @JsonKey(name: 'category')
+  List<Category> get categories => throw _privateConstructorUsedError;
+  @JsonKey(name: 'country')
+  List<Country> get countries => throw _privateConstructorUsedError;
   List<EpisodeServer> get episodes => throw _privateConstructorUsedError;
 
   /// Serializes this MovieDetail to a JSON map.
@@ -102,8 +104,8 @@ abstract class $MovieDetailCopyWith<$Res> {
     String? showtimes,
     @JsonKey(name: 'actor') List<String> actors,
     @JsonKey(name: 'director') List<String> directors,
-    List<Category> category,
-    List<Country> country,
+    @JsonKey(name: 'category') List<Category> categories,
+    @JsonKey(name: 'country') List<Country> countries,
     List<EpisodeServer> episodes,
   });
 }
@@ -147,8 +149,8 @@ class _$MovieDetailCopyWithImpl<$Res, $Val extends MovieDetail>
     Object? showtimes = freezed,
     Object? actors = null,
     Object? directors = null,
-    Object? category = null,
-    Object? country = null,
+    Object? categories = null,
+    Object? countries = null,
     Object? episodes = null,
   }) {
     return _then(
@@ -249,13 +251,13 @@ class _$MovieDetailCopyWithImpl<$Res, $Val extends MovieDetail>
                 ? _value.directors
                 : directors // ignore: cast_nullable_to_non_nullable
                       as List<String>,
-            category: null == category
-                ? _value.category
-                : category // ignore: cast_nullable_to_non_nullable
+            categories: null == categories
+                ? _value.categories
+                : categories // ignore: cast_nullable_to_non_nullable
                       as List<Category>,
-            country: null == country
-                ? _value.country
-                : country // ignore: cast_nullable_to_non_nullable
+            countries: null == countries
+                ? _value.countries
+                : countries // ignore: cast_nullable_to_non_nullable
                       as List<Country>,
             episodes: null == episodes
                 ? _value.episodes
@@ -301,8 +303,8 @@ abstract class _$$MovieDetailImplCopyWith<$Res>
     String? showtimes,
     @JsonKey(name: 'actor') List<String> actors,
     @JsonKey(name: 'director') List<String> directors,
-    List<Category> category,
-    List<Country> country,
+    @JsonKey(name: 'category') List<Category> categories,
+    @JsonKey(name: 'country') List<Country> countries,
     List<EpisodeServer> episodes,
   });
 }
@@ -345,8 +347,8 @@ class __$$MovieDetailImplCopyWithImpl<$Res>
     Object? showtimes = freezed,
     Object? actors = null,
     Object? directors = null,
-    Object? category = null,
-    Object? country = null,
+    Object? categories = null,
+    Object? countries = null,
     Object? episodes = null,
   }) {
     return _then(
@@ -447,13 +449,13 @@ class __$$MovieDetailImplCopyWithImpl<$Res>
             ? _value._directors
             : directors // ignore: cast_nullable_to_non_nullable
                   as List<String>,
-        category: null == category
-            ? _value._category
-            : category // ignore: cast_nullable_to_non_nullable
+        categories: null == categories
+            ? _value._categories
+            : categories // ignore: cast_nullable_to_non_nullable
                   as List<Category>,
-        country: null == country
-            ? _value._country
-            : country // ignore: cast_nullable_to_non_nullable
+        countries: null == countries
+            ? _value._countries
+            : countries // ignore: cast_nullable_to_non_nullable
                   as List<Country>,
         episodes: null == episodes
             ? _value._episodes
@@ -492,13 +494,13 @@ class _$MovieDetailImpl implements _MovieDetail {
     this.showtimes,
     @JsonKey(name: 'actor') final List<String> actors = const [],
     @JsonKey(name: 'director') final List<String> directors = const [],
-    final List<Category> category = const [],
-    final List<Country> country = const [],
+    @JsonKey(name: 'category') final List<Category> categories = const [],
+    @JsonKey(name: 'country') final List<Country> countries = const [],
     final List<EpisodeServer> episodes = const [],
   }) : _actors = actors,
        _directors = directors,
-       _category = category,
-       _country = country,
+       _categories = categories,
+       _countries = countries,
        _episodes = episodes;
 
   factory _$MovieDetailImpl.fromJson(Map<String, dynamic> json) =>
@@ -575,22 +577,22 @@ class _$MovieDetailImpl implements _MovieDetail {
     return EqualUnmodifiableListView(_directors);
   }
 
-  final List<Category> _category;
+  final List<Category> _categories;
   @override
-  @JsonKey()
-  List<Category> get category {
-    if (_category is EqualUnmodifiableListView) return _category;
+  @JsonKey(name: 'category')
+  List<Category> get categories {
+    if (_categories is EqualUnmodifiableListView) return _categories;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_category);
+    return EqualUnmodifiableListView(_categories);
   }
 
-  final List<Country> _country;
+  final List<Country> _countries;
   @override
-  @JsonKey()
-  List<Country> get country {
-    if (_country is EqualUnmodifiableListView) return _country;
+  @JsonKey(name: 'country')
+  List<Country> get countries {
+    if (_countries is EqualUnmodifiableListView) return _countries;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_country);
+    return EqualUnmodifiableListView(_countries);
   }
 
   final List<EpisodeServer> _episodes;
@@ -604,7 +606,7 @@ class _$MovieDetailImpl implements _MovieDetail {
 
   @override
   String toString() {
-    return 'MovieDetail(id: $id, name: $name, originName: $originName, slug: $slug, posterUrl: $posterUrl, thumbUrl: $thumbUrl, year: $year, quality: $quality, lang: $lang, time: $time, type: $type, status: $status, episodeCurrent: $episodeCurrent, episodeTotal: $episodeTotal, content: $content, trailerUrl: $trailerUrl, isCopyright: $isCopyright, keywords: $keywords, view: $view, chieurap: $chieurap, subDocquyen: $subDocquyen, showtimes: $showtimes, actors: $actors, directors: $directors, category: $category, country: $country, episodes: $episodes)';
+    return 'MovieDetail(id: $id, name: $name, originName: $originName, slug: $slug, posterUrl: $posterUrl, thumbUrl: $thumbUrl, year: $year, quality: $quality, lang: $lang, time: $time, type: $type, status: $status, episodeCurrent: $episodeCurrent, episodeTotal: $episodeTotal, content: $content, trailerUrl: $trailerUrl, isCopyright: $isCopyright, keywords: $keywords, view: $view, chieurap: $chieurap, subDocquyen: $subDocquyen, showtimes: $showtimes, actors: $actors, directors: $directors, categories: $categories, countries: $countries, episodes: $episodes)';
   }
 
   @override
@@ -650,8 +652,14 @@ class _$MovieDetailImpl implements _MovieDetail {
               other._directors,
               _directors,
             ) &&
-            const DeepCollectionEquality().equals(other._category, _category) &&
-            const DeepCollectionEquality().equals(other._country, _country) &&
+            const DeepCollectionEquality().equals(
+              other._categories,
+              _categories,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._countries,
+              _countries,
+            ) &&
             const DeepCollectionEquality().equals(other._episodes, _episodes));
   }
 
@@ -683,8 +691,8 @@ class _$MovieDetailImpl implements _MovieDetail {
     showtimes,
     const DeepCollectionEquality().hash(_actors),
     const DeepCollectionEquality().hash(_directors),
-    const DeepCollectionEquality().hash(_category),
-    const DeepCollectionEquality().hash(_country),
+    const DeepCollectionEquality().hash(_categories),
+    const DeepCollectionEquality().hash(_countries),
     const DeepCollectionEquality().hash(_episodes),
   ]);
 
@@ -728,8 +736,8 @@ abstract class _MovieDetail implements MovieDetail {
     final String? showtimes,
     @JsonKey(name: 'actor') final List<String> actors,
     @JsonKey(name: 'director') final List<String> directors,
-    final List<Category> category,
-    final List<Country> country,
+    @JsonKey(name: 'category') final List<Category> categories,
+    @JsonKey(name: 'country') final List<Country> countries,
     final List<EpisodeServer> episodes,
   }) = _$MovieDetailImpl;
 
@@ -796,9 +804,11 @@ abstract class _MovieDetail implements MovieDetail {
   @JsonKey(name: 'director')
   List<String> get directors;
   @override
-  List<Category> get category;
+  @JsonKey(name: 'category')
+  List<Category> get categories;
   @override
-  List<Country> get country;
+  @JsonKey(name: 'country')
+  List<Country> get countries;
   @override
   List<EpisodeServer> get episodes;
 
