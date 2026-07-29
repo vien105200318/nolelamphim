@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SimilarMovies from "@/components/SimilarMovies";
 import FavoriteButton from "@/components/FavoriteButton";
+import EpisodeList from "@/components/EpisodeList";
 
 export const dynamic = "force-dynamic";
 
@@ -115,26 +116,7 @@ export default async function MovieDetailPage({
         {episodes.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-text-primary mb-3">Tập phim</h3>
-            <div className="space-y-3">
-              {episodes.map((server, si) => (
-                <div key={si} className="content-card px-5 py-4">
-                  {episodes.length > 1 && (
-                    <p className="text-xs text-text-muted mb-3">{server.server_name}</p>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {server.list.map((ep, ei) => (
-                      <Link
-                        key={ei}
-                        href={`/xem/${slug}/${ep.slug}`}
-                        className="w-14 h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center"
-                      >
-                        {ep.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <EpisodeList slug={slug} servers={episodes} />
           </div>
         )}
 
