@@ -5,6 +5,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/tv_theme.dart';
 import 'core/utils/tv_detector.dart';
 import 'routing/app_router.dart';
+import 'shared/widgets/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,11 +31,13 @@ class NoleLamPhimApp extends ConsumerWidget {
       ]);
     }
 
-    return MaterialApp.router(
-      title: 'Nô Lệ Làm Phim',
-      debugShowCheckedModeBanner: false,
-      theme: isTvDevice ? TvTheme.dark : AppTheme.dark,
-      routerConfig: appRouter(isTvDevice),
+    return SplashScreen(
+      child: MaterialApp.router(
+        title: 'Nô Lệ Làm Phim',
+        debugShowCheckedModeBanner: false,
+        theme: isTvDevice ? TvTheme.dark : AppTheme.dark,
+        routerConfig: appRouter(isTvDevice),
+      ),
     );
   }
 }
