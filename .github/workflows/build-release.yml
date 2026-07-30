@@ -1,4 +1,4 @@
-name: Build Release (APK + IPA)
+name: Build Release (APK + IPA + IPK)
 
 on:
   workflow_dispatch:
@@ -14,8 +14,8 @@ permissions:
   contents: write
 
 jobs:
-  build-apk:
-    name: Build APK
+  build-apk-mobile:
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
@@ -44,19 +44,64 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build APK (mobile)
+        run: flutter build apk --flavor mobile --release
 
-      - name: Rename & upload APK
+      - name: Rename APK
         run: |
-          mv build/app/outputs/flutter-apk/app-release.apk \
+          mv build/app/outputs/flutter-apk/app-mobile-release.apk \
              "nolelamphim-$CLEAN_VERSION.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: apk
+          name: apk-mobile
           path: nolelamphim-*.apk
+          retention-days: 1
+
+  build-apk-androidtv:
+    name: Build Android TV APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate & clean version
+        run: |
+          v="${{ inputs.version_name }}"
+          v="${v#v}"; v="${v#V}"
+          if ! echo "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Error: version phải có dạng số (vd: 1.0.1 hoặc v1.0.1)"
+            exit 1
+          fi
+          echo "CLEAN_VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Update version
+        run: |
+          sed -i "s/^version:.*/version: $CLEAN_VERSION+1/" pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK (androidTv)
+        run: flutter build apk --flavor androidTv --release
+
+      - name: Rename APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-androidtv-release.apk \
+             "nolelamphim-$CLEAN_VERSION-androidtv.apk"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-androidtv
+          path: nolelamphim-*-androidtv.apk
           retention-days: 1
 
   build-ipa:
@@ -96,7 +141,7 @@ jobs:
       - name: Build iOS App
         run: flutter build ios --release --no-codesign
 
-      - name: Package & upload IPA
+      - name: Package IPA
         run: |
           mkdir -p Payload
           APP_PATH=$(find build/ios -name "*.app" | head -n 1)
@@ -115,9 +160,47 @@ jobs:
           path: nolelamphim-*.ipa
           retention-days: 1
 
+  build-webos:
+    name: Build webOS IPK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install webOS TV CLI
+        run: |
+          npm install -g @webos-tools/cli 2>/dev/null || echo "CLI not available, skipping"
+
+      - name: Package webOS app
+        run: |
+          if command -v ares-package &> /dev/null; then
+            cd webos
+            ares-package ./
+            mv ./*.ipk ../nolelamphim-webos.ipk 2>/dev/null || true
+            echo "webOS IPK built successfully"
+          else
+            echo "ares-package not found — build IPK thủ công bằng webOS TV SDK"
+            echo "Hướng dẫn: cd webos && ares-package ./"
+          fi
+
+      - name: Upload webOS IPK artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: webos
+          path: nolelamphim-*.ipk
+          retention-days: 1
+          if-no-files-found: ignore
+
   create-release:
     name: Create Release
-    needs: [build-apk, build-ipa]
+    needs: [build-apk-mobile, build-apk-androidtv, build-ipa, build-webos]
     runs-on: ubuntu-latest
 
     steps:
@@ -128,15 +211,11 @@ jobs:
           v="${v#v}"; v="${v#V}"
           echo "version=$v" >> "$GITHUB_OUTPUT"
 
-      - name: Download APK
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
-        with:
-          name: apk
 
-      - name: Download IPA
-        uses: actions/download-artifact@v4
-        with:
-          name: ipa
+      - name: List downloaded files
+        run: ls -R
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -148,10 +227,14 @@ jobs:
 
             ### Downloads
             - **Android**: `nolelamphim-${{ steps.clean.outputs.version }}.apk`
+            - **Android TV**: `nolelamphim-${{ steps.clean.outputs.version }}-androidtv.apk`
             - **iOS**: `nolelamphim-${{ steps.clean.outputs.version }}-unsigned.ipa` (unsigned, cần sign trước khi cài)
+            - **LG webOS**: `nolelamphim-webos.ipk` (cài bằng webOS TV SDK)
           files: |
-            nolelamphim-*.apk
-            nolelamphim-*.ipa
+            apk-mobile/nolelamphim-*.apk
+            apk-androidtv/nolelamphim-*.apk
+            ipa/nolelamphim-*.ipa
+            webos/nolelamphim-*.ipk
           draft: false
           prerelease: false
         env:

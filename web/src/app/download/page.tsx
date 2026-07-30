@@ -29,7 +29,8 @@ export default async function DownloadPage() {
 
   const apkAsset = release?.assets.find((a) => a.name.endsWith(".apk") && !a.name.includes("tv"))
   const ipaAsset = release?.assets.find((a) => a.name.endsWith(".ipa"))
-  const tvAsset = release?.assets.find((a) => a.name.endsWith(".apk") && a.name.includes("tv"))
+  const tvAsset = release?.assets.find((a) => a.name.endsWith("-androidtv.apk"))
+  const webosAsset = release?.assets.find((a) => a.name.endsWith(".ipk") || a.name.includes("webos"))
 
   const platforms = [
     {
@@ -49,7 +50,7 @@ export default async function DownloadPage() {
       ),
       url: apkAsset?.browser_download_url ?? null,
       filename: apkAsset?.name ?? null,
-      note: apkAsset ? `${formatSize(0)}` : null,
+      note: apkAsset ? null : null,
     },
     {
       id: "ios",
@@ -75,9 +76,24 @@ export default async function DownloadPage() {
           <line x1="12" y1="18" x2="12" y2="20" />
         </svg>
       ),
-      url: tvAsset?.browser_download_url ?? apkAsset?.browser_download_url ?? null,
-      filename: tvAsset?.name ?? apkAsset?.name ?? null,
-      note: tvAsset ? null : (apkAsset ? "Dùng chung file APK bản Android" : null),
+      url: tvAsset?.browser_download_url ?? null,
+      filename: tvAsset?.name ?? null,
+      note: null,
+    },
+    {
+      id: "webos",
+      label: "LG webOS",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="3" width="20" height="15" rx="3" />
+          <rect x="6" y="6" width="12" height="9" rx="1" />
+          <line x1="8" y1="21" x2="16" y2="21" />
+          <line x1="12" y1="18" x2="12" y2="21" />
+        </svg>
+      ),
+      url: webosAsset?.browser_download_url ?? null,
+      filename: webosAsset?.name ?? null,
+      note: webosAsset ? "Cài bằng webOS TV SDK (ares-install)" : null,
     },
   ]
 
@@ -91,7 +107,7 @@ export default async function DownloadPage() {
           Tải ứng dụng
         </h1>
         <p className="text-text-secondary text-sm max-w-md">
-          Chọn nền tảng phù hợp để tải xuống. Ứng dụng hỗ trợ Android, iOS và Android TV.
+          Chọn nền tảng phù hợp để tải xuống. Hỗ trợ Android, iOS, Android TV và LG webOS.
         </p>
         {release && (
           <div className="mt-4 px-4 py-2 rounded-full glass-tile text-text-muted text-xs inline-flex items-center gap-2">
@@ -101,7 +117,7 @@ export default async function DownloadPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
         {platforms.map((p) => (
           <div
             key={p.id}
@@ -152,9 +168,3 @@ export default async function DownloadPage() {
   )
 }
 
-function formatSize(bytes: number): string {
-  if (bytes === 0) return ""
-  const units = ["B", "KB", "MB", "GB"]
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`
-}

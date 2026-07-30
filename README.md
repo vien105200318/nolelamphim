@@ -103,16 +103,25 @@ flutter build ios --release --no-codesign
 
 ## Build Release (CI/CD)
 
-Trigger thủ công qua GitHub Actions → **Actions → Build Release (APK + IPA)**.
+Trigger thủ công qua GitHub Actions → **Actions → Build Release (APK + IPA + IPK)**.
 
 Input:
 - `tag`: tên tag release (vd `v1.0.1`)
 - `version_name`: phiên bản (vd `1.0.1` hoặc `v1.0.1`)
 
 Workflow build song song:
-- **Ubuntu:** APK release → upload artifact
-- **macOS:** iOS unsigned IPA → upload artifact
-- **Kết hợp:** tạo GitHub Release chung kèm cả 2 file
+- **Ubuntu:** Android APK (`mobile`) + Android TV APK (`androidTv`) + webOS IPK
+- **macOS:** iOS unsigned IPA
+- **Kết hợp:** tạo GitHub Release chung kèm tất cả file
+
+### Build thủ công
+
+| Platform | Command | Output |
+|---|---|---|
+| Android | `flutter build apk --flavor mobile --release` | `app-mobile-release.apk` |
+| Android TV | `flutter build apk --flavor androidTv --release` | `app-androidtv-release.apk` |
+| iOS | `flutter build ios --release --no-codesign` + zip | `Runner.app` → `.ipa` |
+| LG webOS | `cd webos && ares-package ./` | `.ipk` |
 
 Tải bản build mới nhất tại [Releases](https://github.com/vien105200318/nolelamphim/releases).
 
