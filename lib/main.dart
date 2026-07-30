@@ -16,7 +16,7 @@ class NoleLamPhimApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isTvDevice = TvDetector.isTv(context);
+    final isTvDevice = TvDetector.isTv();
 
     if (isTvDevice) {
       SystemChrome.setPreferredOrientations([

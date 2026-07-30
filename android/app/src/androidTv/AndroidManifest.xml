@@ -16,7 +16,8 @@
             android:windowSoftInputMode="adjustResize"
             android:supportsPictureInPicture="true"
             android:resizeableActivity="true"
-            android:banner="@drawable/tv_banner">
+            android:banner="@drawable/tv_banner"
+            android:screenOrientation="landscape">
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme" />

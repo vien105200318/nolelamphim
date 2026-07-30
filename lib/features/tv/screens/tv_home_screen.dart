@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../home/providers/home_provider.dart';
 import '../widgets/tv_row.dart';
 import '../widgets/tv_loading.dart';
-import '../widgets/tv_movie_card.dart';
+import '../widgets/tv_hero_section.dart';
 
 class TvHomeScreen extends ConsumerWidget {
   const TvHomeScreen({super.key});
@@ -18,27 +18,10 @@ class TvHomeScreen extends ConsumerWidget {
       color: AppColors.bgDark,
       child: RawScrollbar(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 48),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Nô Lệ Làm Phim',
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Phim mới & Hot nhất',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 32),
               newMoviesAsync.when(
                 data: (movies) {
                   if (movies.isEmpty) {
@@ -47,36 +30,32 @@ class TvHomeScreen extends ConsumerWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 420,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.only(bottom: 8),
-                          itemCount: movies.length > 10 ? 10 : movies.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 20),
-                          itemBuilder: (_, i) => TvMovieCard(
-                            movie: movies[i],
-                            width: 280,
-                            height: 420,
-                          ),
+                      TvHeroSection(movies: movies),
+                      const SizedBox(height: 40),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            subteamAsync.when(
+                              data: (subteam) => TvRow(title: 'Subteam', movies: subteam),
+                              loading: () => const TvLoadingGrid(),
+                              error: (_, _) => const SizedBox.shrink(),
+                            ),
+                            const SizedBox(height: 40),
+                            TvRow(title: 'Phim mới cập nhật', movies: movies),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 48),
-                      subteamAsync.when(
-                        data: (subteam) => TvRow(title: 'Subteam', movies: subteam),
-                        loading: () => const TvLoadingGrid(),
-                        error: (_, _) => const SizedBox.shrink(),
-                      ),
-                      const SizedBox(height: 40),
-                      TvRow(title: 'Phim mới cập nhật', movies: movies),
                     ],
                   );
                 },
                 loading: () => Column(
-                  children: const [
-                    TvHeroLoading(),
-                    SizedBox(height: 48),
-                    TvLoadingGrid(),
+                  children: [
+                    const SizedBox(height: 32),
+                    const TvHeroLoading(),
+                    const SizedBox(height: 48),
+                    const TvLoadingGrid(),
                   ],
                 ),
                 error: (e, _) => _buildError(ref),
