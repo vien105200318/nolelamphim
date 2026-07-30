@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
+import '../../../core/pip/pip_service.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String url;
@@ -25,6 +26,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _controlsVisible = true;
   Timer? _hideTimer;
   bool _isFullscreen = false;
+  bool _pipAvailable = false;
 
   @override
   void initState() {
@@ -34,6 +36,25 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _controller.setLooping(false);
     _controller.addListener(_onControllerUpdate);
     _startHideTimer();
+    _initPiP();
+  }
+
+  Future<void> _initPiP() async {
+    final available = await PiPService.isAvailable;
+    if (mounted) setState(() => _pipAvailable = available);
+  }
+
+  Future<void> _enterPiP() async {
+    final position = _controller.value.position;
+    await PiPService.enterPiP(
+      videoUrl: widget.url,
+      startSeconds: position.inSeconds.toDouble(),
+      onExit: () {
+        if (mounted) {
+          _controller.play();
+        }
+      },
+    );
   }
 
   @override
@@ -287,6 +308,16 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   style: const TextStyle(color: Colors.white60, fontSize: 12),
                 ),
                 const Spacer(),
+                if (_pipAvailable)
+                  IconButton(
+                    icon: const Icon(
+                      Icons.picture_in_picture_alt,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    tooltip: 'Thu nhỏ',
+                    onPressed: _enterPiP,
+                  ),
                 IconButton(
                   icon: Icon(
                     _isFullscreen
