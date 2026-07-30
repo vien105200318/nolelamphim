@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 
 interface ReleaseAsset {
@@ -100,9 +101,13 @@ export default async function DownloadPage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-16">
       <div className="flex flex-col items-center text-center mb-14">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#FF6B9D] via-[#C44BED] to-[#4A9EFF] flex items-center justify-center text-white text-3xl font-bold shadow-2xl shadow-[#C44BED]/30 mb-8">
-          N
-        </div>
+        <Image
+          src="/logo.png"
+          alt="Nô Lệ Làm Phim"
+          width={80}
+          height={80}
+          className="rounded-2xl shadow-2xl shadow-[#C44BED]/30 mb-8"
+        />
         <h1 className="text-3xl font-bold text-text-primary mb-3">
           Tải ứng dụng
         </h1>
