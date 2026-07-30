@@ -2,9 +2,7 @@ import Flutter
 import UIKit
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
-  private var pipBridge: PiPBridge?
-
+@objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -13,12 +11,5 @@ import UIKit
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
-  override func applicationDidEnterBackground(_ application: UIApplication) {
-    // Keep audio session active for PiP
-  }
-
-  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
-    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    pipBridge = PiPBridge(messenger: engineBridge.applicationRegistrar.messenger())
-  }
+  override func applicationDidEnterBackground(_ application: UIApplication) {}
 }
