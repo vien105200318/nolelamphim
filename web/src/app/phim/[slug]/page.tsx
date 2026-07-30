@@ -1,4 +1,5 @@
 import { getMovieDetail, getMovieEpisodes } from "@/lib/api";
+import type { MovieDetailResponse } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -15,7 +16,7 @@ export default async function MovieDetailPage({
 }) {
   const { slug } = await params;
   const [data, epRes] = await Promise.all([
-    getMovieDetail(slug),
+    getMovieDetail(slug).catch(() => ({ status: false, movie: null } as MovieDetailResponse)),
     getMovieEpisodes(slug),
   ]);
 

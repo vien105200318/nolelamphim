@@ -17,10 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Nô Lệ Làm Phim",
   description: "Xem phim đa nền tảng",
-  icons: [
-    { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
-    { rel: "icon", url: "/favicon.ico" },
-  ],
+  icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }],
 };
 
 export const viewport = {

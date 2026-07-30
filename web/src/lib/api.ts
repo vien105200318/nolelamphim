@@ -103,7 +103,7 @@ export function getMoviesByYear(
 }
 
 export function getMovieDetail(slug: string) {
-  return fetchAPI<MovieDetailResponse>(`/phim/${slug}`)
+  return fetchAPI<MovieDetailResponse>(`/phim/${slug}`, undefined, { status: false, movie: null })
 }
 
 export async function getMovieEpisodes(
