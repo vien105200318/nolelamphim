@@ -1,0 +1,128 @@
+name: Build Release (APK + IPA)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (vd: v1.0.1)'
+        required: true
+      version_name:
+        description: 'Version name (vd: 1.0.1)'
+        required: true
+
+jobs:
+  build-apk:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Update version
+        run: |
+          sed -i "s/^version:.*/version: ${{ inputs.version_name }}+1/" pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Rename APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             nolelamphim-${{ inputs.version_name }}.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: nolelamphim-${{ inputs.version_name }}.apk
+          retention-days: 1
+
+  build-ipa:
+    name: Build Unsigned IPA
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Update version
+        run: |
+          sed -i '' "s/^version:.*/version: ${{ inputs.version_name }}+1/" pubspec.yaml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Update iOS Deployment Target
+        run: |
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' ios/Runner.xcodeproj/project.pbxproj
+
+      - name: Build iOS App
+        run: flutter build ios --release --no-codesign
+
+      - name: Package into Unsigned IPA
+        run: |
+          mkdir -p Payload
+          APP_PATH=$(find build/ios -name "*.app" | head -n 1)
+          echo "Found app at: $APP_PATH"
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: .app file not found!"
+            exit 1
+          fi
+          cp -r "$APP_PATH" Payload/
+          zip -qr nolelamphim-${{ inputs.version_name }}-unsigned.ipa Payload
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: nolelamphim-${{ inputs.version_name }}-unsigned.ipa
+          retention-days: 1
+
+  create-release:
+    name: Create Release
+    needs: [build-apk, build-ipa]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: apk
+
+      - name: Download IPA
+        uses: actions/download-artifact@v4
+        with:
+          name: ipa
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: ${{ inputs.tag }}
+          body: |
+            ## Nô Lệ Làm Phim ${{ inputs.version_name }}
+
+            ### Downloads
+            - **Android**: `nolelamphim-${{ inputs.version_name }}.apk`
+            - **iOS**: `nolelamphim-${{ inputs.version_name }}-unsigned.ipa` (cần sign trước khi cài)
+          files: |
+            nolelamphim-${{ inputs.version_name }}.apk
+            nolelamphim-${{ inputs.version_name }}-unsigned.ipa
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
