@@ -32,7 +32,7 @@ export default function MovieGrid({
         if (data.status && data.items?.length > 0) setItems(data.items)
       })
       .finally(() => setLoading(false))
-  }, [page])
+  }, [page, path])
 
   const totalPages = 10
   const pages: (number | '...')[] = []

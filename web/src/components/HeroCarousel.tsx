@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Movie } from '@/lib/types'
 
@@ -32,10 +33,13 @@ export default function HeroCarousel({ movies }: { movies: Movie[] }) {
             className="snap-start shrink-0 w-full relative h-[30vh] md:h-[40vh]"
           >
             {movie.poster_url || movie.thumb_url ? (
-              <img
+              <Image
                 src={movie.poster_url || movie.thumb_url || ''}
                 alt={movie.name}
-                className="w-full h-full object-cover"
+                fill
+                sizes="100vw"
+                className="object-cover"
+                priority
               />
             ) : (
               <div className="w-full h-full bg-bg-card flex items-center justify-center text-text-muted">

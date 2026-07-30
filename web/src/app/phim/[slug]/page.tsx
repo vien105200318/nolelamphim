@@ -1,4 +1,5 @@
 import { getMovieDetail, getMovieEpisodes } from "@/lib/api";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SimilarMovies from "@/components/SimilarMovies";
@@ -29,10 +30,13 @@ export default async function MovieDetailPage({
     <div className="max-w-6xl mx-auto px-6 py-6">
       <div className="relative h-[35vh] md:h-[45vh] rounded-2xl overflow-hidden mb-6">
         {movie.poster_url || movie.thumb_url ? (
-          <img
+          <Image
             src={movie.poster_url || movie.thumb_url || ""}
             alt={movie.name}
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
           />
         ) : (
           <div className="w-full h-full bg-bg-card flex items-center justify-center text-text-muted">

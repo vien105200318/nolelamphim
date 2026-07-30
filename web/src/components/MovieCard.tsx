@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Movie } from "@/lib/types";
 
@@ -6,11 +7,12 @@ export default function MovieCard({ movie, dot }: { movie: Movie; dot?: 'new' | 
     <Link href={`/phim/${movie.slug}`} className="group block">
       <div className="aspect-[2/3] rounded-xl overflow-hidden bg-bg-card relative">
         {movie.thumb_url ? (
-          <img
+          <Image
             src={movie.thumb_url}
             alt={movie.name}
-            className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+            className="object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-text-muted">

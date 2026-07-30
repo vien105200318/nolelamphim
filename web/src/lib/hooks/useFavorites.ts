@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 
 export interface FavoriteItem {
   id: number
@@ -12,12 +12,13 @@ export interface FavoriteItem {
 const STORAGE_KEY = 'favorites'
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState<FavoriteItem[]>([])
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) setFavorites(JSON.parse(stored))
-  }, [])
+  const [favorites, setFavorites] = useState<FavoriteItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      return stored ? JSON.parse(stored) : []
+    }
+    return []
+  })
 
   const toggle = useCallback((item: FavoriteItem) => {
     setFavorites((prev) => {

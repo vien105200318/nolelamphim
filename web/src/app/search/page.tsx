@@ -43,8 +43,6 @@ export default function SearchPage() {
   const [filterLabel, setFilterLabel] = useState('')
   const [sortBy, setSortBy] = useState<'name' | 'year' | null>(null)
 
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-
   const fetchByFilter = useCallback(async (filter: ActiveFilter | null) => {
     setLoading(true)
     try {
@@ -63,11 +61,12 @@ export default function SearchPage() {
         setFilterLabel(`Năm: ${filter.label}`)
       }
       setResults(data.items)
+      setInitialLoading(false)
     } catch {
       setResults([])
+      setInitialLoading(false)
     } finally {
       setLoading(false)
-      setInitialLoading(false)
     }
   }, [])
 
@@ -92,35 +91,50 @@ export default function SearchPage() {
     ])
   }, [])
 
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const activeFilterRef = useRef<ActiveFilter | null>(null)
+
   useEffect(() => {
-    if (query.trim()) {
-      setActiveFilter(null)
-      setOpenDropdown(null)
-      debounceRef.current = setTimeout(async () => {
-        const q = query.trim()
-        if (!q) return
-        setLoading(true)
-        try {
-          const data = await searchMovies(q)
-          setResults(data.items)
-          setFilterLabel(`Kết quả cho "${q}"`)
-        } catch {
-          setResults([])
-        } finally {
-          setLoading(false)
-          setInitialLoading(false)
-        }
-      }, 400)
-      return () => clearTimeout(debounceRef.current)
-    } else if (!activeFilter) {
-      fetchByFilter(null)
+    if (!query.trim()) {
+      if (!activeFilter) {
+        const t = setTimeout(() => fetchByFilter(null))
+        return () => clearTimeout(t)
+      }
+      return
     }
+    setTimeout(() => setOpenDropdown(null))
+    searchTimeoutRef.current = setTimeout(async () => {
+      const q = query.trim()
+      if (!q) return
+      setLoading(true)
+      try {
+        const data = await searchMovies(q)
+        setResults(data.items)
+        setFilterLabel(`Kết quả cho "${q}"`)
+        setInitialLoading(false)
+      } catch {
+        setResults([])
+        setInitialLoading(false)
+      } finally {
+        setLoading(false)
+      }
+    }, 400)
+    return () => clearTimeout(searchTimeoutRef.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
   useEffect(() => {
-    if (activeFilter && !query.trim()) {
-      fetchByFilter(activeFilter)
-    }
+    activeFilterRef.current = activeFilter
+  }, [activeFilter])
+
+  useEffect(() => {
+    if (!activeFilterRef.current || query.trim()) return
+    const t = setTimeout(() => {
+      setOpenDropdown(null)
+      fetchByFilter(activeFilterRef.current)
+    })
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilter])
 
   const selectFilter = (type: FilterType, label: string, value: string) => {
@@ -188,7 +202,7 @@ export default function SearchPage() {
                 {(key === 'category' ? categories : key === 'country' ? countries : years).length === 0 ? (
                   <div className="p-4 text-sm text-text-muted text-center">Đang tải...</div>
                 ) : (
-                  (key === 'category' ? categories : key === 'country' ? countries : years).map((item: any) => (
+                  (key === 'category' ? categories : key === 'country' ? countries : years).map((item: { name: string; slug: string }) => (
                     <button
                       key={item.slug}
                       onClick={() => selectFilter(key, item.name, item.slug)}

@@ -1,16 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { FavoriteItem } from '@/lib/hooks/useFavorites'
 
 export default function FavoritesPage() {
-  const [items, setItems] = useState<FavoriteItem[]>([])
-
-  useEffect(() => {
-    const stored = localStorage.getItem('favorites')
-    if (stored) setItems(JSON.parse(stored))
-  }, [])
+  const [items] = useState<FavoriteItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('favorites')
+      return stored ? JSON.parse(stored) : []
+    }
+    return []
+  })
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-6">
@@ -32,13 +34,14 @@ export default function FavoritesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {items.map((item) => (
             <Link key={item.id} href={`/phim/${item.slug}`} className="group block">
-              <div className="aspect-[2/3] rounded-xl overflow-hidden bg-bg-card">
+              <div className="aspect-[2/3] rounded-xl overflow-hidden bg-bg-card relative">
                 {item.thumb ? (
-                  <img
+                  <Image
                     src={item.thumb}
                     alt={item.name}
-                    className="w-full h-full object-cover transition duration-500 group-hover:scale-105"
-                    loading="lazy"
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                    className="object-cover transition duration-500 group-hover:scale-105"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-text-muted">

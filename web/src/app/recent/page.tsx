@@ -1,16 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { RecentItem } from '@/lib/hooks/useRecent'
 
 export default function RecentPage() {
-  const [items, setItems] = useState<RecentItem[]>([])
-
-  useEffect(() => {
-    const stored = localStorage.getItem('recent')
-    if (stored) setItems(JSON.parse(stored))
-  }, [])
+  const [items] = useState<RecentItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('recent')
+      return stored ? JSON.parse(stored) : []
+    }
+    return []
+  })
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-6">
@@ -36,9 +38,9 @@ export default function RecentPage() {
               href={`/xem/${item.slug}/${item.episode ? `tap-${item.episode.replace('Tập ', '')}` : 'tap-1'}`}
               className="flex items-center gap-4 px-4 py-3 rounded-xl glass-tile hover:text-white transition-all"
             >
-              <div className="w-14 h-20 rounded-lg overflow-hidden bg-bg-card shrink-0">
+              <div className="w-14 h-20 rounded-lg overflow-hidden bg-bg-card shrink-0 relative">
                 {item.thumb ? (
-                  <img src={item.thumb} alt="" className="w-full h-full object-cover" />
+                  <Image src={item.thumb} alt="" fill sizes="56px" className="object-cover" />
                 ) : (
                   <div className="w-full h-full bg-bg-card" />
                 )}

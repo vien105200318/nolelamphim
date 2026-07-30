@@ -55,7 +55,7 @@ export default function WatchPage({
         episode: currentEp.name,
       })
     }
-  }, [movie, currentEp])
+  }, [movie, currentEp, addRecent, slug])
 
   if (loading) {
     return (

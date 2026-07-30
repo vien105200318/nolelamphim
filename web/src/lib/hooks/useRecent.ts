@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export interface RecentItem {
   id: number
@@ -14,12 +14,13 @@ export interface RecentItem {
 const STORAGE_KEY = 'recent'
 
 export function useRecent() {
-  const [recent, setRecent] = useState<RecentItem[]>([])
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) setRecent(JSON.parse(stored))
-  }, [])
+  const [recent, setRecent] = useState<RecentItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      return stored ? JSON.parse(stored) : []
+    }
+    return []
+  })
 
   const add = useCallback((item: Omit<RecentItem, 'watchedAt'>) => {
     setRecent((prev) => {
