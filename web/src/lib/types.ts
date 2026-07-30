@@ -13,7 +13,7 @@ export interface Movie {
   status?: string
   episode_current?: string
   episode_total?: string
-  keywords?: string
+  keywords?: string | string[]
 }
 
 export interface Category {

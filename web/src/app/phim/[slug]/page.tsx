@@ -112,15 +112,21 @@ export default async function MovieDetailPage({
           </div>
         )}
 
-        {movie.keywords && (
-          <div className="flex flex-wrap gap-1.5">
-            {movie.keywords.split(", ").slice(0, 10).map((kw) => (
-              <span key={kw} className="px-2.5 py-1 rounded-lg bg-bg-card text-text-muted text-[10px]">
-                {kw}
-              </span>
-            ))}
-          </div>
-        )}
+        {movie.keywords && (() => {
+          const kws: string[] = Array.isArray(movie.keywords)
+            ? movie.keywords
+            : movie.keywords.split(", ");
+          if (!kws.length) return null;
+          return (
+            <div className="flex flex-wrap gap-1.5">
+              {kws.slice(0, 10).map((kw) => (
+                <span key={kw} className="px-2.5 py-1 rounded-lg bg-bg-card text-text-muted text-[10px]">
+                  {kw}
+                </span>
+              ))}
+            </div>
+          );
+        })()}
 
         {episodes.length > 0 && (
           <div>
