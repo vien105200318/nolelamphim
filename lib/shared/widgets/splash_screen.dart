@@ -73,11 +73,9 @@ class _SplashScreenState extends State<SplashScreen>
                     scale: _scale,
                     child: FadeTransition(
                       opacity: _fadeIn,
-                      child: const Column(
+                      child:                       const Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _Logo(),
-                          SizedBox(height: 24),
                           _AppName(),
                           SizedBox(height: 48),
                           _SplashProgressBar(),
@@ -166,41 +164,6 @@ class _LiquidBlobPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_LiquidBlobPainter old) => old.phase != phase;
-}
-
-class _Logo extends StatelessWidget {
-  const _Logo();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      height: 100,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: const LinearGradient(
-          colors: [AppColors.gradientStart, AppColors.gradientMid, AppColors.gradientEnd],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.gradientMid.withValues(alpha: 0.3),
-            blurRadius: 30,
-            spreadRadius: 5,
-          ),
-        ],
-      ),
-      child: ClipOval(
-        child: Image.asset(
-          'assets/images/logo.png',
-          width: 80,
-          height: 80,
-          fit: BoxFit.contain,
-        ),
-      ),
-    );
-  }
 }
 
 class _AppName extends StatelessWidget {
