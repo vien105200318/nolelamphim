@@ -22,39 +22,117 @@ class _TvSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      _NavItem(icon: Icons.home_outlined, label: 'Trang chủ', path: '/'),
+      _NavItem(icon: Icons.home_filled, label: 'Trang chủ', path: '/'),
       _NavItem(icon: Icons.search, label: 'Tìm kiếm', path: '/search'),
-      _NavItem(icon: Icons.category_outlined, label: 'Thể loại', path: '/category'),
-      _NavItem(icon: Icons.favorite_outline, label: 'Yêu thích', path: '/favorites'),
+      _NavItem(icon: Icons.category, label: 'Thể loại', path: '/category'),
+      _NavItem(icon: Icons.favorite, label: 'Yêu thích', path: '/favorites'),
       _NavItem(icon: Icons.history, label: 'Đã xem', path: '/history'),
     ];
 
     return Container(
-      width: 100,
-      color: AppColors.bgDark.withValues(alpha: 0.95),
+      width: 220,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.bgDark.withValues(alpha: 0.98),
+            AppColors.bgSurface.withValues(alpha: 0.95),
+          ],
+        ),
+        border: Border(
+          right: BorderSide(color: AppColors.glassBorder, width: 0.5),
+        ),
+      ),
       child: Column(
         children: [
-          const SizedBox(height: 24),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [AppColors.gradientStart, AppColors.gradientMid, AppColors.gradientEnd],
-              ),
-            ),
-            child: const Center(
-              child: Text('N', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-            ),
-          ),
           const SizedBox(height: 32),
+          Row(
+            children: [
+              const SizedBox(width: 20),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [AppColors.gradientStart, AppColors.gradientMid, AppColors.gradientEnd],
+                  ),
+                ),
+                child: const Center(
+                  child: Text('N', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Nô Lệ',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  Text(
+                    'Làm Phim',
+                    style: TextStyle(
+                      color: AppColors.gradientMid,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
           Expanded(
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               itemCount: items.length,
               separatorBuilder: (_, _) => const SizedBox(height: 4),
               itemBuilder: (_, i) => _SidebarItem(item: items[i]),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.gradientStart.withValues(alpha: 0.1),
+                  AppColors.gradientMid.withValues(alpha: 0.1),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.glassBorder),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.gradientMid,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'TV Mode',
+                    style: TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -89,38 +167,61 @@ class _SidebarItem extends StatelessWidget {
           onTap: () => context.go(item.path),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: 84,
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
             decoration: BoxDecoration(
               color: active
-                  ? AppColors.gradientMid.withValues(alpha: 0.25)
+                  ? AppColors.gradientMid.withValues(alpha: 0.2)
                   : focused
                       ? AppColors.glassWhite
                       : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: focused
-                  ? Border.all(color: AppColors.gradientMid.withValues(alpha: 0.5), width: 2)
+                  ? Border.all(color: AppColors.gradientMid.withValues(alpha: 0.5), width: 1.5)
                   : null,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            child: Row(
               children: [
+                if (active)
+                  Container(
+                    width: 3,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.gradientStart, AppColors.gradientMid],
+                      ),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  )
+                else
+                  const SizedBox(width: 3),
+                const SizedBox(width: 12),
                 Icon(
                   item.icon,
-                  color: active ? AppColors.gradientStart : AppColors.textMuted,
-                  size: 24,
+                  color: active ? AppColors.gradientStart : (focused ? AppColors.textPrimary : AppColors.textMuted),
+                  size: 22,
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(width: 14),
                 Text(
                   item.label,
                   style: TextStyle(
-                    color: active ? AppColors.textPrimary : AppColors.textMuted,
-                    fontSize: 11,
+                    color: active ? AppColors.textPrimary : (focused ? AppColors.textPrimary : AppColors.textSecondary),
+                    fontSize: 15,
                     fontWeight: active ? FontWeight.w600 : FontWeight.normal,
+                    letterSpacing: 0.2,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
                 ),
+                const Spacer(),
+                if (active)
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [AppColors.gradientStart, AppColors.gradientMid],
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
