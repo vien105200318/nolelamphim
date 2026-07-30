@@ -3,6 +3,18 @@ import '../../../core/api/api_endpoints.dart';
 import '../../../core/models/movie_detail_response.dart';
 import '../../home/providers/home_provider.dart';
 
+String _resolveStreamUrl(String linkEmbed) {
+  final uri = Uri.parse(linkEmbed);
+  if (linkEmbed.endsWith('.m3u8') || linkEmbed.endsWith('.mp4')) {
+    return linkEmbed;
+  }
+  if (uri.host.contains('streamvsmov.com') && uri.pathSegments.length >= 2) {
+    final hash = uri.pathSegments.last;
+    return '${uri.scheme}://${uri.host}/stream/$hash/master.m3u8';
+  }
+  return linkEmbed;
+}
+
 final watchProvider =
     FutureProvider.family<String?, WatchParams>((ref, params) async {
   final api = ref.read(apiClientProvider);
@@ -15,7 +27,7 @@ final watchProvider =
   for (final server in movie.episodes) {
     for (final ep in server.serverData) {
       if (ep.slug == params.episodeSlug) {
-        return ep.linkEmbed;
+        return _resolveStreamUrl(ep.linkEmbed);
       }
     }
   }

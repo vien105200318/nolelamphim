@@ -46,7 +46,8 @@ mixin _$MovieDetail {
   String? get trailerUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_copyright')
   bool? get isCopyright => throw _privateConstructorUsedError;
-  String? get keywords => throw _privateConstructorUsedError;
+  @JsonKey(name: 'keywords')
+  List<String> get keywords => throw _privateConstructorUsedError;
   int? get view => throw _privateConstructorUsedError;
   bool? get chieurap => throw _privateConstructorUsedError;
   @JsonKey(name: 'sub_docquyen')
@@ -97,7 +98,7 @@ abstract class $MovieDetailCopyWith<$Res> {
     String? content,
     @JsonKey(name: 'trailer_url') String? trailerUrl,
     @JsonKey(name: 'is_copyright') bool? isCopyright,
-    String? keywords,
+    @JsonKey(name: 'keywords') List<String> keywords,
     int? view,
     bool? chieurap,
     @JsonKey(name: 'sub_docquyen') bool? subDocquyen,
@@ -142,7 +143,7 @@ class _$MovieDetailCopyWithImpl<$Res, $Val extends MovieDetail>
     Object? content = freezed,
     Object? trailerUrl = freezed,
     Object? isCopyright = freezed,
-    Object? keywords = freezed,
+    Object? keywords = null,
     Object? view = freezed,
     Object? chieurap = freezed,
     Object? subDocquyen = freezed,
@@ -223,10 +224,10 @@ class _$MovieDetailCopyWithImpl<$Res, $Val extends MovieDetail>
                 ? _value.isCopyright
                 : isCopyright // ignore: cast_nullable_to_non_nullable
                       as bool?,
-            keywords: freezed == keywords
+            keywords: null == keywords
                 ? _value.keywords
                 : keywords // ignore: cast_nullable_to_non_nullable
-                      as String?,
+                      as List<String>,
             view: freezed == view
                 ? _value.view
                 : view // ignore: cast_nullable_to_non_nullable
@@ -296,7 +297,7 @@ abstract class _$$MovieDetailImplCopyWith<$Res>
     String? content,
     @JsonKey(name: 'trailer_url') String? trailerUrl,
     @JsonKey(name: 'is_copyright') bool? isCopyright,
-    String? keywords,
+    @JsonKey(name: 'keywords') List<String> keywords,
     int? view,
     bool? chieurap,
     @JsonKey(name: 'sub_docquyen') bool? subDocquyen,
@@ -340,7 +341,7 @@ class __$$MovieDetailImplCopyWithImpl<$Res>
     Object? content = freezed,
     Object? trailerUrl = freezed,
     Object? isCopyright = freezed,
-    Object? keywords = freezed,
+    Object? keywords = null,
     Object? view = freezed,
     Object? chieurap = freezed,
     Object? subDocquyen = freezed,
@@ -421,10 +422,10 @@ class __$$MovieDetailImplCopyWithImpl<$Res>
             ? _value.isCopyright
             : isCopyright // ignore: cast_nullable_to_non_nullable
                   as bool?,
-        keywords: freezed == keywords
-            ? _value.keywords
+        keywords: null == keywords
+            ? _value._keywords
             : keywords // ignore: cast_nullable_to_non_nullable
-                  as String?,
+                  as List<String>,
         view: freezed == view
             ? _value.view
             : view // ignore: cast_nullable_to_non_nullable
@@ -487,7 +488,7 @@ class _$MovieDetailImpl implements _MovieDetail {
     this.content,
     @JsonKey(name: 'trailer_url') this.trailerUrl,
     @JsonKey(name: 'is_copyright') this.isCopyright,
-    this.keywords,
+    @JsonKey(name: 'keywords') final List<String> keywords = const [],
     this.view,
     this.chieurap,
     @JsonKey(name: 'sub_docquyen') this.subDocquyen,
@@ -497,7 +498,8 @@ class _$MovieDetailImpl implements _MovieDetail {
     @JsonKey(name: 'category') final List<Category> categories = const [],
     @JsonKey(name: 'country') final List<Country> countries = const [],
     final List<EpisodeServer> episodes = const [],
-  }) : _actors = actors,
+  }) : _keywords = keywords,
+       _actors = actors,
        _directors = directors,
        _categories = categories,
        _countries = countries,
@@ -548,8 +550,15 @@ class _$MovieDetailImpl implements _MovieDetail {
   @override
   @JsonKey(name: 'is_copyright')
   final bool? isCopyright;
+  final List<String> _keywords;
   @override
-  final String? keywords;
+  @JsonKey(name: 'keywords')
+  List<String> get keywords {
+    if (_keywords is EqualUnmodifiableListView) return _keywords;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_keywords);
+  }
+
   @override
   final int? view;
   @override
@@ -638,8 +647,7 @@ class _$MovieDetailImpl implements _MovieDetail {
                 other.trailerUrl == trailerUrl) &&
             (identical(other.isCopyright, isCopyright) ||
                 other.isCopyright == isCopyright) &&
-            (identical(other.keywords, keywords) ||
-                other.keywords == keywords) &&
+            const DeepCollectionEquality().equals(other._keywords, _keywords) &&
             (identical(other.view, view) || other.view == view) &&
             (identical(other.chieurap, chieurap) ||
                 other.chieurap == chieurap) &&
@@ -684,7 +692,7 @@ class _$MovieDetailImpl implements _MovieDetail {
     content,
     trailerUrl,
     isCopyright,
-    keywords,
+    const DeepCollectionEquality().hash(_keywords),
     view,
     chieurap,
     subDocquyen,
@@ -729,7 +737,7 @@ abstract class _MovieDetail implements MovieDetail {
     final String? content,
     @JsonKey(name: 'trailer_url') final String? trailerUrl,
     @JsonKey(name: 'is_copyright') final bool? isCopyright,
-    final String? keywords,
+    @JsonKey(name: 'keywords') final List<String> keywords,
     final int? view,
     final bool? chieurap,
     @JsonKey(name: 'sub_docquyen') final bool? subDocquyen,
@@ -787,7 +795,8 @@ abstract class _MovieDetail implements MovieDetail {
   @JsonKey(name: 'is_copyright')
   bool? get isCopyright;
   @override
-  String? get keywords;
+  @JsonKey(name: 'keywords')
+  List<String> get keywords;
   @override
   int? get view;
   @override

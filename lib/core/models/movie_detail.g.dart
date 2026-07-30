@@ -6,54 +6,55 @@ part of 'movie_detail.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$MovieDetailImpl _$$MovieDetailImplFromJson(Map<String, dynamic> json) =>
-    _$MovieDetailImpl(
-      id: (json['_id'] as num).toInt(),
-      name: json['name'] as String,
-      originName: json['origin_name'] as String?,
-      slug: json['slug'] as String,
-      posterUrl: json['poster_url'] as String?,
-      thumbUrl: json['thumb_url'] as String?,
-      year: (json['year'] as num?)?.toInt(),
-      quality: json['quality'] as String?,
-      lang: json['lang'] as String?,
-      time: json['time'] as String?,
-      type: json['type'] as String?,
-      status: json['status'] as String?,
-      episodeCurrent: json['episode_current'] as String?,
-      episodeTotal: json['episode_total'] as String?,
-      content: json['content'] as String?,
-      trailerUrl: json['trailer_url'] as String?,
-      isCopyright: json['is_copyright'] as bool?,
-      keywords: json['keywords'] as String?,
-      view: (json['view'] as num?)?.toInt(),
-      chieurap: json['chieurap'] as bool?,
-      subDocquyen: json['sub_docquyen'] as bool?,
-      showtimes: json['showtimes'] as String?,
-      actors:
-          (json['actor'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-          const [],
-      directors:
-          (json['director'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      categories:
-          (json['category'] as List<dynamic>?)
-              ?.map((e) => Category.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      countries:
-          (json['country'] as List<dynamic>?)
-              ?.map((e) => Country.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      episodes:
-          (json['episodes'] as List<dynamic>?)
-              ?.map((e) => EpisodeServer.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-    );
+_$MovieDetailImpl _$$MovieDetailImplFromJson(
+  Map<String, dynamic> json,
+) => _$MovieDetailImpl(
+  id: (json['_id'] as num).toInt(),
+  name: json['name'] as String,
+  originName: json['origin_name'] as String?,
+  slug: json['slug'] as String,
+  posterUrl: json['poster_url'] as String?,
+  thumbUrl: json['thumb_url'] as String?,
+  year: (json['year'] as num?)?.toInt(),
+  quality: json['quality'] as String?,
+  lang: json['lang'] as String?,
+  time: json['time'] as String?,
+  type: json['type'] as String?,
+  status: json['status'] as String?,
+  episodeCurrent: json['episode_current'] as String?,
+  episodeTotal: json['episode_total'] as String?,
+  content: json['content'] as String?,
+  trailerUrl: json['trailer_url'] as String?,
+  isCopyright: json['is_copyright'] as bool?,
+  keywords:
+      (json['keywords'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  view: (json['view'] as num?)?.toInt(),
+  chieurap: json['chieurap'] as bool?,
+  subDocquyen: json['sub_docquyen'] as bool?,
+  showtimes: json['showtimes'] as String?,
+  actors:
+      (json['actor'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  directors:
+      (json['director'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
+  categories:
+      (json['category'] as List<dynamic>?)
+          ?.map((e) => Category.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  countries:
+      (json['country'] as List<dynamic>?)
+          ?.map((e) => Country.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  episodes:
+      (json['episodes'] as List<dynamic>?)
+          ?.map((e) => EpisodeServer.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+);
 
 Map<String, dynamic> _$$MovieDetailImplToJson(_$MovieDetailImpl instance) =>
     <String, dynamic>{

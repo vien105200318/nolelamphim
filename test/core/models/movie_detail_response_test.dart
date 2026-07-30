@@ -25,10 +25,10 @@ void main() {
         'actor': ['Denise Weinberg', 'Rodrigo Santoro'],
         'director': ['Gabriel Mascaro'],
         'category': [
-          {'id': 15, 'name': 'Chính Kịch', 'slug': 'chinh-kich'}
+          {'_id': 15, 'name': 'Chính Kịch', 'slug': 'chinh-kich'}
         ],
         'country': [
-          {'id': 30, 'name': 'Brazil', 'slug': 'brazil'}
+          {'_id': 30, 'name': 'Brazil', 'slug': 'brazil'}
         ],
       },
       'episodes': [

@@ -97,7 +97,7 @@ void main() {
   group('Category model', () {
     test('parses from JSON', () {
       final category = Category.fromJson({
-        'id': 15,
+        '_id': 15,
         'name': 'Hành Động',
         'slug': 'hanh-dong',
       });
@@ -111,7 +111,7 @@ void main() {
   group('Country model', () {
     test('parses from JSON', () {
       final country = Country.fromJson({
-        'id': 30,
+        '_id': 30,
         'name': 'Việt Nam',
         'slug': 'viet-nam',
       });

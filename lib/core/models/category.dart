@@ -6,11 +6,15 @@ part 'category.g.dart';
 @freezed
 class Category with _$Category {
   const factory Category({
-    required int id,
+    @JsonKey(name: '_id') required int id,
     required String name,
     required String slug,
   }) = _Category;
 
-  factory Category.fromJson(Map<String, dynamic> json) =>
-      _$CategoryFromJson(json);
+  factory Category.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('id') && !json.containsKey('_id')) {
+      json = Map<String, dynamic>.from(json)..['_id'] = json['id'];
+    }
+    return _$CategoryFromJson(json);
+  }
 }

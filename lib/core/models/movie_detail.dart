@@ -26,7 +26,7 @@ class MovieDetail with _$MovieDetail {
     String? content,
     @JsonKey(name: 'trailer_url') String? trailerUrl,
     @JsonKey(name: 'is_copyright') bool? isCopyright,
-    String? keywords,
+    @JsonKey(name: 'keywords') @Default([]) List<String> keywords,
     int? view,
     bool? chieurap,
     @JsonKey(name: 'sub_docquyen') bool? subDocquyen,
