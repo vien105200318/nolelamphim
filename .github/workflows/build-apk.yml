@@ -1,0 +1,54 @@
+name: Build APK & Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (vd: v1.0.1)'
+        required: true
+      version_name:
+        description: 'Version name (vd: 1.0.1)'
+        required: true
+
+jobs:
+  build-apk:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Update version in pubspec.yaml
+        run: |
+          sed -i "s/^version:.*/version: ${{ inputs.version_name }}+1/" pubspec.yaml
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Rename APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/nolelamphim-${{ inputs.version_name }}.apk
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          name: ${{ inputs.tag }}
+          body: |
+            ## Nô Lệ Làm Phim ${{ inputs.version_name }}
+
+            APK file for Android.
+          files: build/app/outputs/flutter-apk/nolelamphim-${{ inputs.version_name }}.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
