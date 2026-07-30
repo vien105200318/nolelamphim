@@ -10,6 +10,9 @@ on:
         description: 'Version (vd: 1.0.1 hoặc v1.0.1)'
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     name: Build APK
@@ -118,6 +121,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Clean version
+        id: clean
+        run: |
+          v="${{ inputs.version_name }}"
+          v="${v#v}"; v="${v#V}"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
       - name: Download APK
         uses: actions/download-artifact@v4
         with:
@@ -137,8 +147,8 @@ jobs:
             ## Nô Lệ Làm Phim ${{ inputs.version_name }}
 
             ### Downloads
-            - **Android**: `nolelamphim-${{ inputs.version_name }}.apk`
-            - **iOS**: `nolelamphim-${{ inputs.version_name }}-unsigned.ipa` (unsigned, cần sign trước khi cài)
+            - **Android**: `nolelamphim-${{ steps.clean.outputs.version }}.apk`
+            - **iOS**: `nolelamphim-${{ steps.clean.outputs.version }}-unsigned.ipa` (unsigned, cần sign trước khi cài)
           files: |
             nolelamphim-*.apk
             nolelamphim-*.ipa
