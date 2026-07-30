@@ -80,29 +80,33 @@ export default async function MovieDetailPage({
           </div>
         )}
 
-        {movie.actor && movie.actor.length > 0 && (
+        {movie.actor && (
           <div>
             <h3 className="text-sm font-semibold text-text-primary mb-2">Diễn viên</h3>
-            <p className="text-sm text-text-secondary leading-relaxed">{movie.actor.join(", ")}</p>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              {Array.isArray(movie.actor) ? movie.actor.join(", ") : movie.actor}
+            </p>
           </div>
         )}
 
-        {movie.director && movie.director.length > 0 && (
+        {movie.director && (
           <div>
             <h3 className="text-sm font-semibold text-text-primary mb-2">Đạo diễn</h3>
-            <p className="text-sm text-text-secondary leading-relaxed">{movie.director.join(", ")}</p>
+            <p className="text-sm text-text-secondary leading-relaxed">
+              {Array.isArray(movie.director) ? movie.director.join(", ") : movie.director}
+            </p>
           </div>
         )}
 
         {movie.category && movie.category.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {movie.category.map((cat) => (
+            {Array.isArray(movie.category) && movie.category.map((cat) => (
               <Link
-                key={cat.slug}
-                href={`/the-loai/${cat.slug}`}
+                key={typeof cat === "string" ? cat : cat.slug}
+                href={`/the-loai/${typeof cat === "string" ? cat : cat.slug}`}
                 className="px-3 py-1.5 rounded-xl glass-tile text-text-muted text-xs"
               >
-                {cat.name}
+                {typeof cat === "string" ? cat : cat.name}
               </Link>
             ))}
           </div>
