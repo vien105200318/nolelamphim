@@ -1,27 +1,160 @@
-import Link from "next/link";
+import Link from "next/link"
 
-export default function DownloadPage() {
+interface ReleaseAsset {
+  name: string
+  browser_download_url: string
+}
+
+interface Release {
+  tag_name: string
+  assets: ReleaseAsset[]
+}
+
+async function getLatestRelease(): Promise<Release | null> {
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/vien105200318/nolelamphim/releases?per_page=1",
+      { next: { revalidate: 3600 } }
+    )
+    if (!res.ok) return null
+    const releases: Release[] = await res.json()
+    return releases[0] ?? null
+  } catch {
+    return null
+  }
+}
+
+export default async function DownloadPage() {
+  const release = await getLatestRelease()
+
+  const apkAsset = release?.assets.find((a) => a.name.endsWith(".apk") && !a.name.includes("tv"))
+  const ipaAsset = release?.assets.find((a) => a.name.endsWith(".ipa"))
+  const tvAsset = release?.assets.find((a) => a.name.endsWith(".apk") && a.name.includes("tv"))
+
+  const platforms = [
+    {
+      id: "android",
+      label: "Android",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 10v6" />
+          <path d="M20 10v6" />
+          <path d="M7 10h10v7a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3v-7Z" />
+          <path d="M9 6.5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
+          <path d="M9 7v1" />
+          <path d="M15 7v1" />
+          <path d="M9 2 7 4" />
+          <path d="M15 2l2 2" />
+        </svg>
+      ),
+      url: apkAsset?.browser_download_url ?? null,
+      filename: apkAsset?.name ?? null,
+      note: apkAsset ? `${formatSize(0)}` : null,
+    },
+    {
+      id: "ios",
+      label: "iOS",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="3" />
+          <line x1="9" y1="6" x2="15" y2="6" />
+          <line x1="12" y1="22" x2="12" y2="18" />
+        </svg>
+      ),
+      url: ipaAsset?.browser_download_url ?? null,
+      filename: ipaAsset?.name ?? null,
+      note: ipaAsset ? "unsigned — cần sign trước khi cài" : null,
+    },
+    {
+      id: "androidtv",
+      label: "Android TV",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="4" width="20" height="14" rx="2" />
+          <line x1="8" y1="20" x2="16" y2="20" />
+          <line x1="12" y1="18" x2="12" y2="20" />
+        </svg>
+      ),
+      url: tvAsset?.browser_download_url ?? apkAsset?.browser_download_url ?? null,
+      filename: tvAsset?.name ?? apkAsset?.name ?? null,
+      note: tvAsset ? null : (apkAsset ? "Dùng chung file APK bản Android" : null),
+    },
+  ]
+
   return (
-    <div className="max-w-6xl mx-auto px-6 py-20 flex flex-col items-center justify-center">
-      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#FF6B9D] via-[#C44BED] to-[#4A9EFF] flex items-center justify-center text-white text-3xl font-bold shadow-2xl shadow-[#C44BED]/30 mb-8">
-        N
+    <div className="max-w-6xl mx-auto px-6 py-16">
+      <div className="flex flex-col items-center text-center mb-14">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#FF6B9D] via-[#C44BED] to-[#4A9EFF] flex items-center justify-center text-white text-3xl font-bold shadow-2xl shadow-[#C44BED]/30 mb-8">
+          N
+        </div>
+        <h1 className="text-3xl font-bold text-text-primary mb-3">
+          Tải ứng dụng
+        </h1>
+        <p className="text-text-secondary text-sm max-w-md">
+          Chọn nền tảng phù hợp để tải xuống. Ứng dụng hỗ trợ Android, iOS và Android TV.
+        </p>
+        {release && (
+          <div className="mt-4 px-4 py-2 rounded-full glass-tile text-text-muted text-xs inline-flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+            Phiên bản {release.tag_name.replace(/^v/i, "")}
+          </div>
+        )}
       </div>
-      <h1 className="text-2xl font-bold text-text-primary mb-3">
-        Tải ứng dụng
-      </h1>
-      <p className="text-text-secondary text-sm mb-8">
-        Ứng dụng đang được phát triển. Sẽ sớm ra mắt!
-      </p>
-      <div className="flex items-center gap-3 px-6 py-3 rounded-2xl glass-tile text-text-muted text-xs">
-        <span className="w-2 h-2 rounded-full bg-[#4A9EFF] animate-pulse" />
-        Coming soon
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+        {platforms.map((p) => (
+          <div
+            key={p.id}
+            className="glass-tile rounded-2xl p-7 flex flex-col items-center text-center"
+          >
+            <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center text-[#C44BED] mb-5">
+              {p.icon}
+            </div>
+            <h2 className="text-lg font-semibold text-text-primary mb-3">{p.label}</h2>
+
+            {p.url ? (
+              <>
+                <a
+                  href={p.url}
+                  download
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#FF6B9D] via-[#C44BED] to-[#4A9EFF] text-white text-sm font-semibold hover:shadow-lg hover:shadow-[#C44BED]/25 transition-all duration-300 text-center"
+                >
+                  Tải xuống
+                </a>
+                {p.note && (
+                  <p className="mt-3 text-text-muted text-xs leading-relaxed">{p.note}</p>
+                )}
+                {p.filename && (
+                  <p className="mt-1.5 text-text-muted text-[11px] font-mono">{p.filename}</p>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="w-full py-3 rounded-xl bg-white/5 text-text-muted text-sm font-semibold text-center cursor-not-allowed">
+                  Đang phát triển
+                </div>
+                <p className="mt-3 text-text-muted text-xs">Sẽ sớm ra mắt</p>
+              </>
+            )}
+          </div>
+        ))}
       </div>
-      <Link
-        href="/"
-        className="mt-8 px-5 py-2.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white"
-      >
-        ← Quay lại trang chủ
-      </Link>
+
+      <div className="flex justify-center mt-12">
+        <Link
+          href="/"
+          className="px-5 py-2.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white transition-all"
+        >
+          ← Quay lại trang chủ
+        </Link>
+      </div>
     </div>
   )
+}
+
+function formatSize(bytes: number): string {
+  if (bytes === 0) return ""
+  const units = ["B", "KB", "MB", "GB"]
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`
 }
