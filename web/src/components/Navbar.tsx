@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -18,9 +19,13 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 glass-pane">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 shrink-0 group">
-          <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF6B9D] via-[#C44BED] to-[#4A9EFF] flex items-center justify-center text-white text-base font-bold shadow-lg shadow-[#C44BED]/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#C44BED]/30">
-            N
-          </span>
+          <Image
+            src="/logo.png"
+            alt="Nô Lệ Làm Phim"
+            width={36}
+            height={36}
+            className="rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#C44BED]/20"
+          />
           <span className="font-semibold text-base text-text-primary transition-all duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#FF6B9D] group-hover:via-[#C44BED] group-hover:to-[#4A9EFF]">
             Nô Lệ Làm Phim
           </span>
