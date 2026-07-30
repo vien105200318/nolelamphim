@@ -27,36 +27,65 @@ class HomeScreen extends ConsumerWidget {
             pinned: true,
           ),
           newMoviesAsync.when(
-            data: (movies) => SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MovieCarousel(movies: movies),
-                  const SizedBox(height: 8),
-                  subteamAsync.when(
-                    data: (subteam) => MovieHorizontalList(
-                      title: 'Subteam',
-                      movies: subteam,
+            data: (movies) {
+              if (movies.isEmpty) {
+                return SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.movie_outlined,
+                            size: 48, color: AppColors.textMuted),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Chưa có phim nào',
+                          style: TextStyle(
+                              color: AppColors.textSecondary, fontSize: 16),
+                        ),
+                        const SizedBox(height: 12),
+                        FilledButton(
+                          onPressed: () {
+                            ref.invalidate(newMoviesProvider);
+                            ref.invalidate(subteamProvider);
+                          },
+                          child: const Text('Thử lại'),
+                        ),
+                      ],
                     ),
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, _) => const SizedBox.shrink(),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(12, 20, 12, 10),
-                    child: Text(
-                      'Phim mới cập nhật',
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                );
+              }
+              return SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MovieCarousel(movies: movies),
+                    const SizedBox(height: 8),
+                    subteamAsync.when(
+                      data: (subteam) => MovieHorizontalList(
+                        title: 'Subteam',
+                        movies: subteam,
+                      ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, _) => const SizedBox.shrink(),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(12, 20, 12, 10),
+                      child: Text(
+                        'Phim mới cập nhật',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  MovieGrid(movies: movies),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
+                    MovieGrid(movies: movies),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              );
+            },
             loading: () => const SliverFillRemaining(child: _HomeLoading()),
             error: (e, _) => SliverFillRemaining(
               child: Center(

@@ -68,6 +68,7 @@ final appRouter = GoRouter(
       builder: (_, state) => WatchScreen(
         slug: state.pathParameters['slug']!,
         episode: state.pathParameters['episode']!,
+        movieName: state.extra as String? ?? state.pathParameters['slug']!,
       ),
     ),
   ],

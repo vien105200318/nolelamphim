@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/models/episode.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
@@ -25,40 +26,42 @@ class MovieDetailScreen extends ConsumerWidget {
             return const Center(child: Text('Không tìm thấy phim'));
           }
 
-          return CustomScrollView(
-            slivers: [
-              _buildAppBar(context, movie.posterUrl ?? movie.thumbUrl ?? ''),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTitleSection(movie),
-                      const SizedBox(height: 12),
-                      _buildMetaRow(movie),
-                      const SizedBox(height: 16),
-                      if (movie.content != null &&
-                          movie.content!.isNotEmpty)
-                        _buildSection('Nội dung', movie.content!),
-                      if (movie.actors.isNotEmpty)
-                        _buildSection('Diễn viên', movie.actors.join(', ')),
-                      if (movie.directors.isNotEmpty)
-                        _buildSection('Đạo diễn', movie.directors.join(', ')),
-                      if (movie.episodes.isNotEmpty) ...[
+          return RefreshIndicator(
+            onRefresh: () async =>
+                ref.invalidate(movieDetailProvider(slug)),
+            child: CustomScrollView(
+              slivers: [
+                _buildAppBar(context, movie.posterUrl ?? movie.thumbUrl ?? ''),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTitleSection(movie),
+                        const SizedBox(height: 12),
+                        _buildMetaRow(movie),
                         const SizedBox(height: 16),
-                        _buildEpisodeSection(movie.episodes),
+                        if (movie.content != null &&
+                            movie.content!.isNotEmpty)
+                          _buildSection('Nội dung', movie.content!),
+                        if (movie.actors.isNotEmpty)
+                          _buildSection('Diễn viên', movie.actors.join(', ')),
+                        if (movie.directors.isNotEmpty)
+                          _buildSection('Đạo diễn', movie.directors.join(', ')),
+                        if (movie.episodes.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          _buildEpisodeSection(movie.episodes, movie.name),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
+        loading: () => const _DetailLoadingShimmer(),
         error: (e, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -79,6 +82,7 @@ class MovieDetailScreen extends ConsumerWidget {
       ),
     );
   }
+
 
   SliverAppBar _buildAppBar(BuildContext context, String imageUrl) {
     return SliverAppBar(
@@ -148,7 +152,7 @@ class MovieDetailScreen extends ConsumerWidget {
           ),
         ),
         Consumer(
-          builder: (_, ref, __) {
+          builder: (_, ref, _) {
             final isFav = ref.watch(favoritesProvider.select(
                 (list) => list.any((m) => m.id == movie.id)));
             return IconButton(
@@ -239,7 +243,7 @@ class MovieDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEpisodeSection(List<EpisodeServer> episodes) {
+  Widget _buildEpisodeSection(List<EpisodeServer> episodes, String movieName) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -252,8 +256,88 @@ class MovieDetailScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        EpisodeList(movieSlug: slug, servers: episodes),
+        EpisodeList(movieSlug: slug, movieName: movieName, servers: episodes),
       ],
+    );
+  }
+}
+
+class _DetailLoadingShimmer extends StatelessWidget {
+  const _DetailLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.bgCard,
+      highlightColor: AppColors.bgSurface,
+      child: Column(
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.35,
+            color: AppColors.bgCard,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 200,
+                  height: 20,
+                  color: AppColors.bgCard,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: 120,
+                  height: 16,
+                  color: AppColors.bgCard,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: List.generate(
+                    3,
+                    (_) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Container(
+                        width: 60,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: AppColors.bgCard,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  width: 80,
+                  height: 16,
+                  color: AppColors.bgCard,
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  height: 14,
+                  color: AppColors.bgCard,
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  width: double.infinity,
+                  height: 14,
+                  color: AppColors.bgCard,
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  width: 150,
+                  height: 14,
+                  color: AppColors.bgCard,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

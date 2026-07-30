@@ -5,11 +5,13 @@ import '../../../core/theme/app_colors.dart';
 
 class EpisodeList extends StatefulWidget {
   final String movieSlug;
+  final String movieName;
   final List<EpisodeServer> servers;
 
   const EpisodeList({
     super.key,
     required this.movieSlug,
+    required this.movieName,
     required this.servers,
   });
 
@@ -73,7 +75,8 @@ class _EpisodeListState extends State<EpisodeList> {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 onPressed: () {
-                  context.push('/xem/${widget.movieSlug}/${ep.slug}');
+                  context.push('/xem/${widget.movieSlug}/${ep.slug}',
+                      extra: widget.movieName);
                 },
                 child: Text(
                   ep.name,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/category.dart';
 import '../../../core/models/country.dart';
@@ -65,9 +66,14 @@ class _CategoriesTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(categoriesProvider);
     return async.when(
-      data: (items) => _buildGrid(context, items),
-      loading: () => const _LoadingGrid(),
-      error: (_, _) => const _ErrorState(),
+      data: (items) => RefreshIndicator(
+        onRefresh: () async => ref.invalidate(categoriesProvider),
+        child: _buildGrid(context, items),
+      ),
+      loading: () => const _ShimmerGrid(),
+      error: (_, _) => _ErrorState(
+        onRetry: () => ref.invalidate(categoriesProvider),
+      ),
     );
   }
 
@@ -97,9 +103,14 @@ class _CountriesTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(countriesProvider);
     return async.when(
-      data: (items) => _buildGrid(context, items),
-      loading: () => const _LoadingGrid(),
-      error: (_, _) => const _ErrorState(),
+      data: (items) => RefreshIndicator(
+        onRefresh: () async => ref.invalidate(countriesProvider),
+        child: _buildGrid(context, items),
+      ),
+      loading: () => const _ShimmerGrid(),
+      error: (_, _) => _ErrorState(
+        onRetry: () => ref.invalidate(countriesProvider),
+      ),
     );
   }
 
@@ -129,9 +140,14 @@ class _YearsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(yearsProvider);
     return async.when(
-      data: (items) => _buildGrid(context, items),
-      loading: () => const _LoadingGrid(),
-      error: (_, _) => const _ErrorState(),
+      data: (items) => RefreshIndicator(
+        onRefresh: () async => ref.invalidate(yearsProvider),
+        child: _buildGrid(context, items),
+      ),
+      loading: () => const _ShimmerGrid(),
+      error: (_, _) => _ErrorState(
+        onRetry: () => ref.invalidate(yearsProvider),
+      ),
     );
   }
 
@@ -188,24 +204,28 @@ class _CategoryChip extends StatelessWidget {
   }
 }
 
-class _LoadingGrid extends StatelessWidget {
-  const _LoadingGrid();
+class _ShimmerGrid extends StatelessWidget {
+  const _ShimmerGrid();
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 1.6,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-      ),
-      itemCount: 9,
-      itemBuilder: (context, index) => Container(
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(8),
+    return Shimmer.fromColors(
+      baseColor: AppColors.bgCard,
+      highlightColor: AppColors.bgSurface,
+      child: GridView.builder(
+        padding: const EdgeInsets.all(12),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 1.6,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ),
+        itemCount: 9,
+        itemBuilder: (context, index) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       ),
     );
@@ -213,20 +233,29 @@ class _LoadingGrid extends StatelessWidget {
 }
 
 class _ErrorState extends StatelessWidget {
-  const _ErrorState();
+  final VoidCallback? onRetry;
+
+  const _ErrorState({this.onRetry});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 48, color: AppColors.textMuted),
-          SizedBox(height: 12),
-          Text(
+          const Icon(Icons.error_outline, size: 48, color: AppColors.textMuted),
+          const SizedBox(height: 12),
+          const Text(
             'Không thể tải danh mục',
             style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
           ),
+          if (onRetry != null) ...[
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: onRetry,
+              child: const Text('Thử lại'),
+            ),
+          ],
         ],
       ),
     );

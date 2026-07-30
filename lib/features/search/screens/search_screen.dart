@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
 import '../providers/search_provider.dart';
 import '../widgets/search_bar_widget.dart';
 import '../widgets/filter_chips.dart';
@@ -21,11 +22,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   String? _selectedYear;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -33,23 +29,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   void _onCategorySelected(String? slug) {
     setState(() => _selectedCategory = slug);
-    if (slug != null) {
-      // navigate to category filtered view
-    }
   }
 
   void _onCountrySelected(String? slug) {
     setState(() => _selectedCountry = slug);
-    if (slug != null) {
-      // navigate to country filtered view
-    }
   }
 
   void _onYearSelected(String? year) {
     setState(() => _selectedYear = year);
-    if (year != null) {
-      // navigate to year filtered view
-    }
   }
 
   @override
@@ -81,13 +68,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: query.trim().isEmpty
                 ? _buildEmpty()
                 : resultsAsync.when(
-                    data: (movies) => _buildResults(movies),
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    error: (e, _) => _buildError(),
+                    data: (movies) => _buildResults(movies, ref),
+                    loading: () => const _SearchLoadingGrid(),
+                    error: (_, _) => _buildError(ref),
                   ),
           ),
         ],
@@ -116,7 +99,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildResults(List<Movie> movies) {
+  Widget _buildResults(List<Movie> movies, WidgetRef ref) {
     if (movies.isEmpty) {
       return Center(
         child: Column(
@@ -133,25 +116,30 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       );
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
-        return GridView.builder(
-          padding: const EdgeInsets.all(12),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: 0.65,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemCount: movies.length,
-          itemBuilder: (context, index) => MovieCard(movie: movies[index]),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(searchResultsProvider);
       },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
+          return GridView.builder(
+            padding: const EdgeInsets.all(12),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: 0.65,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: movies.length,
+            itemBuilder: (context, index) => MovieCard(movie: movies[index]),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildError() {
+  Widget _buildError(WidgetRef ref) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -162,7 +150,45 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             'Có lỗi xảy ra',
             style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
           ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: () => ref.invalidate(searchResultsProvider),
+            child: const Text('Thử lại'),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _SearchLoadingGrid extends StatelessWidget {
+  const _SearchLoadingGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.bgCard,
+      highlightColor: AppColors.bgSurface,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
+          return GridView.builder(
+            padding: const EdgeInsets.all(12),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: 0.65,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: 6,
+            itemBuilder: (_, _) => Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

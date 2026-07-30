@@ -34,9 +34,9 @@ class CategoryMoviesScreen extends ConsumerWidget {
         ),
       ),
       body: provider.when(
-        data: (movies) => _buildGrid(context, movies),
+        data: (movies) => _buildGrid(context, movies, ref),
         loading: () => const _MovieGridLoading(),
-        error: (_, _) => _buildError(),
+        error: (_, _) => _buildError(ref),
       ),
     );
   }
@@ -54,7 +54,7 @@ class CategoryMoviesScreen extends ConsumerWidget {
     }
   }
 
-  Widget _buildGrid(BuildContext context, List<Movie> movies) {
+  Widget _buildGrid(BuildContext context, List<Movie> movies, WidgetRef ref) {
     if (movies.isEmpty) {
       return Center(
         child: Column(
@@ -71,34 +71,50 @@ class CategoryMoviesScreen extends ConsumerWidget {
       );
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
-        return GridView.builder(
-          padding: const EdgeInsets.all(12),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: 0.65,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemCount: movies.length,
-          itemBuilder: (context, index) => MovieCard(movie: movies[index]),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(categoryMoviesProvider(slug));
+        ref.invalidate(countryMoviesProvider(slug));
+        ref.invalidate(yearMoviesProvider(slug));
       },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
+          return GridView.builder(
+            padding: const EdgeInsets.all(12),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: 0.65,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: movies.length,
+            itemBuilder: (context, index) => MovieCard(movie: movies[index]),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildError() {
+  Widget _buildError(WidgetRef ref) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 48, color: AppColors.textMuted),
+          const Icon(Icons.error_outline, size: 48, color: AppColors.textMuted),
           const SizedBox(height: 12),
           const Text(
             'Có lỗi xảy ra',
             style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+          ),
+          const SizedBox(height: 12),
+          FilledButton(
+            onPressed: () {
+              ref.invalidate(categoryMoviesProvider(slug));
+              ref.invalidate(countryMoviesProvider(slug));
+              ref.invalidate(yearMoviesProvider(slug));
+            },
+            child: const Text('Thử lại'),
           ),
         ],
       ),
