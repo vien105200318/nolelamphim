@@ -8,26 +8,27 @@ class AppTheme {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.bgDark,
         colorScheme: ColorScheme.dark(
-          primary: AppColors.primary,
-          secondary: AppColors.accentGold,
+          primary: AppColors.gradientStart,
+          secondary: AppColors.gradientMid,
           surface: AppColors.bgSurface,
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.bgDark,
+          backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: AppColors.bgSurface,
-          selectedItemColor: AppColors.primary,
+          backgroundColor: Colors.transparent,
+          selectedItemColor: AppColors.gradientStart,
           unselectedItemColor: AppColors.textMuted,
           type: BottomNavigationBarType.fixed,
+          elevation: 0,
         ),
         cardTheme: CardThemeData(
-          color: AppColors.bgCard,
+          color: AppColors.glassWhite,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
         textTheme: const TextTheme(

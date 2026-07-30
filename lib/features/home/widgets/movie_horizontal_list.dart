@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/glass_panel.dart';
 import 'movie_card.dart';
 
 class MovieHorizontalList extends StatelessWidget {
@@ -19,13 +20,34 @@ class MovieHorizontalList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 20, 12, 10),
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+          child: GlassPanel(
+            blur: 6,
+            borderOpacity: 0.06,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 3,
+                  height: 18,
+                  decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: AppColors.accentGradient,
+                  ),
+                  borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

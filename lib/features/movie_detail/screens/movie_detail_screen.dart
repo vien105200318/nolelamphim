@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../core/models/episode.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/glass_panel.dart';
 import '../../favorites/providers/favorites_provider.dart';
 import '../providers/movie_detail_provider.dart';
 import '../widgets/episode_list.dart';
@@ -39,9 +40,9 @@ class MovieDetailScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildTitleSection(movie),
-                        const SizedBox(height: 12),
-                        _buildMetaRow(movie),
                         const SizedBox(height: 16),
+                        _buildMetaRow(movie),
+                        const SizedBox(height: 20),
                         if (movie.content != null &&
                             movie.content!.isNotEmpty)
                           _buildSection('Nội dung', movie.content!),
@@ -82,7 +83,6 @@ class MovieDetailScreen extends ConsumerWidget {
       ),
     );
   }
-
 
   SliverAppBar _buildAppBar(BuildContext context, String imageUrl) {
     return SliverAppBar(
@@ -158,7 +158,7 @@ class MovieDetailScreen extends ConsumerWidget {
             return IconButton(
               icon: Icon(
                 isFav ? Icons.favorite : Icons.favorite_border,
-                color: isFav ? Colors.red : AppColors.textMuted,
+                color: isFav ? AppColors.gradientStart : AppColors.textMuted,
                 size: 28,
               ),
               onPressed: () =>
@@ -199,12 +199,11 @@ class MovieDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(4),
-      ),
+    return GlassPanel(
+      blur: 6,
+      borderOpacity: 0.08,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      borderRadius: BorderRadius.circular(8),
       child: Text(
         label,
         style: const TextStyle(
@@ -218,46 +217,56 @@ class MovieDetailScreen extends ConsumerWidget {
   Widget _buildSection(String title, String content) {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+      child: GlassPanel(
+        blur: 10,
+        borderOpacity: 0.06,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            content,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-              height: 1.4,
+            const SizedBox(height: 8),
+            Text(
+              content,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+                height: 1.4,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildEpisodeSection(List<EpisodeServer> episodes, String movieName) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Tập phim',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+    return GlassPanel(
+      blur: 10,
+      borderOpacity: 0.06,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tập phim',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        EpisodeList(movieSlug: slug, movieName: movieName, servers: episodes),
-      ],
+          const SizedBox(height: 8),
+          EpisodeList(movieSlug: slug, movieName: movieName, servers: episodes),
+        ],
+      ),
     );
   }
 }

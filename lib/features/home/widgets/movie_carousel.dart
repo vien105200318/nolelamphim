@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/glass_panel.dart';
 
 class MovieCarousel extends StatelessWidget {
   final List<Movie> movies;
@@ -11,7 +12,7 @@ class MovieCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height * 0.28;
+    final height = MediaQuery.of(context).size.height * 0.3;
 
     return SizedBox(
       height: height,
@@ -21,55 +22,76 @@ class MovieCarousel extends StatelessWidget {
           final movie = movies[index];
           return GestureDetector(
             onTap: () => context.push('/phim/${movie.slug}'),
-            child: Stack(
-              children: [
-                CachedNetworkImage(
-                  imageUrl: movie.posterUrl ?? movie.thumbUrl ?? '',
-                  width: double.infinity,
-                  height: height,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, _, _) => Container(
-                    color: AppColors.bgCard,
-                    child: const Icon(Icons.movie,
-                        size: 48, color: AppColors.textMuted),
-                  ),
-                ),
-                Container(
-                  height: height,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, AppColors.bgDark],
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: index == 0 ? 12 : 4,
+                right: index == (movies.length > 10 ? 9 : movies.length - 1) ? 12 : 4,
+                top: 8,
+                bottom: 8,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: movie.posterUrl ?? movie.thumbUrl ?? '',
+                      width: double.infinity,
+                      height: height,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, _, _) => Container(
+                        color: AppColors.bgCard,
+                        child: const Icon(Icons.movie, size: 48, color: AppColors.textMuted),
+                      ),
                     ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 20,
-                  left: 16,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        movie.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                    Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.transparent, AppColors.bgDark],
                         ),
                       ),
-                      if (movie.year != null)
-                        Text(
-                          '${movie.year}',
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 13,
-                          ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: GlassPanel(
+                        borderRadius: BorderRadius.zero,
+                        blur: 10,
+                        borderOpacity: 0,
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              movie.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (movie.year != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(
+                                  '${movie.year}',
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary.withValues(alpha: 0.8),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           );
         },

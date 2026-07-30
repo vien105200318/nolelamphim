@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/glass_panel.dart';
 import '../../favorites/providers/favorites_provider.dart';
 
 class MovieCard extends ConsumerWidget {
@@ -28,22 +29,28 @@ class MovieCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+            child: GlassPanel(
+              borderRadius: BorderRadius.circular(12),
+              blur: 6,
+              borderOpacity: 0.08,
+              padding: EdgeInsets.zero,
               child: Stack(
                 children: [
-                  CachedNetworkImage(
-                    imageUrl: movie.thumbUrl ?? '',
-                    width: width,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => Shimmer.fromColors(
-                      baseColor: AppColors.bgCard,
-                      highlightColor: AppColors.bgSurface,
-                      child: Container(color: AppColors.bgCard),
-                    ),
-                    errorWidget: (_, _, _) => Container(
-                      color: AppColors.bgCard,
-                      child: const Icon(Icons.movie, color: AppColors.textMuted),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: CachedNetworkImage(
+                      imageUrl: movie.thumbUrl ?? '',
+                      width: width,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) => Shimmer.fromColors(
+                        baseColor: AppColors.bgCard,
+                        highlightColor: AppColors.bgSurface,
+                        child: Container(color: AppColors.bgCard),
+                      ),
+                      errorWidget: (_, _, _) => Container(
+                        color: AppColors.bgCard,
+                        child: const Icon(Icons.movie, color: AppColors.textMuted),
+                      ),
                     ),
                   ),
                   Positioned(
@@ -51,10 +58,34 @@ class MovieCard extends ConsumerWidget {
                     right: 4,
                     child: GestureDetector(
                       onTap: () => ref.read(favoritesProvider.notifier).toggle(movie),
-                      child: Icon(
-                        isFav ? Icons.favorite : Icons.favorite_border,
-                        color: isFav ? Colors.red : Colors.white70,
-                        size: 20,
+                      child: GlassPanel(
+                        borderRadius: BorderRadius.circular(20),
+                        blur: 8,
+                        borderOpacity: 0.1,
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? AppColors.gradientStart : Colors.white70,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: 40,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            AppColors.bgDark.withValues(alpha: 0.8),
+                            Colors.transparent,
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -62,7 +93,7 @@ class MovieCard extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             movie.name,
             maxLines: 2,

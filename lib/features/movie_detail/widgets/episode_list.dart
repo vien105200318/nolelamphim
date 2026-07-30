@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/episode.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/glass_panel.dart';
 
 class EpisodeList extends StatefulWidget {
   final String movieSlug;
@@ -46,14 +47,12 @@ class _EpisodeListState extends State<EpisodeList> {
                     widget.servers[index].serverName.trim(),
                     style: TextStyle(
                       fontSize: 13,
-                      color: isSelected
-                          ? Colors.white
-                          : AppColors.textSecondary,
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
                     ),
                   ),
                   selected: isSelected,
-                  selectedColor: AppColors.primary,
-                  backgroundColor: AppColors.bgCard,
+                  selectedColor: AppColors.gradientMid,
+                  backgroundColor: AppColors.glassWhite,
                   onSelected: (_) => setState(() => _selectedServer = index),
                 );
               },
@@ -68,23 +67,28 @@ class _EpisodeListState extends State<EpisodeList> {
             return SizedBox(
               width: size,
               height: size,
-              child: MaterialButton(
+              child: GlassPanel(
+                blur: 6,
+                borderOpacity: 0.08,
+                borderRadius: BorderRadius.circular(8),
                 padding: EdgeInsets.zero,
-                color: AppColors.bgCard,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                onPressed: () {
-                  context.push('/xem/${widget.movieSlug}/${ep.slug}',
-                      extra: widget.movieName);
-                },
-                child: Text(
-                  ep.name,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 13,
+                child: MaterialButton(
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  textAlign: TextAlign.center,
+                  onPressed: () {
+                    context.push('/xem/${widget.movieSlug}/${ep.slug}',
+                        extra: widget.movieName);
+                  },
+                  child: Text(
+                    ep.name,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 13,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             );
