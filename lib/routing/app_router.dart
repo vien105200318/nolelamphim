@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../core/utils/tv_detector.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/search/screens/search_screen.dart';
 import '../features/category/screens/category_screen.dart';
@@ -8,8 +10,73 @@ import '../features/favorites/screens/history_screen.dart';
 import '../features/movie_detail/screens/movie_detail_screen.dart';
 import '../features/watch/screens/watch_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
+import '../features/tv/widgets/tv_scaffold.dart';
+import '../features/tv/screens/tv_home_screen.dart';
+import '../features/tv/screens/tv_search_screen.dart';
+import '../features/tv/screens/tv_category_screen.dart';
+import '../features/tv/screens/tv_movie_detail_screen.dart';
+import '../features/tv/screens/tv_watch_screen.dart';
 
-final appRouter = GoRouter(
+final routerKey = GlobalKey<NavigatorState>();
+
+GoRouter appRouter(BuildContext context) {
+  final isTv = TvDetector.isTv(context);
+
+  if (isTv) {
+    return _tvRouter;
+  }
+
+  return _mobileRouter;
+}
+
+final _tvRouter = GoRouter(
+  navigatorKey: routerKey,
+  initialLocation: '/',
+  routes: [
+    ShellRoute(
+      builder: (context, state, child) => TvScaffold(child: child),
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) => const TvHomeScreen(),
+        ),
+        GoRoute(
+          path: '/search',
+          builder: (_, _) => const TvSearchScreen(),
+        ),
+        GoRoute(
+          path: '/category',
+          builder: (_, _) => const TvCategoryScreen(),
+        ),
+        GoRoute(
+          path: '/favorites',
+          builder: (_, _) => const FavoritesScreen(),
+        ),
+        GoRoute(
+          path: '/history',
+          builder: (_, _) => const HistoryScreen(),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/phim/:slug',
+      builder: (_, state) => TvMovieDetailScreen(
+        slug: state.pathParameters['slug']!,
+      ),
+    ),
+    GoRoute(
+      path: '/xem/:slug/:episode',
+      builder: (_, state) => TvWatchScreen(
+        slug: state.pathParameters['slug']!,
+        episode: state.pathParameters['episode']!,
+        movieName: state.extra as String? ?? state.pathParameters['slug']!,
+      ),
+    ),
+  ],
+);
+
+final _mobileRouter = GoRouter(
+  navigatorKey: routerKey,
   initialLocation: '/',
   routes: [
     ShellRoute(
