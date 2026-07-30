@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../favorites/providers/history_provider.dart';
 import '../providers/watch_provider.dart';
 import '../widgets/video_player_widget.dart';
 
-class WatchScreen extends ConsumerWidget {
+class WatchScreen extends ConsumerStatefulWidget {
   final String slug;
   final String episode;
 
@@ -15,9 +16,16 @@ class WatchScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WatchScreen> createState() => _WatchScreenState();
+}
+
+class _WatchScreenState extends ConsumerState<WatchScreen> {
+  bool _saved = false;
+
+  @override
+  Widget build(BuildContext context) {
     final videoUrl = ref.watch(watchProvider(
-      WatchParams(movieSlug: slug, episodeSlug: episode),
+      WatchParams(movieSlug: widget.slug, episodeSlug: widget.episode),
     ));
 
     return Scaffold(
@@ -25,7 +33,7 @@ class WatchScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: Text(episode),
+        title: Text(widget.episode),
       ),
       body: videoUrl.when(
         data: (url) {
@@ -37,6 +45,18 @@ class WatchScreen extends ConsumerWidget {
               ),
             );
           }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!_saved) {
+              _saved = true;
+              ref.read(historyProvider.notifier).add(HistoryItem(
+                id: 0,
+                slug: widget.slug,
+                name: widget.slug,
+                episode: widget.episode,
+                watchedAt: DateTime.now().millisecondsSinceEpoch,
+              ));
+            }
+          });
           return VideoPlayerWidget(url: url);
         },
         loading: () => const Center(
@@ -59,4 +79,5 @@ class WatchScreen extends ConsumerWidget {
       ),
     );
   }
+
 }

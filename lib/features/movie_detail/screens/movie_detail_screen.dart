@@ -2,7 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/episode.dart';
+import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../favorites/providers/favorites_provider.dart';
 import '../providers/movie_detail_provider.dart';
 import '../widgets/episode_list.dart';
 
@@ -111,25 +113,55 @@ class MovieDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildTitleSection(dynamic movie) {
-    return Column(
+    final movieModel = Movie(
+      id: movie.id,
+      name: movie.name,
+      slug: movie.slug,
+      posterUrl: movie.posterUrl,
+      thumbUrl: movie.thumbUrl,
+      year: movie.year,
+    );
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          movie.name,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                movie.name,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (movie.originName != null && movie.originName!.isNotEmpty)
+                Text(
+                  movie.originName!,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 15,
+                  ),
+                ),
+            ],
           ),
         ),
-        if (movie.originName != null && movie.originName!.isNotEmpty)
-          Text(
-            movie.originName!,
-            style: const TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 15,
-            ),
-          ),
+        Consumer(
+          builder: (_, ref, __) {
+            final isFav = ref.watch(favoritesProvider.select(
+                (list) => list.any((m) => m.id == movie.id)));
+            return IconButton(
+              icon: Icon(
+                isFav ? Icons.favorite : Icons.favorite_border,
+                color: isFav ? Colors.red : AppColors.textMuted,
+                size: 28,
+              ),
+              onPressed: () =>
+                  ref.read(favoritesProvider.notifier).toggle(movieModel),
+            );
+          },
+        ),
       ],
     );
   }

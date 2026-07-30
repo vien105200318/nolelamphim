@@ -3,6 +3,8 @@ import '../features/home/screens/home_screen.dart';
 import '../features/search/screens/search_screen.dart';
 import '../features/category/screens/category_screen.dart';
 import '../features/category/screens/category_movies_screen.dart';
+import '../features/favorites/screens/favorites_screen.dart';
+import '../features/favorites/screens/history_screen.dart';
 import '../features/movie_detail/screens/movie_detail_screen.dart';
 import '../features/watch/screens/watch_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
@@ -44,6 +46,14 @@ final appRouter = GoRouter(
               },
             ),
           ],
+        ),
+        GoRoute(
+          path: '/favorites',
+          builder: (_, _) => const FavoritesScreen(),
+        ),
+        GoRoute(
+          path: '/history',
+          builder: (_, _) => const HistoryScreen(),
         ),
       ],
     ),
