@@ -1,0 +1,15 @@
+allprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.android.buildTypes.configureEach { type ->
+                type.proguardFiles = type.proguardFiles.collect { file ->
+                    if (file.name == "proguard-android.txt") {
+                        project.file(getDefaultProguardFile("proguard-android-optimize.txt"))
+                    } else {
+                        file
+                    }
+                }
+            }
+        }
+    }
+}

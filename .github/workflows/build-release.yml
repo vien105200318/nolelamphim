@@ -44,6 +44,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Fix proguard for plugins
+        run: sed -i 's/proguard-android.txt/proguard-android-optimize.txt/g' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview_android-*/android/build.gradle 2>/dev/null || true
+
       - name: Build APK (mobile)
         run: flutter build apk --flavor mobile --release
 
@@ -88,6 +91,9 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Fix proguard for plugins
+        run: sed -i 's/proguard-android.txt/proguard-android-optimize.txt/g' ~/.pub-cache/hosted/pub.dev/flutter_inappwebview_android-*/android/build.gradle 2>/dev/null || true
 
       - name: Build APK (androidTv)
         run: flutter build apk --flavor androidTv --release
