@@ -114,6 +114,8 @@ Workflow build song song:
 - **macOS:** iOS unsigned IPA → upload artifact
 - **Kết hợp:** tạo GitHub Release chung kèm cả 2 file
 
+Tải bản build mới nhất tại [Releases](https://github.com/vien105200318/nolelamphim/releases).
+
 ## Architecture Notes
 
 - **State:** Riverpod `FutureProvider` + `StateNotifierProvider` — không dùng code generation cho providers (tránh phức tạp)
