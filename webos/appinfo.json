@@ -1,0 +1,15 @@
+{
+  "id": "com.nolelamphim.webos",
+  "title": "Nô Lệ Làm Phim",
+  "main": "index.html",
+  "icon": "icon.png",
+  "type": "web",
+  "version": "1.0.0",
+  "vendor": "NLP Studio",
+  "supportClose": true,
+  "supportDeviceMotion": false,
+  "resolution": "1920x1080",
+  "bgColor": "0x0A0A1A",
+  "disableBackHistoryAPI": true,
+  "enablePig": true
+}

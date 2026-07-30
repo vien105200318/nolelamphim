@@ -16,9 +16,9 @@ class NoleLamPhimApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tvOn = isTv(context, ref);
+    final isTvDevice = TvDetector.isTv(context);
 
-    if (tvOn) {
+    if (isTvDevice) {
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
@@ -33,8 +33,8 @@ class NoleLamPhimApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Nô Lệ Làm Phim',
       debugShowCheckedModeBanner: false,
-      theme: tvOn ? TvTheme.dark : AppTheme.dark,
-      routerConfig: appRouter(context, ref),
+      theme: isTvDevice ? TvTheme.dark : AppTheme.dark,
+      routerConfig: appRouter(isTvDevice),
     );
   }
 }
