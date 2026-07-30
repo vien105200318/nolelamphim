@@ -1,9 +1,11 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/tv_detector.dart';
 
-class AppScaffold extends StatelessWidget {
+class AppScaffold extends ConsumerWidget {
   final Widget child;
 
   const AppScaffold({super.key, required this.child});
@@ -18,7 +20,7 @@ class AppScaffold extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: child,
       bottomNavigationBar: ClipRRect(
@@ -28,47 +30,37 @@ class AppScaffold extends StatelessWidget {
             selectedIndex: _currentIndex(context),
             onDestinationSelected: (index) {
               switch (index) {
-                case 0:
-                  context.go('/');
-                  break;
-                case 1:
-                  context.go('/search');
-                  break;
-                case 2:
-                  context.go('/category');
-                  break;
-                case 3:
-                  context.go('/favorites');
-                  break;
-                case 4:
-                  context.go('/history');
-                  break;
+                case 0: context.go('/'); break;
+                case 1: context.go('/search'); break;
+                case 2: context.go('/category'); break;
+                case 3: context.go('/favorites'); break;
+                case 4: context.go('/history'); break;
               }
             },
             backgroundColor: AppColors.bgDark.withValues(alpha: 0.6),
             indicatorColor: AppColors.glassWhite,
-            destinations: const [
+            destinations: [
               NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home, color: AppColors.gradientStart),
+                icon: _NavIcon(icon: Icons.home_outlined, index: 0),
+                selectedIcon: const Icon(Icons.home, color: AppColors.gradientStart),
                 label: 'Trang chủ',
               ),
-              NavigationDestination(
+              const NavigationDestination(
                 icon: Icon(Icons.search_outlined),
                 selectedIcon: Icon(Icons.search, color: AppColors.gradientMid),
                 label: 'Tìm kiếm',
               ),
-              NavigationDestination(
+              const NavigationDestination(
                 icon: Icon(Icons.category_outlined),
                 selectedIcon: Icon(Icons.category, color: AppColors.gradientEnd),
                 label: 'Danh mục',
               ),
-              NavigationDestination(
+              const NavigationDestination(
                 icon: Icon(Icons.favorite_outline),
                 selectedIcon: Icon(Icons.favorite, color: AppColors.gradientStart),
                 label: 'Yêu thích',
               ),
-              NavigationDestination(
+              const NavigationDestination(
                 icon: Icon(Icons.history_outlined),
                 selectedIcon: Icon(Icons.history, color: AppColors.gradientMid),
                 label: 'Đã xem',
@@ -77,6 +69,31 @@ class AppScaffold extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _NavIcon extends ConsumerWidget {
+  final IconData icon;
+  final int index;
+
+  const _NavIcon({required this.icon, required this.index});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isTvActive = ref.watch(tvModeProvider);
+
+    return GestureDetector(
+      onLongPress: () {
+        ref.read(tvModeProvider.notifier).state = !isTvActive;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isTvActive ? 'Đã tắt TV mode' : 'Đã bật TV mode (xoay ngang để xem)'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      child: Icon(icon),
     );
   }
 }

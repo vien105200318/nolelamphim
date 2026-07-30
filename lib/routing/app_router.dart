@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/utils/tv_detector.dart';
 import '../features/home/screens/home_screen.dart';
@@ -19,10 +20,10 @@ import '../features/tv/screens/tv_watch_screen.dart';
 
 final routerKey = GlobalKey<NavigatorState>();
 
-GoRouter appRouter(BuildContext context) {
-  final isTv = TvDetector.isTv(context);
+GoRouter appRouter(BuildContext context, WidgetRef ref) {
+  final tvOn = isTv(context, ref);
 
-  if (isTv) {
+  if (tvOn) {
     return _tvRouter;
   }
 
