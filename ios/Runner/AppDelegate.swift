@@ -19,6 +19,6 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    pipBridge = PiPBridge(messenger: engineBridge.binaryMessenger)
+    pipBridge = PiPBridge(messenger: engineBridge.applicationRegistrar.messenger())
   }
 }
