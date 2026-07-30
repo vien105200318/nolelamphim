@@ -18,7 +18,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Nô Lệ Làm Phim",
   description: "Xem phim đa nền tảng",
-  icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }],
+  icons: [
+    { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
+    { rel: "icon", url: "/favicon.ico", sizes: "32x32" },
+    { rel: "apple-touch-icon", url: "/apple-touch-icon.png", sizes: "180x180" },
+  ],
 };
 
 export const viewport = {
