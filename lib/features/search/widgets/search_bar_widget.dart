@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -16,10 +17,24 @@ class SearchBarWidget extends StatefulWidget {
 }
 
 class _SearchBarWidgetState extends State<SearchBarWidget> {
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(() {
+    widget.controller.addListener(_onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onTextChanged);
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onTextChanged() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
       widget.onChanged(widget.controller.text);
     });
   }
@@ -39,6 +54,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                 icon: Icon(Icons.clear, color: AppColors.textMuted),
                 onPressed: () {
                   widget.controller.clear();
+                  _debounce?.cancel();
                   widget.onChanged('');
                 },
               )

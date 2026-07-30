@@ -10,7 +10,7 @@ import '../../home/providers/home_provider.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
 
-final searchResultsProvider = FutureProvider<List<Movie>>((ref) async {
+final searchResultsProvider = FutureProvider.autoDispose<List<Movie>>((ref) async {
   final query = ref.watch(searchQueryProvider);
   if (query.trim().isEmpty) return [];
   final api = ref.read(apiClientProvider);
