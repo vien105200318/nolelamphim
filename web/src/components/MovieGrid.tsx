@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import MovieCard from './MovieCard'
+import { normalizeMovieList } from '@/lib/api'
 import type { Movie } from '@/lib/types'
 
 const BASE_URL = 'https://vsmov.com/api'
@@ -29,7 +30,9 @@ export default function MovieGrid({
     })
       .then((r) => r.json())
       .then((data) => {
-        if (data.status && data.items?.length > 0) setItems(data.items)
+        if (data.status && data.items?.length > 0) {
+          setItems(normalizeMovieList(data).items)
+        }
       })
       .finally(() => setLoading(false))
   }, [page, path])

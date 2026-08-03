@@ -39,16 +39,47 @@ async function fetchAPI<T>(
 
 type MovieList = { status: boolean; items: Movie[] }
 
+const STRING_FIELDS = [
+  'origin_name',
+  'poster_url',
+  'thumb_url',
+  'quality',
+  'lang',
+  'time',
+  'type',
+  'status',
+  'episode_current',
+  'episode_total',
+] as const
+
+function normalizeMovie(movie: Movie): Movie {
+  const record = movie as unknown as Record<string, unknown>
+  for (const key of STRING_FIELDS) {
+    const value = record[key]
+    if (value != null && typeof value !== 'string') {
+      record[key] = undefined
+    }
+  }
+  return movie
+}
+
+export function normalizeMovieList(list: MovieList): MovieList {
+  return {
+    ...list,
+    items: (list.items ?? []).map(normalizeMovie),
+  }
+}
+
 export function getNewMovies(page = 1) {
-  return fetchAPI<MovieList>('/danh-sach/phim-moi-cap-nhat', { page })
+  return fetchAPI<MovieList>('/danh-sach/phim-moi-cap-nhat', { page }).then(normalizeMovieList)
 }
 
 export function getSubteam(limit = 20) {
-  return fetchAPI<MovieList>('/danh-sach/subteam', { limit }, { status: false, items: [] })
+  return fetchAPI<MovieList>('/danh-sach/subteam', { limit }, { status: false, items: [] }).then(normalizeMovieList)
 }
 
 export function searchMovies(keyword: string, page = 1, limit = 20) {
-  return fetchAPI<MovieList>('/tim-kiem', { keyword, page, limit })
+  return fetchAPI<MovieList>('/tim-kiem', { keyword, page, limit }).then(normalizeMovieList)
 }
 
 export function getCategories() {
@@ -66,7 +97,7 @@ export function getMoviesByCategory(
     status?: string
   },
 ) {
-  return fetchAPI<MovieList>(`/the-loai/${slug}`, params)
+  return fetchAPI<MovieList>(`/the-loai/${slug}`, params).then(normalizeMovieList)
 }
 
 export function getCountries() {
@@ -83,7 +114,7 @@ export function getMoviesByCountry(
     status?: string
   },
 ) {
-  return fetchAPI<MovieList>(`/quoc-gia/${slug}`, params)
+  return fetchAPI<MovieList>(`/quoc-gia/${slug}`, params).then(normalizeMovieList)
 }
 
 export function getYears() {
@@ -99,7 +130,7 @@ export function getMoviesByYear(
     status?: string
   },
 ) {
-  return fetchAPI<MovieList>(`/nam/${year}`, params)
+  return fetchAPI<MovieList>(`/nam/${year}`, params).then(normalizeMovieList)
 }
 
 export function getMovieDetail(slug: string) {

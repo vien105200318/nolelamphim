@@ -1,5 +1,6 @@
 import MovieGrid from "@/components/MovieGrid";
 import Link from "next/link";
+import { getMoviesByCategory } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +12,9 @@ export default async function CategoryMoviesPage({
   const { slug } = await params;
   const name = slug.charAt(0).toUpperCase() + slug.slice(1);
 
-  const data = await fetch(
-    `https://vsmov.com/api/the-loai/${slug}?page=1&limit=24`,
-    { headers: { Accept: 'application/json' } },
-  ).then((r) => r.json()).catch(() => ({ status: false, items: [] }));
+  const data = await getMoviesByCategory(slug, { page: 1, limit: 24 }).catch(
+    () => ({ status: false, items: [] }),
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-6">

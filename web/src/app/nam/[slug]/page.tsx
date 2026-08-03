@@ -1,5 +1,6 @@
 import MovieGrid from "@/components/MovieGrid";
 import Link from "next/link";
+import { getMoviesByYear } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,9 @@ export default async function YearMoviesPage({
 }) {
   const { slug } = await params;
 
-  const data = await fetch(
-    `https://vsmov.com/api/nam/${slug}?page=1&limit=24`,
-    { headers: { Accept: 'application/json' } },
-  ).then((r) => r.json()).catch(() => ({ status: false, items: [] }));
+  const data = await getMoviesByYear(slug, { page: 1, limit: 24 }).catch(
+    () => ({ status: false, items: [] }),
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-6">

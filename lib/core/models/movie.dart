@@ -22,5 +22,25 @@ class Movie with _$Movie {
     @JsonKey(name: 'episode_total') String? episodeTotal,
   }) = _Movie;
 
-  factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
+  factory Movie.fromJson(Map<String, dynamic> json) {
+    final cleaned = Map<String, dynamic>.from(json);
+    for (final key in const [
+      'origin_name',
+      'poster_url',
+      'thumb_url',
+      'quality',
+      'lang',
+      'time',
+      'type',
+      'status',
+      'episode_current',
+      'episode_total',
+    ]) {
+      final value = cleaned[key];
+      if (value != null && value is! String) {
+        cleaned[key] = null;
+      }
+    }
+    return _$MovieFromJson(cleaned);
+  }
 }
