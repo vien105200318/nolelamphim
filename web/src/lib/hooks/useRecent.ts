@@ -8,6 +8,7 @@ export interface RecentItem {
   name: string
   thumb: string
   episode?: string
+  episodeSlug?: string
   watchedAt: number
 }
 
@@ -16,8 +17,11 @@ const STORAGE_KEY = 'recent'
 export function useRecent() {
   const [recent, setRecent] = useState<RecentItem[]>(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      return stored ? JSON.parse(stored) : []
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+      } catch {
+        return []
+      }
     }
     return []
   })
@@ -33,5 +37,18 @@ export function useRecent() {
     })
   }, [])
 
-  return { recent, add }
+  const remove = useCallback((slug: string) => {
+    setRecent((prev) => {
+      const next = prev.filter((r) => r.slug !== slug)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
+  const clear = useCallback(() => {
+    setRecent([])
+    localStorage.setItem(STORAGE_KEY, '[]')
+  }, [])
+
+  return { recent, add, remove, clear }
 }

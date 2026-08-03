@@ -4,15 +4,15 @@ import type { Movie } from "@/lib/types";
 
 export default function MovieCard({ movie, dot }: { movie: Movie; dot?: 'new' | 'hot' }) {
   return (
-    <Link href={`/phim/${movie.slug}`} className="group block">
-      <div className="aspect-[2/3] rounded-xl overflow-hidden bg-bg-card relative">
+    <Link href={`/phim/${movie.slug}`} className="group block focus:outline-none">
+      <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-bg-card transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:shadow-[0_18px_40px_-12px_rgba(196,75,237,0.3)] group-hover:ring-1 group-hover:ring-[#C44BED]/35">
         {movie.thumb_url ? (
           <Image
             src={movie.thumb_url}
             alt={movie.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-            className="object-cover transition duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-text-muted">
@@ -21,8 +21,11 @@ export default function MovieCard({ movie, dot }: { movie: Movie; dot?: 'new' | 
             </svg>
           </div>
         )}
+        {/* Shine sweep */}
+        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+
         {dot && (
-          <span className={`absolute top-3 left-3 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase ${
+          <span className={`absolute top-3 left-3 z-20 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase ${
             dot === 'new'
               ? 'bg-[#4A9EFF] text-white shadow-[0_0_10px_rgba(74,158,255,0.4)]'
               : 'bg-gradient-to-r from-[#FF6B9D] to-[#C44BED] text-white shadow-[0_0_10px_rgba(196,75,237,0.4)]'
@@ -31,20 +34,13 @@ export default function MovieCard({ movie, dot }: { movie: Movie; dot?: 'new' | 
           </span>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </div>
-        </div>
       </div>
       <div className="mt-2.5 px-0.5">
-        <h3 className="text-sm font-medium text-text-primary leading-snug line-clamp-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#FF6B9D] group-hover:to-[#4A9EFF] transition-all duration-300">
+        <h3 className="text-sm font-medium text-text-primary leading-snug line-clamp-2 transition-colors duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#FF6B9D] group-hover:to-[#4A9EFF]">
           {movie.name}
         </h3>
         {movie.year && (
-          <p className="text-[11px] text-text-muted mt-1">{movie.year}</p>
+          <p className="text-[11px] text-text-muted mt-1 transition-colors duration-300 group-hover:text-text-secondary">{movie.year}</p>
         )}
       </div>
     </Link>

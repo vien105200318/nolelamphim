@@ -1,13 +1,60 @@
 import { getMovieDetail, getMovieEpisodes } from "@/lib/api";
+import type { Metadata } from "next";
 import type { MovieDetailResponse } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { SITE_URL } from "@/lib/site";
 import SimilarMovies from "@/components/SimilarMovies";
 import FavoriteButton from "@/components/FavoriteButton";
 import EpisodeList from "@/components/EpisodeList";
+import Reveal from "@/components/Reveal";
+import RatingBox from "@/components/RatingBox";
+import ShareButton from "@/components/ShareButton";
+import ReportButton from "@/components/ReportButton";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getMovieDetail(slug).catch(
+    () => ({ status: false, movie: null } as MovieDetailResponse),
+  );
+  const movie = data.movie;
+
+  if (!movie) return { title: "Không tìm thấy phim" };
+
+  const title = movie.name;
+  const description = movie.content
+    ? movie.content.replace(/<[^>]*>/g, "").slice(0, 160)
+    : `Xem phim ${movie.name} ${movie.year ? movie.year : ""} HD VietSub miễn phí.`;
+  const image = movie.poster_url || movie.thumb_url;
+
+  return {
+    title,
+    description,
+    keywords: [
+      movie.name,
+      movie.origin_name,
+      ...(Array.isArray(movie.category) ? movie.category.map((c) => c.name) : []),
+    ].filter(Boolean).join(", "),
+    openGraph: {
+      title,
+      description,
+      type: "video.movie",
+      images: image ? [{ url: image }] : [],
+    },
+    twitter: {
+      title,
+      description,
+      images: image ? [image] : [],
+    },
+  };
+}
 
 export default async function MovieDetailPage({
   params,
@@ -27,8 +74,29 @@ export default async function MovieDetailPage({
   const movie = data.movie;
   const episodes = epRes.status ? epRes.episodes : [];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Movie",
+    name: movie.name,
+    alternateName: movie.origin_name,
+    description: movie.content
+      ? movie.content.replace(/<[^>]*>/g, "").slice(0, 300)
+      : undefined,
+    image: movie.poster_url || movie.thumb_url || undefined,
+    url: `${SITE_URL}/phim/${slug}`,
+    year: movie.year,
+    duration: movie.time,
+    genre: Array.isArray(movie.category) ? movie.category.map((c) => c.name) : undefined,
+    director: Array.isArray(movie.director) ? movie.director.map((d) => ({ "@type": "Person", name: d })) : undefined,
+    actor: Array.isArray(movie.actor) ? movie.actor.map((a) => ({ "@type": "Person", name: a })) : undefined,
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="relative h-[35vh] md:h-[45vh] rounded-2xl overflow-hidden mb-6">
         {movie.poster_url || movie.thumb_url ? (
           <Image
@@ -36,7 +104,7 @@ export default async function MovieDetailPage({
             alt={movie.name}
             fill
             sizes="100vw"
-            className="object-cover"
+            className="object-cover ken-burns"
             priority
           />
         ) : (
@@ -47,6 +115,7 @@ export default async function MovieDetailPage({
         <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/30 to-transparent" />
       </div>
 
+      <Reveal>
       <div className="space-y-5">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -57,7 +126,12 @@ export default async function MovieDetailPage({
               <p className="text-sm text-text-muted mt-1">{movie.origin_name}</p>
             )}
           </div>
-          <FavoriteButton id={movie._id} name={movie.name} slug={slug} thumb={movie.thumb_url || ''} />
+          <div className="flex items-center gap-3">
+            <RatingBox slug={slug} name={movie.name} />
+            <ShareButton slug={slug} name={movie.name} />
+            <ReportButton slug={slug} name={movie.name} />
+            <FavoriteButton id={movie._id} name={movie.name} slug={slug} thumb={movie.thumb_url || ''} />
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -150,6 +224,7 @@ export default async function MovieDetailPage({
           Quay lại
         </Link>
       </div>
+      </Reveal>
     </div>
   );
 }

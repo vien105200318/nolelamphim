@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react'
 import Link from 'next/link'
 import type { EpisodeServer, MovieDetail } from '@/lib/types'
 import { useRecent } from '@/lib/hooks/useRecent'
+import ReportButton from '@/components/ReportButton'
 
 export default function WatchPage({
   params,
@@ -53,6 +54,7 @@ export default function WatchPage({
         name: movie.name,
         thumb: movie.thumb_url || '',
         episode: currentEp.name,
+        episodeSlug: currentEp.slug,
       })
     }
   }, [movie, currentEp, addRecent, slug])
@@ -139,6 +141,8 @@ export default function WatchPage({
         >
           Danh sách tập
         </Link>
+
+        <ReportButton slug={slug} name={movie?.name || ''} episode={currentEp.name} />
 
         {nextEp ? (
           <Link

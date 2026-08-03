@@ -8,6 +8,42 @@ export function MovieCardSkeleton() {
   )
 }
 
+export function HeroSkeleton() {
+  return (
+    <div className="mt-6">
+      <div className="aspect-[16/10] md:aspect-[21/9] rounded-2xl shimmer" />
+    </div>
+  )
+}
+
+export function SectionRowSkeleton({ title = true }: { title?: boolean }) {
+  return (
+    <div className="mt-10">
+      {title && <div className="h-4 w-32 shimmer rounded mb-4" />}
+      <div className="flex gap-3 overflow-hidden">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="w-[170px] shrink-0">
+            <MovieCardSkeleton />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function GridSkeleton() {
+  return (
+    <div className="mt-10">
+      <div className="h-4 w-40 shimmer rounded mb-4" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <MovieCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function DetailSkeleton() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-6 space-y-5">

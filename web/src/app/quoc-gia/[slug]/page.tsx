@@ -1,8 +1,25 @@
-import MovieGrid from "@/components/MovieGrid";
+import MovieFilters from "@/components/MovieFilters";
 import Link from "next/link";
-import { getMoviesByCountry } from "@/lib/api";
+import type { Metadata } from "next";
+import { getMoviesByCountry, getCountries } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const countries = await getCountries().catch(() => null);
+  const country = countries?.data?.items?.find((c) => c.slug === slug);
+  const title = country ? `Phim ${country.name}` : `Phim ${slug}`;
+  return {
+    title,
+    description: `Xem các bộ phim ${country?.name ?? slug} mới nhất, hay nhất với chất lượng HD VietSub miễn phí tại Nô Lệ Làm Phim.`,
+    openGraph: { title },
+  };
+}
 
 export default async function CountryMoviesPage({
   params,
@@ -29,7 +46,11 @@ export default async function CountryMoviesPage({
       <h1 className="text-lg font-semibold text-text-primary mb-5">{name}</h1>
 
       {data.items?.length > 0 ? (
-        <MovieGrid initialItems={data.items} path={`/quoc-gia/${slug}`} />
+        <MovieFilters
+          initialItems={data.items}
+          path={`/quoc-gia/${slug}`}
+          options={{ type: true, status: true, year: true }}
+        />
       ) : (
         <div className="content-card px-8 py-16 flex flex-col items-center">
           <p className="text-text-secondary text-sm">Không có phim nào</p>

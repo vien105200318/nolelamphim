@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import Image from 'next/image'
+import Link from 'next/link'
 import {
   searchMovies,
   getCategories,
@@ -13,6 +16,27 @@ import {
 } from '@/lib/api'
 import type { Movie, Category, Country } from '@/lib/types'
 import MovieCard from '@/components/MovieCard'
+
+const RECENT_KEY = 'recent-searches'
+
+function loadRecentSearches(): string[] {
+  if (typeof window === 'undefined') return []
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]')
+  } catch {
+    return []
+  }
+}
+
+function saveRecentSearches(arr: string[]) {
+  localStorage.setItem(RECENT_KEY, JSON.stringify(arr.slice(0, 8)))
+}
+
+function addRecentQuery(arr: string[], q: string): string[] {
+  const v = q.trim()
+  if (!v) return arr
+  return [v, ...arr.filter((x) => x !== v)].slice(0, 8)
+}
 
 type FilterType = 'category' | 'country' | 'year'
 
@@ -38,6 +62,11 @@ export default function SearchPage() {
   const [countries, setCountries] = useState<Country[]>([])
   const [years, setYears] = useState<Category[]>([])
   const [openDropdown, setOpenDropdown] = useState<FilterType | null>(null)
+
+  const [recentSearches, setRecentSearches] = useState<string[]>(loadRecentSearches)
+  const [suggestions, setSuggestions] = useState<Movie[]>([])
+  const [suggestionQuery, setSuggestionQuery] = useState('')
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
   const [activeFilter, setActiveFilter] = useState<ActiveFilter | null>(null)
   const [filterLabel, setFilterLabel] = useState('')
@@ -128,6 +157,32 @@ export default function SearchPage() {
   }, [activeFilter])
 
   useEffect(() => {
+    const q = query.trim()
+    if (!q) return
+    const t = setTimeout(async () => {
+      try {
+        const data = await searchMovies(q, 1, 8)
+        setSuggestionQuery(q)
+        setSuggestions(data.items)
+        setShowSuggestions(true)
+      } catch {
+        setSuggestions([])
+      }
+    }, 250)
+    return () => clearTimeout(t)
+  }, [query])
+
+  const recordSearch = useCallback((q: string) => {
+    const v = q.trim()
+    if (!v) return
+    setRecentSearches((prev) => {
+      const next = addRecentQuery(prev, v)
+      saveRecentSearches(next)
+      return next
+    })
+  }, [])
+
+  useEffect(() => {
     if (!activeFilterRef.current || query.trim()) return
     const t = setTimeout(() => {
       setOpenDropdown(null)
@@ -153,30 +208,105 @@ export default function SearchPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-6">
-      {/* Search bar */}
-      <div className="glass-tile rounded-2xl px-5 py-3.5 flex items-center gap-3 mb-5">
-        <svg className="w-5 h-5 shrink-0 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Tìm kiếm phim..."
-          className="flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted text-sm"
-          autoFocus
-        />
-        {query && (
-          <button
-            onClick={() => setQuery('')}
-            className="text-text-muted hover:text-white transition-colors"
+      {/* Search bar + suggestions */}
+      <div className="relative mb-5" onBlur={() => setTimeout(() => setShowSuggestions(false), 120)}>
+        <div className="glass-tile rounded-2xl px-5 py-3.5 flex items-center gap-3">
+          <svg className="w-5 h-5 shrink-0 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                recordSearch(query)
+                setShowSuggestions(false)
+              }
+            }}
+            onFocus={() => {
+              if (query.trim() && suggestions.length > 0) setShowSuggestions(true)
+            }}
+            placeholder="Tìm kiếm phim..."
+            className="flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted text-sm"
+            autoFocus
+          />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="text-text-muted hover:text-white transition-colors"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <AnimatePresence>
+        {showSuggestions && query.trim() && suggestionQuery === query.trim() && suggestions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute top-full left-0 right-0 mt-2 z-30 rounded-2xl glass-tile p-2 shadow-2xl max-h-[60vh] overflow-y-auto"
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-            </svg>
-          </button>
+            {suggestions.map((m) => (
+              <Link
+                key={m._id}
+                href={`/phim/${m.slug}`}
+                onMouseDown={(e) => e.preventDefault()}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors"
+              >
+                {m.thumb_url && (
+                  <div className="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card">
+                    <Image src={m.thumb_url} alt={m.name} fill sizes="36px" className="object-cover" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="text-xs text-text-primary truncate">{m.name}</p>
+                  {m.origin_name && (
+                    <p className="text-[10px] text-text-muted truncate">{m.origin_name}</p>
+                  )}
+                </div>
+                {m.year && (
+                  <span className="ml-auto text-[10px] text-text-muted shrink-0">{m.year}</span>
+                )}
+              </Link>
+            ))}
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
+
+      {/* Recent searches */}
+      {!query.trim() && recentSearches.length > 0 && (
+        <div className="flex items-center gap-2 mb-6 flex-wrap">
+          <span className="text-[10px] text-text-muted">Gần đây:</span>
+          {recentSearches.map((q) => (
+            <button
+              key={q}
+              onClick={() => {
+                setQuery(q)
+                recordSearch(q)
+              }}
+              className="px-3 py-1.5 rounded-xl glass-tile text-[11px] text-text-secondary hover:text-white transition-colors"
+            >
+              {q}
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              setRecentSearches([])
+              saveRecentSearches([])
+            }}
+            className="px-2 py-1 text-[10px] text-text-muted hover:text-white transition-colors"
+          >
+            Xoá
+          </button>
+        </div>
+      )}
 
       {/* Filter chips */}
       <div className="flex items-center gap-2 mb-6">
@@ -197,8 +327,15 @@ export default function SearchPage() {
                 </svg>
               </span>
             </button>
+            <AnimatePresence>
             {openDropdown === key && (
-              <div className="absolute top-full left-0 mt-1 z-20 w-52 max-h-60 overflow-y-auto rounded-xl glass-tile py-1 shadow-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute top-full left-0 mt-1 z-20 w-52 max-h-60 overflow-y-auto rounded-xl glass-tile py-1 shadow-2xl"
+              >
                 {(key === 'category' ? categories : key === 'country' ? countries : years).length === 0 ? (
                   <div className="p-4 text-sm text-text-muted text-center">Đang tải...</div>
                 ) : (
@@ -212,8 +349,9 @@ export default function SearchPage() {
                     </button>
                   ))
                 )}
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </div>
         ))}
 

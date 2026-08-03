@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WebOSInit from "@/components/WebOSInit";
+import ScrollProgress from "@/components/animations/ScrollProgress";
+import BackToTop from "@/components/animations/BackToTop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +19,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nô Lệ Làm Phim",
-  description: "Xem phim đa nền tảng",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: "Xem phim đa nền tảng miễn phí, cập nhật nhanh nhất.",
+  keywords: ["phim", "xem phim", "phim mới", "phim bộ", "phim lẻ", "Nô Lệ Làm Phim"],
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "vi_VN",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
   icons: [
     { rel: "icon", url: "/favicon.ico", sizes: "32x32" },
     { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
@@ -41,11 +57,17 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <WebOSInit />
+        <ScrollProgress />
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden>
+          <div className="absolute -top-32 -left-32 w-[36rem] h-[36rem] rounded-full bg-[#C44BED]/8 blur-[120px]" />
+          <div className="absolute top-1/4 -right-40 w-[32rem] h-[32rem] rounded-full bg-[#4A9EFF]/8 blur-[120px]" />
+        </div>
         <Navbar />
         <main className="flex-1">
           {children}
         </main>
         <Footer />
+        <BackToTop />
       </body>
     </html>
   );

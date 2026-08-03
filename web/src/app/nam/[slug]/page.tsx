@@ -1,8 +1,22 @@
-import MovieGrid from "@/components/MovieGrid";
+import MovieFilters from "@/components/MovieFilters";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getMoviesByYear } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  return {
+    title: `Phim năm ${slug}`,
+    description: `Xem các bộ phim ra mắt năm ${slug}, hay nhất với chất lượng HD VietSub miễn phí tại Nô Lệ Làm Phim.`,
+    openGraph: { title: `Phim năm ${slug}` },
+  };
+}
 
 export default async function YearMoviesPage({
   params,
@@ -28,7 +42,11 @@ export default async function YearMoviesPage({
       <h1 className="text-lg font-semibold text-text-primary mb-5">Phim năm {slug}</h1>
 
       {data.items?.length > 0 ? (
-        <MovieGrid initialItems={data.items} path={`/nam/${slug}`} />
+        <MovieFilters
+          initialItems={data.items}
+          path={`/nam/${slug}`}
+          options={{ type: true, status: true }}
+        />
       ) : (
         <div className="content-card px-8 py-16 flex flex-col items-center">
           <p className="text-text-secondary text-sm">Không có phim nào</p>

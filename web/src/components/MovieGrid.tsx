@@ -10,9 +10,15 @@ const BASE_URL = 'https://vsmov.com/api'
 export default function MovieGrid({
   initialItems,
   path,
+  extraParams = '',
+  sort = 'newest',
+  onData,
 }: {
   initialItems: Movie[]
   path: string
+  extraParams?: string
+  sort?: 'newest' | 'year'
+  onData?: (items: Movie[]) => void
 }) {
   const [page, setPage] = useState(1)
   const [items, setItems] = useState(initialItems)
@@ -25,17 +31,21 @@ export default function MovieGrid({
       return
     }
     setLoading(true)
-    fetch(`${BASE_URL}${path}?page=${page}`, {
+    fetch(`${BASE_URL}${path}?page=${page}${extraParams ? `&${extraParams}` : ''}`, {
       headers: { Accept: 'application/json' },
     })
       .then((r) => r.json())
       .then((data) => {
         if (data.status && data.items?.length > 0) {
-          setItems(normalizeMovieList(data).items)
+          const normalized = normalizeMovieList(data).items
+          setItems(normalized)
+          onData?.(normalized)
         }
       })
       .finally(() => setLoading(false))
-  }, [page, path])
+  }, [page, path, extraParams, onData])
+
+  const visible = sort === 'year' ? [...items].sort((a, b) => (b.year || 0) - (a.year || 0)) : items
 
   const totalPages = 10
   const pages: (number | '...')[] = []
@@ -50,7 +60,7 @@ export default function MovieGrid({
   return (
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {items.map((movie) => (
+        {visible.map((movie) => (
           <MovieCard key={movie._id} movie={movie} dot="new" />
         ))}
       </div>
