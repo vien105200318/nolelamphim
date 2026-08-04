@@ -1,0 +1,125 @@
+---
+import { CONTACT_EMAIL } from '../lib/site'
+
+interface Props {
+  slug: string
+  name: string
+  episode?: string
+}
+
+const { slug, name, episode } = Astro.props
+
+const ISSUES = [
+  { id: 'broken', label: 'Không xem được / lỗi phát' },
+  { id: 'wrong-episode', label: 'Sai tập / sai phim' },
+  { id: 'subtitle', label: 'Lỗi phụ đề' },
+  { id: 'image', label: 'Sai poster / ảnh' },
+  { id: 'other', label: 'Khác' },
+]
+---
+
+<div class="report-btn relative" data-slug={slug} data-name={name} data-episode={episode || ''} data-email={CONTACT_EMAIL}>
+  <button
+    class="report-trigger px-4 py-2.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white flex items-center gap-1.5"
+    aria-label="Báo lỗi phim"
+    title="Báo lỗi phim"
+  >
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    Báo lỗi
+  </button>
+
+  <div class="report-modal hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-sm rounded-2xl glass-tile p-5">
+      <h3 class="text-sm font-semibold text-text-primary mb-4">Báo lỗi phim</h3>
+      <div class="report-issues flex flex-col gap-1.5 mb-4">
+        {
+          ISSUES.map((i, idx) => (
+            <button
+             
+              type="button"
+              class={`report-issue w-full text-left px-3.5 py-2.5 rounded-xl text-xs transition-all ${
+                idx === 0
+                  ? 'bg-gradient-to-r from-[#FF6B9D]/15 to-[#4A9EFF]/15 text-white border border-[#C44BED]/30'
+                  : 'bg-white/5 text-text-secondary hover:bg-white/10'
+              }`}
+              data-value={i.id}
+            >
+              {i.label}
+            </button>
+          ))
+        }
+      </div>
+      <textarea
+        class="report-note w-full px-3.5 py-2.5 rounded-xl bg-white/5 text-text-primary text-xs outline-none resize-none focus:ring-1 focus:ring-[#C44BED]/40 placeholder:text-text-muted"
+        placeholder="Ghi chú thêm (không bắt buộc)..."
+        rows="3"
+      ></textarea>
+      <div class="flex gap-2 mt-4">
+        <button class="report-cancel flex-1 px-4 py-2.5 rounded-xl bg-white/5 text-text-secondary text-xs hover:bg-white/10 transition-colors">
+          Huỷ
+        </button>
+        <button class="report-submit flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B9D] via-[#C44BED] to-[#4A9EFF] text-white text-xs font-medium shadow-lg shadow-[#C44BED]/25 hover:opacity-90 transition-opacity">
+          Gửi báo lỗi
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.report-btn').forEach((box) => {
+    const slug = box.dataset.slug || ''
+    const name = box.dataset.name || ''
+    const episode = box.dataset.episode || ''
+    const email = box.dataset.email || ''
+    const trigger = box.querySelector<HTMLButtonElement>('.report-trigger')
+    const modal = box.querySelector<HTMLElement>('.report-modal')
+    const issues = Array.from(box.querySelectorAll<HTMLButtonElement>('.report-issue'))
+    const note = box.querySelector<HTMLTextAreaElement>('.report-note')
+    const cancel = box.querySelector<HTMLButtonElement>('.report-cancel')
+    const submit = box.querySelector<HTMLButtonElement>('.report-submit')
+
+    let issue = issues[0]?.dataset.value || ''
+
+    function setActive() {
+      issues.forEach((el) => {
+        const active = el.dataset.value === issue
+        el.className = active
+          ? 'report-issue w-full text-left px-3.5 py-2.5 rounded-xl text-xs transition-all bg-gradient-to-r from-[#FF6B9D]/15 to-[#4A9EFF]/15 text-white border border-[#C44BED]/30'
+          : 'report-issue w-full text-left px-3.5 py-2.5 rounded-xl text-xs transition-all bg-white/5 text-text-secondary hover:bg-white/10'
+      })
+    }
+
+    trigger?.addEventListener('click', () => {
+      modal?.classList.remove('hidden')
+    })
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.add('hidden')
+    })
+    cancel?.addEventListener('click', () => {
+      modal?.classList.add('hidden')
+      if (note) note.value = ''
+    })
+    issues.forEach((el) => {
+      el.addEventListener('click', () => {
+        issue = el.dataset.value || ''
+        setActive()
+      })
+    })
+
+    submit?.addEventListener('click', () => {
+      const subject = `[Báo lỗi] ${name}${episode ? ` - ${episode}` : ''}`
+      const body =
+        `Phim: ${name}\n` +
+        `Liên kết: ${window.location.origin}/phim/${slug}\n` +
+        (episode ? `Tập: ${episode}\n` : '') +
+        `Vấn đề: ${issues.find((i) => i.dataset.value === issue)?.textContent?.trim()}\n` +
+        (note?.value ? `Ghi chú: ${note.value}\n` : '')
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+      modal?.classList.add('hidden')
+      if (note) note.value = ''
+    })
+  })
+</script>

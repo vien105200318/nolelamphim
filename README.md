@@ -7,7 +7,7 @@ Xem phim đa nền tảng — Android, iOS, Web.
 | Platform | Framework | State Management | Routing | HTTP |
 |----------|-----------|-----------------|---------|------|
 | **Mobile** | Flutter 3.44 | Riverpod 2 | GoRouter 14 | Dio 5 |
-| **Web** | Next.js 16 | React 19 | App Router | Fetch |
+| **Web** | Astro 5 | Astro islands | File-based routing | Fetch |
 | **TV** | Flutter (TV theme) | Riverpod | GoRouter | Dio |
 
 **Common:** API từ `https://vsmov.com/api` (công khai, GET thuần), models dùng freezed + json_serializable.
@@ -36,10 +36,12 @@ nolelamphim/
 │       ├── movie_detail/         # Movie detail + episode list
 │       ├── watch/                # Video player (custom overlay, PiP)
 │       └── favorites/            # Favorites + watch history
-├── web/                          # Next.js web app
+├── web/                          # Astro web app
 │   └── src/
-│       ├── app/                  # App Router pages
+│       ├── pages/                # Routes (file-based)
+│       ├── layouts/              # Base layout, meta
 │       ├── components/           # Shared UI components
+│       ├── scripts/              # Client-side TS (islands)
 │       └── lib/                  # API client, types
 ├── android/
 │   └── app/.../MainActivity.kt   # PiP MethodChannel
@@ -79,14 +81,14 @@ flutter run -d chrome         # chạy web (Flutter)
 flutter build apk --release   # build APK release
 ```
 
-### Web (Next.js)
+### Web (Astro)
 
 ```bash
 cd web
 npm install
-npm run dev                   # local dev → http://localhost:3000
+npm run dev                   # local dev → http://localhost:4321
 npm run build                 # production build
-npm run lint                  # ESLint
+npm run preview               # preview bản build
 ```
 
 ### iOS Build
@@ -131,9 +133,9 @@ Tải bản build mới nhất tại [Releases](https://github.com/vien105200318
 - **Data flow:** Screen → Provider → ApiClient → Dio → `vsmov.com/api`
 - **Models:** Freezed (`@freezed`) với `json_serializable` cho parse API
 - **Navigation:** GoRouter `ShellRoute` cho tab bar, leaf route cho detail/watch
-- **Image:** `cached_network_image` (Flutter) / `next/image` (Web)
+- **Image:** `cached_network_image` (Flutter) / `<img>` lazy-load (Astro Web)
 - **Player:** `video_player` + custom overlay (không dùng Chewie) + PiP MethodChannel
-- **API response:** Tất cả hàm API trong `api.ts` (web) đều có fallback mặc định, không throw — chỉ `getMovieDetail` cần `.catch()` thủ công
+- **API response:** Tất cả hàm API trong `lib/api.ts` (web) đều có fallback mặc định, không throw — chỉ `getMovieDetail` cần `.catch()` thủ công
 
 ## License
 

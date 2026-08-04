@@ -1,0 +1,52 @@
+---
+import { isFavorite, toggleFavorite } from '../scripts/store'
+
+interface Props {
+  id: number
+  name: string
+  slug: string
+  thumb: string
+}
+
+const { id, name, slug, thumb } = Astro.props
+---
+
+<button
+  class="fav-button px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 glass-tile text-text-secondary hover:text-white"
+  data-id={id}
+  data-name={name}
+  data-slug={slug}
+  data-thumb={thumb}
+  aria-pressed="false"
+>
+  <span class="fav-label">♡ Yêu thích</span>
+</button>
+
+<script>
+  import { isFavorite, toggleFavorite } from '../scripts/store'
+
+  document.querySelectorAll<HTMLButtonElement>('.fav-button').forEach((btn) => {
+    const id = Number(btn.dataset.id)
+    const item = {
+      id,
+      name: btn.dataset.name || '',
+      slug: btn.dataset.slug || '',
+      thumb: btn.dataset.thumb || '',
+    }
+    const label = btn.querySelector('.fav-label')
+
+    const update = (active: boolean) => {
+      btn.classList.toggle('fav-active', active)
+      btn.classList.toggle('glass-tile', !active)
+      btn.classList.toggle('text-text-secondary', !active)
+      if (label) label.textContent = active ? '♥ Đã thích' : '♡ Yêu thích'
+      btn.setAttribute('aria-pressed', String(active))
+    }
+
+    update(isFavorite(id))
+
+    btn.addEventListener('click', () => {
+      update(toggleFavorite(item))
+    })
+  })
+</script>

@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MovieFilters from '../../components/MovieFilters.astro'
+import { getMoviesByYear } from '../../lib/api'
+
+const slug = Astro.params.slug ?? ''
+
+const data = await getMoviesByYear(slug, { page: 1, limit: 24 }).catch(() => ({
+  status: false,
+  items: [],
+}))
+---
+
+<BaseLayout title={`Phim năm ${slug}`} description={`Xem các bộ phim ra mắt năm ${slug}, hay nhất với chất lượng HD VietSub miễn phí tại Nô Lệ Làm Phim.`}>
+  <div class="px-4 md:px-8 py-6">
+    <div class="flex items-center gap-2 text-xs text-text-muted mb-4">
+      <a href="/" class="hover:text-white transition-colors">Trang chủ</a>
+      <span>/</span>
+      <a href="/search" class="hover:text-white transition-colors">Danh mục</a>
+      <span>/</span>
+      <span class="text-white">{slug}</span>
+    </div>
+
+    <h1 class="text-lg font-semibold text-text-primary mb-5">Phim năm {slug}</h1>
+
+    {
+      data.items?.length > 0 ? (
+        <MovieFilters
+          initialItems={data.items}
+          totalPages={data.pagination?.totalPages}
+          path={`/nam/${slug}`}
+          options={{ type: true, status: true }}
+        />
+      ) : (
+        <div class="content-card px-8 py-16 flex flex-col items-center">
+          <p class="text-text-secondary text-sm">Không có phim nào</p>
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

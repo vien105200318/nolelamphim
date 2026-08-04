@@ -1,0 +1,193 @@
+---
+import type { EpisodeServer } from '../lib/types'
+
+interface Props {
+  slug: string
+  servers: EpisodeServer[]
+}
+
+const { slug, servers } = Astro.props
+
+const PER_PAGE = 24
+
+const serverData = servers.map((s) => ({
+  name: s.server_name.trim(),
+  items: s.list.map((e) => ({ name: e.name, slug: e.slug })),
+}))
+
+const current = servers[0]
+const totalPages = Math.max(1, Math.ceil((current?.list.length ?? 0) / PER_PAGE))
+const initialEpisodes = current ? current.list.slice(0, PER_PAGE) : []
+
+function pagesHTML(page: number, total: number): string {
+  const pages: (number | '...')[] = []
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= page - 1 && i <= page + 1)) {
+      pages.push(i)
+    } else if (pages[pages.length - 1] !== '...') {
+      pages.push('...')
+    }
+  }
+  return pages
+    .map((p) =>
+      p === '...'
+        ? `<span class="px-2 text-text-muted text-xs">...</span>`
+        : `<button type="button" class="ep-page w-9 h-9 rounded-xl text-sm font-medium transition-all duration-200 ${
+            p === page ? 'pagination-active' : 'glass-tile text-text-secondary hover:text-white'
+          }" data-page="${p}">${p}</button>`,
+    )
+    .join('')
+}
+
+const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
+---
+
+<div class="episode-list" data-slug={slug} data-servers={dataAttr} data-per-page={PER_PAGE}>
+  <div class="flex items-center gap-2 mb-3 flex-wrap">
+    {
+      servers.length > 1 &&
+        servers.map((s, i) => (
+          <button
+           
+            type="button"
+            class={`ep-server px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              i === 0 ? 'glass-tile-active text-white' : 'glass-tile text-text-secondary'
+            }`}
+            data-server={i}
+          >
+            {s.server_name.trim()}
+          </button>
+        ))
+    }
+    {
+      totalPages > 1 && (
+        <span class="ep-count text-[11px] text-text-muted ml-auto">
+          {current?.list.length ?? 0} tập
+        </span>
+      )
+    }
+  </div>
+
+  <div class="content-card px-5 py-4">
+    <div id="episode-grid" class="flex flex-wrap gap-2">
+      {
+        initialEpisodes.map((ep) => (
+          <a
+           
+            href={`/xem/${slug}/${ep.slug}`}
+            class="w-14 h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center hover:text-white transition-all"
+          >
+            {ep.name}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+
+  <div id="episode-pagination" class="flex flex-wrap items-center justify-center gap-1.5 mt-3">
+    {totalPages > 1 && pagesHTML(1, totalPages)}
+  </div>
+</div>
+
+<script>
+  const list = document.querySelector<HTMLElement>('.episode-list')
+  if (list) {
+    const slug = list.dataset.slug || ''
+    const PER_PAGE = Number(list.dataset.perPage) || 24
+    const servers: { name: string; items: { name: string; slug: string }[] }[] = JSON.parse(list.dataset.servers || '[]')
+    const grid = document.getElementById('episode-grid')
+    const pagination = document.getElementById('episode-pagination')
+    const serverBtns = Array.from(list.querySelectorAll<HTMLButtonElement>('.ep-server'))
+    const countEl = list.querySelector<HTMLElement>('.ep-count')
+
+    let serverIdx = 0
+    let page = 1
+
+    function currentServer() {
+      return servers[serverIdx] || servers[0] || { name: '', items: [] }
+    }
+
+    function pagesHTML(total: number): string {
+      const pages: (number | '...')[] = []
+      for (let i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= page - 1 && i <= page + 1)) {
+          pages.push(i)
+        } else if (pages[pages.length - 1] !== '...') {
+          pages.push('...')
+        }
+      }
+      return pages
+        .map((p) =>
+          p === '...'
+            ? `<span class="px-2 text-text-muted text-xs">...</span>`
+            : `<button type="button" class="ep-page w-9 h-9 rounded-xl text-sm font-medium transition-all duration-200 ${
+                p === page ? 'pagination-active' : 'glass-tile text-text-secondary hover:text-white'
+              }" data-page="${p}">${p}</button>`,
+        )
+        .join('')
+    }
+
+    function render() {
+      const server = currentServer()
+      const items = server.items
+      const total = Math.max(1, Math.ceil(items.length / PER_PAGE))
+      const start = (page - 1) * PER_PAGE
+      const visible = items.slice(start, start + PER_PAGE)
+
+      if (grid) {
+        grid.innerHTML = visible
+          .map(
+            (ep) =>
+              `<a href="/xem/${slug}/${ep.slug}" class="w-14 h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center hover:text-white transition-all">${ep.name}</a>`,
+          )
+          .join('')
+      }
+
+      serverBtns.forEach((btn) => {
+        const i = Number(btn.dataset.server)
+        const active = i === serverIdx
+        btn.className = active
+          ? `ep-server px-3 py-1.5 rounded-xl text-xs font-medium transition-all glass-tile-active text-white`
+          : `ep-server px-3 py-1.5 rounded-xl text-xs font-medium transition-all glass-tile text-text-secondary`
+      })
+
+      if (countEl) countEl.textContent = `${items.length} tập`
+
+      if (pagination) {
+        pagination.innerHTML =
+          total > 1
+            ? `
+              <button type="button" class="ep-prev px-3 py-1.5 rounded-lg text-xs text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>◀</button>
+              ${pagesHTML(total)}
+              <button type="button" class="ep-next px-3 py-1.5 rounded-lg text-xs text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page >= total ? 'disabled' : ''}>▶</button>
+            `
+            : ''
+        pagination.querySelectorAll<HTMLButtonElement>('.ep-page').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            page = Number(btn.dataset.page)
+            render()
+          })
+        })
+        pagination.querySelector<HTMLButtonElement>('.ep-prev')?.addEventListener('click', () => {
+          page = Math.max(1, page - 1)
+          render()
+        })
+        pagination.querySelector<HTMLButtonElement>('.ep-next')?.addEventListener('click', () => {
+          const total = Math.max(1, Math.ceil(currentServer().items.length / PER_PAGE))
+          page = Math.min(total, page + 1)
+          render()
+        })
+      }
+    }
+
+    serverBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        serverIdx = Number(btn.dataset.server)
+        page = 1
+        render()
+      })
+    })
+
+    render()
+  }
+</script>

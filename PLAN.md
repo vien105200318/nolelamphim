@@ -7,7 +7,7 @@
 | Android  | Flutter   |
 | iOS      | Flutter   |
 | TV       | Flutter   |
-| **Web**  | **Next.js (TypeScript)** — fork riêng, load nhanh, SEO tốt, dễ build |
+| **Web**  | **Astro (TypeScript)** — fork riêng, load nhanh, SEO tốt, dễ build |
 
 Cả 4 nền tảng dùng chung API: `https://vsmov.com/api`
 
@@ -305,28 +305,28 @@ Hoặc check `SystemChrome` / custom platform detection.
 - Horizontal sections (auto scroll)
 - Voice search hỗ trợ
 
-## Sprint 8: Web với Next.js (fork riêng)
+## Sprint 8: Web với Astro (fork riêng)
 
-### Bước 8.1: Tạo Next.js project
+### Bước 8.1: Tạo Astro project
 ```bash
-npx create-next-app@latest web --typescript --tailwind --app
+npm create astro@latest web -- --template minimal
 ```
 
 ### Bước 8.2: Thư mục đề xuất
 ```
 web/
 ├── src/
-│   ├── app/
-│   │   ├── page.tsx              # Home
-│   │   ├── search/page.tsx       # Search
-│   │   ├── phim/[slug]/page.tsx  # Movie detail
-│   │   └── xem/[slug]/[ep]/page.tsx  # Watch
+│   ├── pages/
+│   │   ├── index.astro            # Home
+│   │   ├── search.astro           # Search
+│   │   ├── phim/[slug].astro      # Movie detail
+│   │   └── xem/[slug]/[ep].astro  # Watch
 │   ├── components/
-│   │   ├── MovieCard.tsx
-│   │   ├── MovieGrid.tsx
-│   │   └── VideoPlayer.tsx
+│   │   ├── MovieCard.astro
+│   │   ├── MovieGrid.astro
+│   │   └── VideoPlayer.astro
 │   ├── lib/
-│   │   ├── api.ts                # API client (fetch/axios)
+│   │   ├── api.ts                 # API client (fetch/axios)
 │   │   └── types.ts              # TypeScript types
 │   └── styles/
 ├── public/
@@ -344,8 +344,8 @@ export async function fetchMovies(page = 1) {
 ```
 
 ### Bước 8.4: Tính năng
-- Server Side Rendering (SSR) cho SEO
-- ISR (Incremental Static Regeneration) cho trang phim
+- Server Side Rendering (SSR) cho SEO (adapter `@astrojs/node`)
+- Static prerender cho trang tĩnh (sitemap, robots)
 - Video player dùng HTML5 `<video>` tag
 - Responsive với Tailwind CSS
 - Dark mode mặc định
@@ -398,5 +398,5 @@ Home ──► Chi tiết phim ──► Xem phim
 ## Ghi chú
 
 - **Flutter** codebase chính: Android, iOS, TV
-- **Next.js** (thư mục `web/`): Web app riêng, SSR, SEO, load nhanh
+- **Astro** (thư mục `web/`): Web app riêng, SSR, SEO, load nhanh
 - Cả hai đều dùng chung API `https://vsmov.com/api`

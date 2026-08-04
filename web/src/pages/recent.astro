@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+---
+
+<BaseLayout title="Xem gần đây" description="Lịch sử xem phim của bạn tại Nô Lệ Làm Phim." noIndex>
+  <div class="px-4 md:px-8 py-6">
+    <h1 class="text-lg font-semibold text-text-primary mb-6">Xem gần đây</h1>
+    <div id="recent-root"></div>
+  </div>
+
+  <script src="../scripts/recent-page.ts"></script>
+</BaseLayout>

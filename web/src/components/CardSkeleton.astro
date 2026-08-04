@@ -1,0 +1,16 @@
+---
+interface Props {
+  dot?: 'new' | 'hot'
+  width?: string
+}
+
+const { dot, width = '170px' } = Astro.props
+---
+
+<div style={`width:${width}`} class="shrink-0">
+  <div>
+    <div class="aspect-[2/3] rounded-xl shimmer" />
+    <div class="mt-2.5 h-3 shimmer rounded w-3/4" />
+    <div class="mt-1.5 h-2.5 shimmer rounded w-1/2" />
+  </div>
+</div>

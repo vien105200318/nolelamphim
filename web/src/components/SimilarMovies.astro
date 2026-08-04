@@ -1,0 +1,36 @@
+---
+import MovieCard from './MovieCard.astro'
+import { getMoviesByCategory } from '../lib/api'
+import type { Category } from '../lib/types'
+
+interface Props {
+  categories: Category[]
+  excludeSlug: string
+}
+
+const { categories, excludeSlug } = Astro.props
+
+let items: { _id: number; slug: string; name: string; year?: number; thumb_url?: string; poster_url?: string }[] = []
+
+if (categories.length > 0) {
+  const data = await getMoviesByCategory(categories[0].slug, { limit: 10 }).catch(() => ({ status: false, items: [] }))
+  items = data.items?.filter((m) => m.slug !== excludeSlug).slice(0, 6) ?? []
+}
+---
+
+{
+  items.length > 0 && (
+    <section>
+      <h3 class="text-sm font-semibold text-text-primary mb-3">
+        Phim tương tự
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
+        {
+          items.map((movie) => (
+            <MovieCard movie={movie} />
+          ))
+        }
+      </div>
+    </section>
+  )
+}

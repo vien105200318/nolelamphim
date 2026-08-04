@@ -1,0 +1,510 @@
+---
+import MovieCard from './MovieCard.astro'
+import type { Movie } from '../lib/types'
+
+interface Props {
+  initialQuery?: string
+  initialResults?: Movie[]
+  initialLabel?: string
+}
+
+const { initialQuery = '', initialResults = [], initialLabel = '' } = Astro.props
+
+const filterConfig = [
+  { key: 'category', label: 'Thể loại' },
+  { key: 'country', label: 'Quốc gia' },
+  { key: 'year', label: 'Năm' },
+]
+---
+
+<div
+  class="search-client px-4 md:px-8 py-6"
+  data-initial-results={JSON.stringify(initialResults.map((m) => ({ slug: m.slug, name: m.name, year: m.year, thumb_url: m.thumb_url })))}
+  data-initial-label={initialLabel}
+>
+  <div class="relative mb-5">
+    <div class="glass-tile rounded-2xl px-5 py-3.5 flex items-center gap-3">
+      <svg class="w-5 h-5 shrink-0 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input
+        id="search-input"
+        type="text"
+        value={initialQuery}
+        placeholder="Tìm kiếm phim..."
+        autocomplete="off"
+        class="flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted text-sm"
+      />
+      <button id="search-clear" class="hidden text-text-muted hover:text-white transition-colors" aria-label="Xoá">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+
+    <div id="search-suggestions" class="dropdown absolute top-full left-0 right-0 mt-2 z-30 rounded-2xl glass-tile p-2 shadow-2xl max-h-[60vh] overflow-y-auto"></div>
+  </div>
+
+  <div id="recent-searches" class="flex items-center gap-2 mb-6 flex-wrap"></div>
+
+  <div class="flex items-center gap-2 mb-6 flex-wrap">
+    {
+      filterConfig.map(({ key, label }) => (
+        <div class="relative">
+          <button
+            type="button"
+            class="filter-chip px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 glass-tile text-text-secondary"
+            data-key={key}
+          >
+            <span class="filter-chip-label flex items-center gap-1">
+              {label}
+              <svg class="w-3 h-3 transition-transform duration-200" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M7 10l5 5 5-5z" />
+              </svg>
+            </span>
+          </button>
+          <div class="filter-dropdown dropdown absolute top-full left-0 mt-1 z-20 w-52 max-h-60 overflow-y-auto rounded-xl glass-tile py-1 shadow-2xl" data-dropdown={key}>
+            <div class="p-4 text-sm text-text-muted text-center">Đang tải...</div>
+          </div>
+        </div>
+      ))
+    }
+
+    <button type="button" id="filter-clear" class="hidden px-3 py-2 rounded-xl text-[11px] font-medium text-text-muted hover:text-white glass-tile">
+      ✕ Xoá
+    </button>
+
+    <div id="sort-row" class="hidden flex items-center gap-1.5 ml-auto">
+      <span class="text-[10px] text-text-muted mr-1">Sắp xếp:</span>
+      <button type="button" class="sort-btn px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all text-text-muted hover:text-white" data-sort="name">
+        Tên
+      </button>
+      <button type="button" class="sort-btn px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all text-text-muted hover:text-white" data-sort="year">
+        Năm
+      </button>
+    </div>
+  </div>
+
+  <p id="filter-label" class="text-xs text-text-muted mb-4">{initialLabel}</p>
+
+  <div id="search-results">
+    {
+      initialResults.length > 0 ? (
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
+          {initialResults.map((movie) => <MovieCard movie={movie} />)}
+        </div>
+      ) : (
+        <div class="content-card px-8 py-16 flex flex-col items-center">
+          <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-text-muted" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+            </svg>
+          </div>
+          <p class="text-text-secondary text-sm">{initialQuery ? 'Không tìm thấy kết quả' : 'Chọn thể loại hoặc tìm kiếm phim'}</p>
+        </div>
+      )
+    }
+  </div>
+
+  <div id="search-loading" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
+    {
+      Array.from({ length: 10 }).map((_, i) => (
+        <div>
+          <div class="aspect-[2/3] rounded-xl shimmer" />
+          <div class="mt-2.5 h-3 shimmer rounded w-3/4" />
+          <div class="mt-1.5 h-2.5 shimmer rounded w-1/2" />
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  import { gridHTML } from '../scripts/cards'
+  import { getRecentSearches, saveRecentSearches } from '../scripts/store'
+
+  const root = document.querySelector<HTMLElement>('.search-client')
+  if (root) {
+    const BASE = 'https://vsmov.com/api'
+
+    let initialResults: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number }[] = []
+    try {
+      initialResults = JSON.parse(root.dataset.initialResults || '[]')
+    } catch {
+      initialResults = []
+    }
+    let initialLabel = root.dataset.initialLabel || ''
+
+    const input = document.getElementById('search-input') as HTMLInputElement
+    const clearBtn = document.getElementById('search-clear')
+    const suggestionsEl = document.getElementById('search-suggestions')
+    const recentEl = document.getElementById('recent-searches')
+    const resultsEl = document.getElementById('search-results')
+    const loadingEl = document.getElementById('search-loading')
+    const labelEl = document.getElementById('filter-label')
+    const sortRow = document.getElementById('sort-row')
+    const filterClear = document.getElementById('filter-clear')
+    const chipBtns = Array.from(root.querySelectorAll<HTMLButtonElement>('.filter-chip'))
+    const dropdownEls = Array.from(root.querySelectorAll<HTMLElement>('.filter-dropdown'))
+
+    let query = input.value
+    let results = initialResults
+    let loading = false
+    let categories: { slug: string; name: string }[] = []
+    let countries: { slug: string; name: string }[] = []
+    let years: { slug: string; name: string }[] = []
+    let openDropdown: string | null = null
+    let recentSearches: string[] = getRecentSearches()
+    let suggestions: { slug: string; name: string; origin_name?: string; year?: number; thumb_url?: string }[] = []
+    let suggestionQuery = ''
+    let showSuggestions = false
+    let activeFilter: { type: string; label: string; value: string } | null = null
+    let sortBy: 'name' | 'year' | null = null
+
+    let searchTimer: ReturnType<typeof setTimeout> | undefined
+    let suggestTimer: ReturnType<typeof setTimeout> | undefined
+
+    const filterLabelMap = (type: string, label: string) =>
+      type === 'category' ? `Thể loại: ${label}` : type === 'country' ? `Quốc gia: ${label}` : `Năm: ${label}`
+
+    function setLoading(v: boolean) {
+      loading = v
+      loadingEl?.classList.toggle('hidden', !v)
+      if (resultsEl) resultsEl.style.display = v ? 'none' : ''
+    }
+
+    function showEmpty(message: string) {
+      if (!resultsEl) return
+      resultsEl.innerHTML = `
+        <div class="content-card px-8 py-16 flex flex-col items-center">
+          <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-text-muted" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+            </svg>
+          </div>
+          <p class="text-text-secondary text-sm">${message}</p>
+        </div>
+      `
+    }
+
+    function renderResults() {
+      if (!resultsEl) return
+      const sorted =
+        sortBy === 'name'
+          ? [...results].sort((a, b) => a.name.localeCompare(b.name))
+          : sortBy === 'year'
+            ? [...results].sort((a, b) => (b.year || 0) - (a.year || 0))
+            : results
+      if (sorted.length === 0) {
+        showEmpty(query.trim() ? 'Không tìm thấy kết quả' : 'Chọn thể loại hoặc tìm kiếm phim')
+      } else {
+        resultsEl.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">${gridHTML(sorted)}</div>`
+      }
+    }
+
+    function setLabel(text: string) {
+      initialLabel = text
+      if (labelEl) labelEl.textContent = text
+      sortRow?.classList.toggle('hidden', results.length === 0)
+    }
+
+    async function fetchByFilter(filter: { type: string; label: string; value: string } | null) {
+      setLoading(true)
+      try {
+        let data: { status: boolean; items: typeof results }
+        if (!filter) {
+          const r = await fetch(`${BASE}/danh-sach/phim-moi-cap-nhat?page=1`, { headers: { Accept: 'application/json' } })
+          data = await r.json()
+          setLabel('Phim mới nhất')
+        } else if (filter.type === 'category') {
+          const r = await fetch(`${BASE}/the-loai/${filter.value}?limit=40`, { headers: { Accept: 'application/json' } })
+          data = await r.json()
+          setLabel(filterLabelMap('category', filter.label))
+        } else if (filter.type === 'country') {
+          const r = await fetch(`${BASE}/quoc-gia/${filter.value}?limit=40`, { headers: { Accept: 'application/json' } })
+          data = await r.json()
+          setLabel(filterLabelMap('country', filter.label))
+        } else {
+          const r = await fetch(`${BASE}/nam/${filter.value}?limit=40`, { headers: { Accept: 'application/json' } })
+          data = await r.json()
+          setLabel(filterLabelMap('year', filter.label))
+        }
+        results = Array.isArray(data.items) ? data.items : []
+        renderResults()
+      } catch {
+        results = []
+        renderResults()
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    async function runSearch() {
+      const q = query.trim()
+      if (!q) {
+        setLabel('')
+        if (activeFilter) {
+          fetchByFilter(activeFilter)
+        } else {
+          fetchByFilter(null)
+        }
+        return
+      }
+      setLoading(true)
+      try {
+        const r = await fetch(`${BASE}/tim-kiem?keyword=${encodeURIComponent(q)}&page=1&limit=20`, { headers: { Accept: 'application/json' } })
+        const data = await r.json()
+        results = Array.isArray(data.items) ? data.items : []
+        setLabel(`Kết quả cho "${q}"`)
+        renderResults()
+      } catch {
+        results = []
+        renderResults()
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    async function loadSuggestions() {
+      const q = query.trim()
+      if (!q) return
+      suggestTimer = setTimeout(async () => {
+        try {
+          const r = await fetch(`${BASE}/tim-kiem?keyword=${encodeURIComponent(q)}&page=1&limit=8`, { headers: { Accept: 'application/json' } })
+          const data = await r.json()
+          suggestionQuery = q
+          suggestions = Array.isArray(data.items) ? data.items : []
+          showSuggestions = suggestions.length > 0 && suggestionQuery === q
+          paintSuggestions()
+        } catch {
+          suggestions = []
+          paintSuggestions()
+        }
+      }, 250)
+    }
+
+    function paintSuggestions() {
+      if (!suggestionsEl) return
+      if (showSuggestions && suggestions.length > 0) {
+        suggestionsEl.innerHTML = suggestions
+          .map(
+            (m) => `
+              <a href="/phim/${m.slug}" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
+                ${m.thumb_url ? `<div class="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame"><img src="${m.thumb_url}" alt="${m.name}" class="w-full h-full object-cover" /></div>` : ''}
+                <div class="min-w-0">
+                  <p class="text-xs text-text-primary truncate">${m.name}</p>
+                  ${m.origin_name ? `<p class="text-[10px] text-text-muted truncate">${m.origin_name}</p>` : ''}
+                </div>
+                ${m.year ? `<span class="ml-auto text-[10px] text-text-muted shrink-0">${m.year}</span>` : ''}
+              </a>
+            `,
+          )
+          .join('')
+        suggestionsEl.classList.add('open')
+      } else {
+        suggestionsEl.innerHTML = ''
+        suggestionsEl.classList.remove('open')
+      }
+    }
+
+    function recordSearch(q: string) {
+      const v = q.trim()
+      if (!v) return
+      const next = [v, ...recentSearches.filter((x) => x !== v)].slice(0, 8)
+      recentSearches = next
+      saveRecentSearches(next)
+      paintRecent()
+    }
+
+    function paintRecent() {
+      if (!recentEl) return
+      if (query.trim() || recentSearches.length === 0) {
+        recentEl.innerHTML = ''
+        return
+      }
+      recentEl.innerHTML =
+        `<span class="text-[10px] text-text-muted">Gần đây:</span>` +
+        recentSearches
+          .map((q) => `<button type="button" class="recent-chip px-3 py-1.5 rounded-xl glass-tile text-[11px] text-text-secondary hover:text-white transition-colors" data-q="${q}">${q}</button>`)
+          .join('') +
+        `<button type="button" id="recent-clear" class="px-2 py-1 text-[10px] text-text-muted hover:text-white transition-colors">Xoá</button>`
+      recentEl.querySelectorAll<HTMLButtonElement>('.recent-chip').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          query = btn.dataset.q || ''
+          input.value = query
+          recordSearch(query)
+          runSearch()
+        })
+      })
+      recentEl.querySelector<HTMLButtonElement>('#recent-clear')?.addEventListener('click', () => {
+        recentSearches = []
+        saveRecentSearches([])
+        paintRecent()
+      })
+    }
+
+    function loadMeta() {
+      const listOf = (p: string) =>
+        fetch(`${BASE}${p}`, { headers: { Accept: 'application/json' } })
+          .then((r) => r.json())
+          .then((d) => (d.status === 'success' ? d.data.items : []))
+          .catch(() => [])
+      Promise.all([listOf('/the-loai'), listOf('/quoc-gia'), listOf('/nam')]).then(([c, co, y]) => {
+        categories = c
+        countries = co
+        years = y
+        paintDropdowns()
+      })
+    }
+
+    function paintDropdowns() {
+      dropdownEls.forEach((el) => {
+        const key = el.dataset.dropdown
+        const items = key === 'category' ? categories : key === 'country' ? countries : years
+        if (items.length === 0) return
+        el.innerHTML = items
+          .map(
+            (item) =>
+              `<button type="button" class="filter-option w-full text-left px-4 py-2 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors" data-type="${key}" data-label="${item.name}" data-value="${item.slug}">${item.name}</button>`,
+          )
+          .join('')
+      })
+    }
+
+    function paintChips() {
+      chipBtns.forEach((btn) => {
+        const key = btn.dataset.key
+        const active = activeFilter?.type === key
+        btn.className = active
+          ? `filter-chip px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 glass-tile-active text-white`
+          : `filter-chip px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 glass-tile text-text-secondary`
+        const labelSpan = btn.querySelector('.filter-chip-label')
+        if (labelSpan && labelSpan.firstChild) {
+          ;(labelSpan.firstChild as Text).textContent = active ? activeFilter?.label || '' : btn.dataset.key === 'category' ? 'Thể loại' : btn.dataset.key === 'country' ? 'Quốc gia' : 'Năm'
+        }
+      })
+      filterClear?.classList.toggle('hidden', !activeFilter)
+    }
+
+    function selectFilter(type: string, label: string, value: string) {
+      openDropdown = null
+      dropdownEls.forEach((el) => el.classList.remove('open'))
+      query = ''
+      input.value = ''
+      activeFilter = { type, label, value }
+      paintChips()
+      fetchByFilter(activeFilter)
+      paintRecent()
+      paintSuggestions()
+    }
+
+    function clearFilter() {
+      activeFilter = null
+      query = ''
+      input.value = ''
+      paintChips()
+      fetchByFilter(null)
+      paintRecent()
+    }
+
+    input?.addEventListener('input', () => {
+      query = input.value
+      clearBtn?.classList.toggle('hidden', !query)
+      paintRecent()
+      if (suggestTimer) clearTimeout(suggestTimer)
+      if (searchTimer) clearTimeout(searchTimer)
+      if (!query.trim()) {
+        suggestionsEl?.classList.remove('open')
+        suggestionsEl && (suggestionsEl.innerHTML = '')
+        showSuggestions = false
+        searchTimer = setTimeout(() => runSearch(), 100)
+        return
+      }
+      loadSuggestions()
+      searchTimer = setTimeout(() => runSearch(), 400)
+    })
+
+    input?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        recordSearch(query)
+        showSuggestions = false
+        suggestionsEl?.classList.remove('open')
+        paintSuggestions()
+      }
+    })
+
+    input?.addEventListener('focus', () => {
+      if (query.trim() && suggestions.length > 0) {
+        showSuggestions = true
+        paintSuggestions()
+      }
+    })
+
+    clearBtn?.addEventListener('click', () => {
+      query = ''
+      input.value = ''
+      clearBtn.classList.add('hidden')
+      if (suggestTimer) clearTimeout(suggestTimer)
+      suggestionsEl?.classList.remove('open')
+      suggestionsEl && (suggestionsEl.innerHTML = '')
+      runSearch()
+      paintRecent()
+    })
+
+    chipBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.key || ''
+        openDropdown = openDropdown === key ? null : key
+        dropdownEls.forEach((el) => {
+          el.classList.toggle('open', el.dataset.dropdown === key && openDropdown === key)
+        })
+      })
+    })
+
+    root.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      if (target.closest('.filter-chip') || target.closest('.filter-dropdown')) return
+      dropdownEls.forEach((el) => el.classList.remove('open'))
+      openDropdown = null
+    })
+
+    root.querySelectorAll<HTMLButtonElement>('.filter-option').forEach((opt) => {
+      opt.addEventListener('click', () => {
+        selectFilter(opt.dataset.type || '', opt.dataset.label || '', opt.dataset.value || '')
+      })
+    })
+
+    filterClear?.addEventListener('click', clearFilter)
+
+    document.querySelectorAll<HTMLButtonElement>('.sort-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const s = btn.dataset.sort as 'name' | 'year'
+        sortBy = sortBy === s ? null : s
+        document.querySelectorAll<HTMLButtonElement>('.sort-btn').forEach((b) => {
+          const active = sortBy === b.dataset.sort
+          b.className = active
+            ? `sort-btn px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all sort-active`
+            : `sort-btn px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all text-text-muted hover:text-white`
+        })
+        renderResults()
+      })
+    })
+
+    const box = root.querySelector('.relative.mb-5')
+    box?.addEventListener('focusout', () => {
+      setTimeout(() => {
+        if (!box.contains(document.activeElement)) {
+          showSuggestions = false
+          paintSuggestions()
+        }
+      }, 120)
+    })
+
+    loadMeta()
+    paintChips()
+    paintRecent()
+    paintSuggestions()
+    renderResults()
+    sortRow?.classList.toggle('hidden', results.length === 0)
+  }
+</script>

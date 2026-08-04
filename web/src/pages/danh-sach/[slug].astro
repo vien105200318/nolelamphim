@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MovieFilters from '../../components/MovieFilters.astro'
+import { getMoviesByListPath } from '../../lib/api'
+
+const slug = Astro.params.slug ?? ''
+
+const LISTS: Record<string, { title: string; desc: string }> = {
+  'phim-bo': {
+    title: 'Phim Bộ',
+    desc: 'Xem các bộ phim truyền hình dài tập mới nhất, hay nhất với chất lượng HD VietSub miễn phí.',
+  },
+  'phim-le': {
+    title: 'Phim Lẻ',
+    desc: 'Xem các bộ phim điện ảnh mới nhất, hay nhất với chất lượng HD VietSub miễn phí.',
+  },
+}
+
+const meta = LISTS[slug]
+
+if (!meta) {
+  return Astro.redirect('/404', 404)
+}
+
+const data = await getMoviesByListPath(slug, 1, 24).catch(() => ({
+  status: false,
+  items: [],
+}))
+---
+
+<BaseLayout title={meta.title} description={meta.desc}>
+  <div class="px-4 md:px-8 py-6">
+    <div class="flex items-center gap-2 text-xs text-text-muted mb-4">
+      <a href="/" class="hover:text-white transition-colors">Trang chủ</a>
+      <span>/</span>
+      <span class="text-white">{meta.title}</span>
+    </div>
+
+    <h1 class="text-lg font-semibold text-text-primary mb-5">{meta.title}</h1>
+
+    {
+      data.items?.length > 0 ? (
+        <MovieFilters
+          initialItems={data.items}
+          totalPages={data.pagination?.totalPages}
+          path={`/danh-sach/${slug}`}
+          options={{ status: true, year: true, country: true }}
+        />
+      ) : (
+        <div class="content-card px-8 py-16 flex flex-col items-center">
+          <p class="text-text-secondary text-sm">Không có phim nào</p>
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

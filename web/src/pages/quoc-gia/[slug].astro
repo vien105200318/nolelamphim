@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MovieFilters from '../../components/MovieFilters.astro'
+import { getMoviesByCountry, getCountries } from '../../lib/api'
+
+const slug = Astro.params.slug ?? ''
+const name = slug.charAt(0).toUpperCase() + slug.slice(1)
+
+const countries = await getCountries().catch(() => null)
+const country = countries?.data?.items?.find((c) => c.slug === slug)
+const title = country ? `Phim ${country.name}` : `Phim ${name}`
+const desc = `Xem các bộ phim ${country?.name ?? name} mới nhất, hay nhất với chất lượng HD VietSub miễn phí tại Nô Lệ Làm Phim.`
+
+const data = await getMoviesByCountry(slug, { page: 1, limit: 24 }).catch(() => ({
+  status: false,
+  items: [],
+}))
+---
+
+<BaseLayout title={title} description={desc}>
+  <div class="px-4 md:px-8 py-6">
+    <div class="flex items-center gap-2 text-xs text-text-muted mb-4">
+      <a href="/" class="hover:text-white transition-colors">Trang chủ</a>
+      <span>/</span>
+      <a href="/search" class="hover:text-white transition-colors">Danh mục</a>
+      <span>/</span>
+      <span class="text-white">{name}</span>
+    </div>
+
+    <h1 class="text-lg font-semibold text-text-primary mb-5">{name}</h1>
+
+    {
+      data.items?.length > 0 ? (
+        <MovieFilters
+          initialItems={data.items}
+          totalPages={data.pagination?.totalPages}
+          path={`/quoc-gia/${slug}`}
+          options={{ type: true, status: true, year: true }}
+        />
+      ) : (
+        <div class="content-card px-8 py-16 flex flex-col items-center">
+          <p class="text-text-secondary text-sm">Không có phim nào</p>
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

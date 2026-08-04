@@ -49,9 +49,17 @@ export interface MovieDetail extends Movie {
   episodes?: EpisodeServer[]
 }
 
+export interface Pagination {
+  totalItems: number
+  totalItemsPerPage: number
+  currentPage: number
+  totalPages: number
+}
+
 export interface ListResponse<T> {
   status: boolean
   items: T[]
+  pagination?: Pagination
 }
 
 export interface DataListResponse<T> {

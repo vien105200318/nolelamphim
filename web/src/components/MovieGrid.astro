@@ -1,0 +1,175 @@
+---
+import MovieCard from './MovieCard.astro'
+import type { Movie } from '../lib/types'
+
+interface Props {
+  initialItems: Movie[]
+  path: string
+  extraParams?: string
+  sort?: 'newest' | 'year'
+  dot?: 'new' | 'hot'
+  totalPages?: number
+}
+
+const { initialItems, path, extraParams = '', sort = 'newest', dot, totalPages = 10 } = Astro.props
+
+const initialPages: (number | '...')[] = []
+for (let i = 1; i <= totalPages; i++) {
+  if (i === 1 || i === totalPages || (i >= 1 - 1 && i <= 1 + 1)) {
+    initialPages.push(i)
+  } else if (initialPages[initialPages.length - 1] !== '...') {
+    initialPages.push('...')
+  }
+}
+---
+
+<div
+  class="movie-grid"
+  data-path={path}
+  data-extra={extraParams}
+  data-sort={sort}
+  data-dot={dot || ''}
+  data-total-pages={totalPages}
+>
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
+    {
+      initialItems.map((movie) => (
+        <MovieCard movie={movie} dot={dot} />
+      ))
+    }
+  </div>
+
+  <div class="flex flex-wrap items-center justify-center gap-1.5 mt-8">
+    <button
+      type="button"
+      class="mg-prev px-3 py-1.5 rounded-lg text-xs text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      disabled
+    >
+      ◀
+    </button>
+    <span class="mg-pages flex flex-wrap items-center justify-center gap-1.5">
+      {
+        initialPages.map((p) =>
+          p === '...' ? (
+            <span class="px-2 text-text-muted text-xs">...</span>
+          ) : (
+            <button
+              type="button"
+              class={`mg-page w-9 h-9 rounded-xl text-sm font-medium transition-all duration-200 ${
+                p === 1 ? 'pagination-active' : 'glass-tile text-text-secondary hover:text-white'
+              }`}
+              data-page={p}
+            >
+              {p}
+            </button>
+          ),
+        )
+      }
+    </span>
+    <button
+      type="button"
+      class="mg-next px-3 py-1.5 rounded-lg text-xs text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+    >
+      ▶
+    </button>
+  </div>
+  <div class="mg-loading hidden flex justify-center mt-4">
+    <div class="w-5 h-5 rounded-full border-2 border-white/20 border-t-white/60 animate-spin" />
+  </div>
+</div>
+
+<script>
+  import { gridHTML } from '../scripts/cards'
+
+  document.querySelectorAll<HTMLElement>('.movie-grid').forEach((root) => {
+    const path = root.dataset.path || ''
+    const sort = root.dataset.sort || 'newest'
+    const dot = (root.dataset.dot as 'new' | 'hot' | undefined) || undefined
+    const BASE = 'https://vsmov.com/api'
+
+    const grid = root.querySelector<HTMLElement>('.grid')
+    const pagesEl = root.querySelector<HTMLElement>('.mg-pages')
+    const prevBtn = root.querySelector<HTMLButtonElement>('.mg-prev')
+    const nextBtn = root.querySelector<HTMLButtonElement>('.mg-next')
+    const loadingEl = root.querySelector<HTMLElement>('.mg-loading')
+
+    let items: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number }[] = []
+    let page = 1
+    let totalPages = Number(root.dataset.totalPages) || 1
+
+    function sortItems(list: typeof items) {
+      return sort === 'year'
+        ? [...list].sort((a, b) => (b.year || 0) - (a.year || 0))
+        : list
+    }
+
+    function renderGrid(list: typeof items) {
+      grid!.innerHTML = gridHTML(sortItems(list), dot)
+    }
+
+    function pagesHTML(page: number): string {
+      const pages: (number | '...')[] = []
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+          pages.push(i)
+        } else if (pages[pages.length - 1] !== '...') {
+          pages.push('...')
+        }
+      }
+      return pages
+        .map((p) =>
+          p === '...'
+            ? `<span class="px-2 text-text-muted text-xs">...</span>`
+            : `<button type="button" class="mg-page w-9 h-9 rounded-xl text-sm font-medium transition-all duration-200 ${
+                p === page ? 'pagination-active' : 'glass-tile text-text-secondary hover:text-white'
+              }" data-page="${p}">${p}</button>`,
+        )
+        .join('')
+    }
+
+    function renderPagination() {
+      if (!pagesEl) return
+      pagesEl.innerHTML = pagesHTML(page)
+      pagesEl.querySelectorAll<HTMLButtonElement>('.mg-page').forEach((btn) => {
+        btn.addEventListener('click', () => fetchPage(Number(btn.dataset.page)))
+      })
+      prevBtn!.disabled = page <= 1
+      nextBtn!.disabled = page >= totalPages
+    }
+
+    async function fetchPage(p: number) {
+      const extra = root.dataset.extra || ''
+      loadingEl!.classList.remove('hidden')
+      try {
+        const res = await fetch(`${BASE}${path}?page=${p}${extra ? `&${extra}` : ''}`, {
+          headers: { Accept: 'application/json' },
+        })
+        const data = await res.json()
+        if (data.status && Array.isArray(data.items) && data.items.length > 0) {
+          items = data.items
+          page = p
+          const tp = Number(data.pagination?.totalPages)
+          if (tp > 0) totalPages = tp
+          renderGrid(items)
+          renderPagination()
+        }
+      } catch {
+        // keep current
+      } finally {
+        loadingEl!.classList.add('hidden')
+      }
+    }
+
+    prevBtn?.addEventListener('click', () => {
+      if (page > 1) fetchPage(page - 1)
+    })
+    nextBtn?.addEventListener('click', () => {
+      if (page < totalPages) fetchPage(page + 1)
+    })
+    root.addEventListener('mg-refresh', () => {
+      fetchPage(1)
+    })
+
+    renderPagination()
+  })
+</script>

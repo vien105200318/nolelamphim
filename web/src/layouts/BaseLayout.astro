@@ -1,0 +1,81 @@
+---
+import '../styles/global.css'
+import Navbar from '../components/Navbar.astro'
+import Footer from '../components/Footer.astro'
+import { SITE_NAME, SITE_URL } from '../lib/site'
+
+interface Props {
+  title?: string
+  description?: string
+  keywords?: string
+  ogImage?: string
+  noIndex?: boolean
+}
+
+const {
+  title,
+  description = 'Xem phim đa nền tảng miễn phí, cập nhật nhanh nhất.',
+  keywords,
+  ogImage,
+  noIndex = false,
+} = Astro.props
+
+const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME
+const canonical = new URL(Astro.url.pathname, SITE_URL)
+---
+
+<!doctype html>
+<html lang="vi" class="h-full antialiased">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {keywords && <meta name="keywords" content={keywords} />}
+    <meta name="theme-color" content="#0a0a0f" />
+    {noIndex && <meta name="robots" content="noindex" />}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
+  </head>
+  <body class="min-h-full flex flex-col">
+    <div
+      class="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
+      aria-hidden
+    >
+      <div class="absolute -top-32 -left-32 w-[36rem] h-[36rem] rounded-full bg-[#FF5C9E]/15 blur-[120px]" />
+      <div class="absolute top-1/4 -right-40 w-[32rem] h-[32rem] rounded-full bg-[#4A9EFF]/15 blur-[120px]" />
+      <div class="absolute bottom-0 left-1/3 w-[30rem] h-[30rem] rounded-full bg-[#00D6C8]/10 blur-[120px]" />
+    </div>
+    <Navbar />
+    <main class="flex-1 page-enter">
+      <slot />
+    </main>
+    <Footer />
+
+    <div id="scroll-progress" aria-hidden class="fixed top-0 left-0 right-0 h-[3px] z-[70] origin-left bg-gradient-to-r from-[#FF6B9D] via-[#C44BED] to-[#4A9EFF]" style="transform: scaleX(0)"></div>
+    <button id="back-to-top" class="back-to-top fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full glass-tile flex items-center justify-center text-text-secondary hover:text-white" aria-label="Lên đầu trang">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+      </svg>
+    </button>
+
+    <script src="../scripts/app.ts"></script>
+  </body>
+</html>

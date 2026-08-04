@@ -5,6 +5,7 @@ import type {
   EpisodeServer,
   DataListResponse,
   MovieDetailResponse,
+  Pagination,
 } from './types'
 
 const BASE_URL = 'https://vsmov.com/api'
@@ -37,7 +38,7 @@ async function fetchAPI<T>(
   }
 }
 
-type MovieList = { status: boolean; items: Movie[] }
+type MovieList = { status: boolean; items: Movie[]; pagination?: Pagination }
 
 const STRING_FIELDS = [
   'origin_name',

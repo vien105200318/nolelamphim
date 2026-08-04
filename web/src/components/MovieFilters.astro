@@ -1,0 +1,226 @@
+---
+import MovieGrid from './MovieGrid.astro'
+import type { Movie } from '../lib/types'
+
+interface Props {
+  path: string
+  initialItems: Movie[]
+  totalPages?: number
+  options?: {
+    type?: boolean
+    status?: boolean
+    year?: boolean
+    country?: boolean
+  }
+}
+
+const { path, initialItems, totalPages, options = {} } = Astro.props
+
+const TYPE_OPTIONS = [
+  { key: 'series', label: 'Phim bộ' },
+  { key: 'single', label: 'Phim lẻ' },
+]
+
+const STATUS_OPTIONS = [
+  { key: 'ongoing', label: 'Đang chiếu' },
+  { key: 'completed', label: 'Hoàn thành' },
+]
+
+const chevronBg =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%23a0a0b8'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E\")"
+---
+
+<div class="movie-filters" data-path={path} data-year={options.year ? '1' : ''} data-country={options.country ? '1' : ''}>
+  <div class="flex flex-wrap items-center gap-2 mb-5">
+    {
+      options.type && (
+        <div class="flex items-center gap-1.5 mr-1">
+          {TYPE_OPTIONS.map((o) => (
+            <button
+             
+              type="button"
+              class="mf-chip glass-tile text-text-secondary hover:text-white px-3.5 py-1.5 rounded-xl text-[11px] font-medium transition-all"
+              data-chip="type"
+              data-value={o.key}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      options.status && (
+        <div class="flex items-center gap-1.5 mr-1">
+          {STATUS_OPTIONS.map((o) => (
+            <button
+             
+              type="button"
+              class="mf-chip glass-tile text-text-secondary hover:text-white px-3.5 py-1.5 rounded-xl text-[11px] font-medium transition-all"
+              data-chip="status"
+              data-value={o.key}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      options.year && (
+        <select
+          class="mf-select-year px-3 py-1.5 rounded-xl glass-tile text-text-secondary text-[11px] font-medium outline-none cursor-pointer appearance-none bg-no-repeat pr-8"
+          style={`backgroundImage:${chevronBg};backgroundPosition:right 10px center`}
+        >
+          <option value="" class="bg-bg-card">Đang tải...</option>
+        </select>
+      )
+    }
+
+    {
+      options.country && (
+        <select
+          class="mf-select-country px-3 py-1.5 rounded-xl glass-tile text-text-secondary text-[11px] font-medium outline-none cursor-pointer appearance-none bg-no-repeat pr-8"
+          style={`backgroundImage:${chevronBg};backgroundPosition:right 10px center`}
+        >
+          <option value="" class="bg-bg-card">Đang tải...</option>
+        </select>
+      )
+    }
+
+    <button
+      type="button"
+      class="mf-clear hidden px-3 py-1.5 rounded-xl text-[11px] text-text-muted hover:text-white transition-colors"
+    >
+      Xoá bộ lọc
+    </button>
+
+    <div class="flex items-center gap-1.5 ml-auto">
+      <span class="text-[10px] text-text-muted mr-1">Sắp xếp:</span>
+      <button
+        type="button"
+        class="mf-sort px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all glass-tile text-text-secondary"
+      >
+        Mới nhất
+      </button>
+    </div>
+  </div>
+
+  <MovieGrid initialItems={initialItems} path={path} totalPages={totalPages} />
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('.movie-filters')
+  if (root) {
+    const path = root.dataset.path || ''
+    const wantYear = root.dataset.year === '1'
+    const wantCountry = root.dataset.country === '1'
+
+    const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('.mf-chip'))
+    const yearSelect = root.querySelector<HTMLSelectElement>('.mf-select-year')
+    const countrySelect = root.querySelector<HTMLSelectElement>('.mf-select-country')
+    const clearBtn = root.querySelector<HTMLButtonElement>('.mf-clear')
+    const sortBtn = root.querySelector<HTMLButtonElement>('.mf-sort')
+    const gridRoot = root.querySelector<HTMLElement>('.movie-grid')
+
+    const state: Record<string, string> = { type: '', status: '', year: '', country: '' }
+    let sort = 'newest'
+
+    function extraParams(): string {
+      const p = new URLSearchParams()
+      if (state.type) p.set('type', state.type)
+      if (state.status) p.set('status', state.status)
+      if (state.year) p.set('year', state.year)
+      if (state.country) p.set('country', state.country)
+      return p.toString()
+    }
+
+    function paintChips() {
+      chips.forEach((chip) => {
+        const k = chip.dataset.chip || ''
+        const v = chip.dataset.value || ''
+        const active = state[k] === v
+        chip.className = active
+          ? `mf-chip glass-tile-active text-white px-3.5 py-1.5 rounded-xl text-[11px] font-medium transition-all`
+          : `mf-chip glass-tile text-text-secondary hover:text-white px-3.5 py-1.5 rounded-xl text-[11px] font-medium transition-all`
+      })
+    }
+
+    function refresh() {
+      paintChips()
+      const hasFilter = Object.values(state).some(Boolean)
+      clearBtn?.classList.toggle('hidden', !hasFilter)
+      if (gridRoot) {
+        gridRoot.dataset.extra = extraParams()
+        gridRoot.dataset.sort = sort
+        gridRoot.dispatchEvent(new CustomEvent('mg-refresh'))
+      }
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const k = chip.dataset.chip || ''
+        const v = chip.dataset.value || ''
+        state[k] = state[k] === v ? '' : v
+        refresh()
+      })
+    })
+
+    function fillSelect(select: HTMLSelectElement | null, items: { slug: string; name: string }[]) {
+      if (!select) return
+      select.innerHTML =
+        `<option value="" class="bg-bg-card">${select === yearSelect ? 'Năm' : 'Quốc gia'}</option>` +
+        items.map((i) => `<option value="${i.slug}" class="bg-bg-card">${i.name}</option>`).join('')
+      select.addEventListener('change', () => {
+        const k = select === yearSelect ? 'year' : 'country'
+        state[k] = select.value
+        refresh()
+      })
+    }
+
+    const requests: Promise<void>[] = []
+    if (wantYear) {
+      requests.push(
+        fetch('https://vsmov.com/api/nam', { headers: { Accept: 'application/json' } })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.status === 'success') fillSelect(yearSelect, d.data.items)
+          })
+          .catch(() => {}),
+      )
+    }
+    if (wantCountry) {
+      requests.push(
+        fetch('https://vsmov.com/api/quoc-gia', { headers: { Accept: 'application/json' } })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.status === 'success') fillSelect(countrySelect, d.data.items)
+          })
+          .catch(() => {}),
+      )
+    }
+
+    clearBtn?.addEventListener('click', () => {
+      state.type = ''
+      state.status = ''
+      state.year = ''
+      state.country = ''
+      if (yearSelect) yearSelect.value = ''
+      if (countrySelect) countrySelect.value = ''
+      refresh()
+    })
+
+    sortBtn?.addEventListener('click', () => {
+      sort = sort === 'newest' ? 'year' : 'newest'
+      sortBtn.textContent = sort === 'newest' ? 'Mới nhất' : 'Năm giảm dần'
+      sortBtn.className = sort === 'year'
+        ? `mf-sort px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all sort-active`
+        : `mf-sort px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all glass-tile text-text-secondary`
+      refresh()
+    })
+
+    refresh()
+  }
+</script>

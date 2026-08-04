@@ -1,0 +1,202 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import ReportButton from '../../../components/ReportButton.astro'
+import { getMovieDetail, getMovieEpisodes } from '../../../lib/api'
+
+const slug = Astro.params.slug ?? ''
+const episode = Astro.params.episode ?? ''
+
+const [data, epRes] = await Promise.all([
+  getMovieDetail(slug).catch(() => ({ status: false, movie: null })),
+  getMovieEpisodes(slug),
+])
+
+if (!data.status || !data.movie) {
+  return Astro.redirect('/404', 404)
+}
+
+const movie = data.movie
+const episodes = epRes.status ? epRes.episodes : []
+
+const serverData = episodes.map((s) => ({
+  name: s.server_name.trim(),
+  items: s.list.map((e) => ({ name: e.name, slug: e.slug, embed: e.embed })),
+}))
+
+const currentServer = episodes[0]
+const currentList = currentServer?.list ?? []
+const currentEpIdx = currentList.findIndex((e) => e.slug === episode)
+const currentEp = currentList[currentEpIdx]
+const prevEp = currentEpIdx > 0 ? currentList[currentEpIdx - 1] : null
+const nextEp = currentEpIdx < currentList.length - 1 ? currentList[currentEpIdx + 1] : null
+
+const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` : movie.name
+---
+
+<BaseLayout title={pageTitle} description={`Xem ${movie.name} ${currentEp ? `tập ${currentEp.name}` : ''} HD VietSub miễn phí tại Nô Lệ Làm Phim.`}>
+  {
+    !currentEp ? (
+      <div class="px-4 md:px-8 py-20 flex flex-col items-center">
+        <p class="text-text-secondary text-sm">Không tìm thấy tập phim</p>
+        <a href={`/phim/${slug}`} class="mt-4 glass-tile px-5 py-2 rounded-xl text-xs text-text-secondary">
+          Quay lại
+        </a>
+      </div>
+    ) : (
+      <div
+        class="watch-page px-4 md:px-8 py-6 space-y-4"
+        data-slug={slug}
+        data-episode={episode}
+        data-movie-name={movie.name}
+        data-movie-id={movie._id}
+        data-movie-thumb={movie.thumb_url || ''}
+        data-ep-name={currentEp.name}
+        data-servers={serverData.length > 0 ? JSON.stringify(serverData) : '[]'}
+      >
+        <div class="rounded-2xl overflow-hidden bg-black glass-frame">
+          <div class="aspect-video w-full">
+            <iframe
+              id="watch-frame"
+              src={currentEp.embed}
+              class="w-full h-full"
+              allowfullscreen
+              allow="autoplay; fullscreen"
+              title={`${movie.name} - ${currentEp.name}`}
+            ></iframe>
+          </div>
+        </div>
+
+        <div class="content-card px-5 py-4">
+          <div class="flex items-center gap-2 text-xs text-text-muted mb-2 flex-wrap">
+            <a href="/" class="hover:text-white transition-colors">Trang chủ</a>
+            <span>/</span>
+            <a href={`/phim/${slug}`} class="hover:text-white transition-colors">{movie.name}</a>
+            <span>/</span>
+            <span class="text-white">{currentEp.name}</span>
+          </div>
+          <h1 class="text-lg font-bold text-text-primary">{movie.name} - {currentEp.name}</h1>
+        </div>
+
+        {
+          serverData.length > 1 && (
+            <div id="watch-servers" class="flex gap-2 flex-wrap">
+              {
+                serverData.map((s, i) => (
+                  <button
+                   
+                    type="button"
+                    class={`watch-server px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                      i === 0 ? 'glass-tile-active text-white' : 'glass-tile text-text-secondary'
+                    }`}
+                    data-server={i}
+                  >
+                    {s.name}
+                  </button>
+                ))
+              }
+            </div>
+          )
+        }
+
+        <div class="flex items-center gap-3 flex-wrap">
+          {
+            prevEp ? (
+              <a id="watch-prev" href={`/xem/${slug}/${prevEp.slug}`} class="px-5 py-2.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white">
+                ← {prevEp.name}
+              </a>
+            ) : (
+              <span class="px-5 py-2.5 rounded-xl text-text-muted text-xs opacity-40">← Hết</span>
+            )
+          }
+
+          <a href={`/phim/${slug}`} class="px-5 py-2.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white">
+            Danh sách tập
+          </a>
+
+          <ReportButton slug={slug} name={movie.name} episode={currentEp.name} />
+
+          {
+            nextEp ? (
+              <a id="watch-next" href={`/xem/${slug}/${nextEp.slug}`} class="px-5 py-2.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white">
+                {nextEp.name} →
+              </a>
+            ) : (
+              <span class="px-5 py-2.5 rounded-xl text-text-muted text-xs opacity-40">Hết →</span>
+            )
+          }
+        </div>
+      </div>
+    )
+  }
+
+  <script>
+    import { addRecent } from '../../../scripts/store'
+
+    const page = document.querySelector<HTMLElement>('.watch-page')
+    if (page) {
+      const slug = page.dataset.slug || ''
+      const episode = page.dataset.episode || ''
+      const movieName = page.dataset.movieName || ''
+      const movieId = Number(page.dataset.movieId)
+      const movieThumb = page.dataset.movieThumb || ''
+      const epName = page.dataset.epName || ''
+
+      let servers: { name: string; items: { name: string; slug: string; embed: string }[] }[] = []
+      try {
+        servers = JSON.parse(page.dataset.servers || '[]')
+      } catch {
+        servers = []
+      }
+
+      const frame = document.getElementById('watch-frame') as HTMLIFrameElement | null
+      const serverBtns = Array.from(page.querySelectorAll<HTMLButtonElement>('.watch-server'))
+      const prevLink = document.getElementById('watch-prev') as HTMLAnchorElement | null
+      const nextLink = document.getElementById('watch-next') as HTMLAnchorElement | null
+
+      addRecent({
+        id: movieId,
+        slug,
+        name: movieName,
+        thumb: movieThumb,
+        episode: epName,
+        episodeSlug: episode,
+      })
+
+      serverBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const i = Number(btn.dataset.server)
+          const server = servers[i]
+          if (!server) return
+          const ep = server.items.find((e) => e.slug === episode)
+          serverBtns.forEach((b) => {
+            const active = Number(b.dataset.server) === i
+            b.className = active
+              ? `watch-server px-4 py-2 rounded-xl text-xs font-medium transition-all glass-tile-active text-white`
+              : `watch-server px-4 py-2 rounded-xl text-xs font-medium transition-all glass-tile text-text-secondary`
+          })
+          if (ep && frame) {
+            frame.src = ep.embed
+            frame.title = `${movieName} - ${ep.name}`
+          }
+          const idx = server.items.findIndex((e) => e.slug === episode)
+          if (prevLink) {
+            const p = idx > 0 ? server.items[idx - 1] : null
+            if (p) {
+              prevLink.href = `/xem/${slug}/${p.slug}`
+              prevLink.textContent = `← ${p.name}`
+              prevLink.classList.remove('opacity-40')
+            }
+          }
+          if (nextLink) {
+            const n = idx >= 0 && idx < server.items.length - 1 ? server.items[idx + 1] : null
+            if (n) {
+              nextLink.href = `/xem/${slug}/${n.slug}`
+              nextLink.textContent = `${n.name} →`
+              nextLink.classList.remove('opacity-40')
+            }
+          }
+        })
+      })
+    }
+  </script>
+</BaseLayout>

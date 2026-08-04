@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import SearchClient from '../components/SearchClient.astro'
+import { searchMovies, getNewMovies } from '../lib/api'
+
+const q = Astro.url.searchParams.get('q') ?? ''
+
+let initialResults = []
+let initialLabel = ''
+
+if (q.trim()) {
+  const data = await searchMovies(q.trim()).catch(() => ({ items: [] }))
+  initialResults = data.items ?? []
+  initialLabel = `Kết quả cho "${q.trim()}"`
+} else {
+  const data = await getNewMovies(1).catch(() => ({ items: [] }))
+  initialResults = data.items ?? []
+  initialLabel = 'Phim mới nhất'
+}
+---
+
+<BaseLayout title="Tìm kiếm phim" description="Tìm kiếm phim theo từ khoá, thể loại, quốc gia, năm tại Nô Lệ Làm Phim.">
+  <SearchClient initialQuery={q} initialResults={initialResults} initialLabel={initialLabel} />
+</BaseLayout>

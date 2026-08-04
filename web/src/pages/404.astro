@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+Astro.response.status = 404
+---
+
+<BaseLayout title="Không tìm thấy" description="Trang không tồn tại." noIndex>
+  <div class="px-4 md:px-8 py-24 flex flex-col items-center">
+    <p class="text-6xl font-bold gradient-text mb-4">404</p>
+    <p class="text-text-secondary text-sm mb-6">Không tìm thấy trang này</p>
+    <a href="/" class="px-5 py-2.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white">
+      Về trang chủ
+    </a>
+  </div>
+</BaseLayout>

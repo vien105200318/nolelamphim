@@ -1,0 +1,160 @@
+---
+const pathname = Astro.url.pathname
+
+const links = [
+  { href: '/', label: 'Trang chủ' },
+  { href: '/search', label: 'Tìm kiếm' },
+  { href: '/favorites', label: 'Yêu thích' },
+  { href: '/recent', label: 'Đã xem' },
+  { href: '/download', label: 'Tải App' },
+]
+
+function isActive(p: string, href: string) {
+  return p === href || (href !== '/' && p.startsWith(href))
+}
+
+const activeIndex = links.findIndex((l) => isActive(pathname, l.href))
+---
+
+<nav id="navbar" class="sticky top-0 z-50">
+  <div id="nav-shell" class="px-4 md:px-8 transition-all duration-300">
+    <div
+      id="nav-bar"
+      class="liquid-glass flex items-center justify-between gap-3 h-14 md:h-16 rounded-2xl md:rounded-3xl px-3 md:px-4"
+    >
+      <a href="/" class="flex items-center gap-2 md:gap-3 shrink-0 group pl-1 md:pl-2">
+        <img
+          src="/logo.png"
+          alt="Nô Lệ Làm Phim"
+          width="40"
+          height="40"
+          class="md:w-11 md:h-11 rounded-xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#C44BED]/20"
+        />
+        <span class="font-semibold text-base md:text-lg text-text-primary transition-all duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#FF6B9D] group-hover:via-[#C44BED] group-hover:to-[#4A9EFF]">
+          Nô Lệ Làm Phim
+        </span>
+      </a>
+
+      <button
+        id="nav-toggle"
+        class="md:hidden relative w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center"
+        aria-label="Menu"
+        aria-expanded="false"
+      >
+        <div class="w-5 flex flex-col gap-1">
+          <span id="nav-line-1" class="block h-0.5 bg-text-secondary rounded transition-all duration-300"></span>
+          <span id="nav-line-2" class="block h-0.5 bg-text-secondary rounded transition-all duration-300"></span>
+          <span id="nav-line-3" class="block h-0.5 bg-text-secondary rounded transition-all duration-300"></span>
+        </div>
+      </button>
+
+      <div id="nav-links" class="hidden md:flex items-center gap-1 relative">
+        <span
+          id="nav-pill"
+          class="absolute inset-y-0 rounded-xl bg-white/10 border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-all duration-300 ease-out opacity-0"
+          style="left:0;width:0"
+        ></span>
+        {
+          links.map((link, i) => {
+            const active = i === activeIndex
+            return (
+              <a
+                href={link.href}
+                class={`nav-link relative px-4 lg:px-5 py-2 rounded-xl text-[15px] font-medium transition-all duration-300 ease-out z-10 ${
+                  active ? 'text-white' : 'text-text-secondary hover:text-white'
+                }`}
+              >
+                {link.label}
+              </a>
+            )
+          })
+        }
+      </div>
+    </div>
+
+    <div id="nav-mobile" class="nav-mobile md:hidden overflow-hidden transition-all duration-300 ease-out">
+      <div class="liquid-glass mt-2 rounded-2xl px-3 py-2 flex flex-col gap-1">
+        {
+          links.map((link, i) => {
+            const active = i === activeIndex
+            return (
+              <a
+                href={link.href}
+                class={`nav-mobile-link px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ease-out ${
+                  active
+                    ? 'text-white bg-white/10'
+                    : 'text-text-secondary hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </a>
+            )
+          })
+        }
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const nav = document.getElementById('navbar')
+  const toggle = document.getElementById('nav-toggle')
+  const mobile = document.getElementById('nav-mobile')
+  const pill = document.getElementById('nav-pill')
+  const linksContainer = document.getElementById('nav-links')
+  const line1 = document.getElementById('nav-line-1')
+  const line2 = document.getElementById('nav-line-2')
+  const line3 = document.getElementById('nav-line-3')
+
+  let menuOpen = false
+
+  function updatePill() {
+    if (!pill || !linksContainer) return
+    const active = linksContainer.querySelector('.nav-link.text-white') as HTMLElement | null
+    if (!active) {
+      pill.classList.add('opacity-0')
+      return
+    }
+    const elRect = active.getBoundingClientRect()
+    const parentRect = linksContainer.getBoundingClientRect()
+    pill.style.left = `${elRect.left - parentRect.left}px`
+    pill.style.width = `${elRect.width}px`
+    pill.classList.remove('opacity-0')
+  }
+
+  function onScroll() {
+    if (!nav) return
+    nav.classList.toggle('scrolled', window.scrollY > 8)
+  }
+
+  function onPointerMove(e: PointerEvent) {
+    const bar = document.getElementById('nav-bar')
+    if (!bar) return
+    const rect = bar.getBoundingClientRect()
+    bar.style.setProperty('--lx', `${e.clientX - rect.left}px`)
+    bar.style.setProperty('--ly', `${e.clientY - rect.top}px`)
+  }
+
+  function setMenu(open: boolean) {
+    menuOpen = open
+    if (!mobile || !toggle) return
+    mobile.classList.toggle('open', open)
+    toggle.setAttribute('aria-expanded', String(open))
+    if (line1) line1.style.transform = open ? 'rotate(45deg) translateY(6px)' : ''
+    if (line2) line2.style.opacity = open ? '0' : ''
+    if (line3) line3.style.transform = open ? 'rotate(-45deg) translateY(-6px)' : ''
+  }
+
+  toggle?.addEventListener('click', () => setMenu(!menuOpen))
+  mobile?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setMenu(false)
+  })
+
+  window.addEventListener('resize', updatePill)
+  window.addEventListener('scroll', onScroll, { passive: true })
+  document.getElementById('nav-bar')?.addEventListener('pointermove', onPointerMove)
+
+  updatePill()
+  onScroll()
+  setMenu(false)
+</script>
