@@ -5,8 +5,9 @@ import MovieGrid from "@/components/MovieGrid";
 import HeroCarousel from "@/components/HeroCarousel";
 import CategorySection from "@/components/CategorySection";
 import ContinueWatching from "@/components/ContinueWatching";
+import ThemeSection from "@/components/ThemeSection";
 import Reveal from "@/components/Reveal";
-import { HeroSkeleton, SectionRowSkeleton, GridSkeleton } from "@/components/Skeleton";
+import { HeroSkeleton, SectionRowSkeleton, GridSkeleton, ThemeSectionSkeleton } from "@/components/Skeleton";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -73,45 +74,54 @@ async function NewMoviesSection() {
 
 export default function Home() {
   return (
-    <div className="max-w-6xl mx-auto px-4">
-      {/* Hero carousel */}
-      <Suspense fallback={<HeroSkeleton />}>
-        <HeroSection />
+    <>
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Hero carousel */}
+        <Suspense fallback={<HeroSkeleton />}>
+          <HeroSection />
+        </Suspense>
+      </div>
+
+      {/* Full-width theme band */}
+      <Suspense fallback={<ThemeSectionSkeleton />}>
+        <ThemeSection />
       </Suspense>
 
-      {/* Continue watching */}
-      <Suspense fallback={null}>
-        <ContinueWatching />
-      </Suspense>
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Continue watching */}
+        <Suspense fallback={null}>
+          <ContinueWatching />
+        </Suspense>
 
-      {/* Subteam */}
-      <Suspense fallback={<SectionRowSkeleton title={false} />}>
-        <SubteamSection />
-      </Suspense>
+        {/* Subteam */}
+        <Suspense fallback={<SectionRowSkeleton title={false} />}>
+          <SubteamSection />
+        </Suspense>
 
-      <Suspense fallback={<SectionRowSkeleton />}>
-        <CategorySection slug="hanh-dong" name="Hành Động" />
-      </Suspense>
-      <Suspense fallback={<SectionRowSkeleton />}>
-        <CategorySection slug="lang-man" name="Lãng Mạn" />
-      </Suspense>
-      <Suspense fallback={<SectionRowSkeleton />}>
-        <CategorySection slug="kinh-di" name="Kinh Dị" />
-      </Suspense>
-      <Suspense fallback={<SectionRowSkeleton />}>
-        <CategorySection slug="hoat-hinh" name="Hoạt Hình" />
-      </Suspense>
-      <Suspense fallback={<SectionRowSkeleton />}>
-        <CategorySection slug="hai" name="Hài" />
-      </Suspense>
-      <Suspense fallback={<SectionRowSkeleton />}>
-        <CategorySection slug="co-trang" name="Cổ Trang" />
-      </Suspense>
+        <Suspense fallback={<SectionRowSkeleton />}>
+          <CategorySection slug="hanh-dong" name="Hành Động" />
+        </Suspense>
+        <Suspense fallback={<SectionRowSkeleton />}>
+          <CategorySection slug="lang-man" name="Lãng Mạn" />
+        </Suspense>
+        <Suspense fallback={<SectionRowSkeleton />}>
+          <CategorySection slug="kinh-di" name="Kinh Dị" />
+        </Suspense>
+        <Suspense fallback={<SectionRowSkeleton />}>
+          <CategorySection slug="hoat-hinh" name="Hoạt Hình" />
+        </Suspense>
+        <Suspense fallback={<SectionRowSkeleton />}>
+          <CategorySection slug="hai" name="Hài" />
+        </Suspense>
+        <Suspense fallback={<SectionRowSkeleton />}>
+          <CategorySection slug="co-trang" name="Cổ Trang" />
+        </Suspense>
 
-      {/* New movies */}
-      <Suspense fallback={<GridSkeleton />}>
-        <NewMoviesSection />
-      </Suspense>
-    </div>
+        {/* New movies */}
+        <Suspense fallback={<GridSkeleton />}>
+          <NewMoviesSection />
+        </Suspense>
+      </div>
+    </>
   );
 }

@@ -78,6 +78,10 @@ export function getSubteam(limit = 20) {
   return fetchAPI<MovieList>('/danh-sach/subteam', { limit }, { status: false, items: [] }).then(normalizeMovieList)
 }
 
+export function getMoviesByListPath(path: string, page = 1, limit = 24) {
+  return fetchAPI<MovieList>(`/danh-sach/${path}`, { page, limit }, { status: false, items: [] }).then(normalizeMovieList)
+}
+
 export function searchMovies(keyword: string, page = 1, limit = 20) {
   return fetchAPI<MovieList>('/tim-kiem', { keyword, page, limit }).then(normalizeMovieList)
 }

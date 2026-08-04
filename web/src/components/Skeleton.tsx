@@ -44,6 +44,22 @@ export function GridSkeleton() {
   )
 }
 
+export function ThemeSectionSkeleton() {
+  return (
+    <div className="mt-10 py-8">
+      <div className="flex items-center gap-2 px-4 md:px-8 mb-4">
+        <div className="h-4 w-16 shimmer rounded" />
+        <div className="h-3 w-28 shimmer rounded" />
+      </div>
+      <div className="flex gap-4 overflow-hidden px-4 md:px-8">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="w-[220px] sm:w-[260px] md:w-[300px] h-[130px] md:h-[150px] rounded-2xl shimmer shrink-0" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function DetailSkeleton() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-6 space-y-5">
