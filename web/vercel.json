@@ -1,3 +1,4 @@
 {
+  "framework": "astro",
   "buildCommand": "npm run build"
 }
