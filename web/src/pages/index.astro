@@ -8,6 +8,7 @@ import MovieGrid from '../components/MovieGrid.astro'
 import MovieCard from '../components/MovieCard.astro'
 import Reveal from '../components/Reveal.astro'
 import { getNewMovies, getSubteam, getMoviesByCategory } from '../lib/api'
+import { HERO_IMAGE_LIMIT } from '../lib/constants'
 
 const [newMovies, subteam] = await Promise.all([
   getNewMovies().catch(() => ({ status: false, items: [], pagination: undefined })),
@@ -31,7 +32,7 @@ const categoryItems = await Promise.all(
   ),
 )
 
-const heroMovies = newMovies.items.slice(0, 8)
+const heroMovies = newMovies.items.slice(0, HERO_IMAGE_LIMIT)
 ---
 
 <BaseLayout>

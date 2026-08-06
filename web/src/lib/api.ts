@@ -5,15 +5,22 @@ import type {
   EpisodeServer,
   DataListResponse,
   MovieDetailResponse,
-  Pagination,
+  ListResponse,
 } from './types'
 
 const BASE_URL = 'https://vsmov.com/api'
+
+const FETCH_RETRIES = 2
+
+async function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 async function fetchAPI<T>(
   path: string,
   params?: Record<string, string | number>,
   fallback?: T,
+  retries = FETCH_RETRIES,
 ): Promise<T> {
   const url = new URL(`${BASE_URL}${path}`)
   if (params) {
@@ -21,24 +28,38 @@ async function fetchAPI<T>(
       url.searchParams.set(k, String(v)),
     )
   }
-  const res = await fetch(url.toString(), {
-    headers: { Accept: 'application/json' },
-    cache: 'no-store',
-  })
-  if (!res.ok) {
-    if (fallback !== undefined) return fallback
-    throw new Error(`API error: ${res.status} for ${url.toString()}`)
+  let lastError: unknown
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+        cache: 'no-store',
+      })
+      if (res.status === 429 || res.status >= 500) {
+        throw new Error(`HTTP ${res.status}`)
+      }
+      if (!res.ok) {
+        if (fallback !== undefined) return fallback
+        throw new Error(`API error: ${res.status} for ${url.toString()}`)
+      }
+      const text = await res.text()
+      try {
+        return JSON.parse(text) as T
+      } catch {
+        if (fallback !== undefined) return fallback
+        throw new Error(`Invalid JSON from ${url.toString()}`)
+      }
+    } catch (err) {
+      lastError = err
+      if (attempt < retries) await delay(300 * 2 ** attempt)
+    }
   }
-  const text = await res.text()
-  try {
-    return JSON.parse(text)
-  } catch {
-    if (fallback !== undefined) return fallback
-    throw new Error(`Invalid JSON from ${url.toString()}`)
-  }
+  console.error(`[api] ${path} failed after ${retries + 1} attempts:`, lastError)
+  if (fallback !== undefined) return fallback
+  throw lastError
 }
 
-type MovieList = { status: boolean; items: Movie[]; pagination?: Pagination }
+type MovieList = ListResponse<Movie>
 
 const STRING_FIELDS = [
   'origin_name',
@@ -54,14 +75,14 @@ const STRING_FIELDS = [
 ] as const
 
 function normalizeMovie(movie: Movie): Movie {
-  const record = movie as unknown as Record<string, unknown>
+  const record: Record<string, unknown> = { ...movie }
   for (const key of STRING_FIELDS) {
     const value = record[key]
     if (value != null && typeof value !== 'string') {
       record[key] = undefined
     }
   }
-  return movie
+  return record as unknown as Movie
 }
 
 export function normalizeMovieList(list: MovieList): MovieList {
@@ -142,6 +163,45 @@ export function getMovieDetail(slug: string) {
   return fetchAPI<MovieDetailResponse>(`/phim/${slug}`, undefined, { status: false, movie: null })
 }
 
+function findBalancedEnd(html: string, start: number): number {
+  let depth = 0
+  let inStr = false
+  for (let i = start; i < html.length; i++) {
+    const ch = html[i]
+    if (ch === '\\' && inStr) continue
+    if (ch === '"') {
+      inStr = !inStr
+      continue
+    }
+    if (inStr) continue
+    if (ch === '[') depth++
+    else if (ch === ']') {
+      depth--
+      if (depth === 0) return i + 1
+    }
+  }
+  return -1
+}
+
+function extractEpisodes(html: string): EpisodeServer[] {
+  const anchor = Math.max(html.indexOf('embedEpisodes'), html.indexOf('[{"server_name"'))
+  if (anchor < 0) return []
+  const start = html.indexOf('[', anchor)
+  if (start < 0) return []
+  const end = findBalancedEnd(html, start)
+  if (end <= start) return []
+  const raw = html.slice(start, end)
+  try {
+    return JSON.parse(raw) as EpisodeServer[]
+  } catch {
+    try {
+      return JSON.parse(raw.replace(/[\u0000-\u001f\u007f]/g, '')) as EpisodeServer[]
+    } catch {
+      return []
+    }
+  }
+}
+
 export async function getMovieEpisodes(
   slug: string,
 ): Promise<{ status: boolean; episodes: EpisodeServer[] }> {
@@ -150,32 +210,10 @@ export async function getMovieEpisodes(
       headers: { 'User-Agent': 'Mozilla/5.0' },
     })
     const html = await res.text()
-
-    const start = html.indexOf('[{"server_name"')
-    if (start < 0) return { status: false, episodes: [] }
-
-    let depth = 0
-    let inStr = false
-    let end = start
-    for (let i = start; i < html.length; i++) {
-      const ch = html[i]
-      if (ch === '\\' && inStr) continue
-      if (ch === '"') { inStr = !inStr; continue }
-      if (inStr) continue
-      if (ch === '[') depth++
-      if (ch === ']') { depth--; if (depth === 0) { end = i + 1; break } }
-    }
-
-    let raw = html.slice(start, end)
-    raw = raw.replace(/[\x00-\x1f\x7f]/g, '')
-    raw = raw.replace(/\\\//g, '/')
-    raw = raw.replace(/\\"/g, '"')
-    raw = raw.replace(/\\n/g, '')
-    raw = raw.replace(/\\r/g, '')
-
-    const episodes: EpisodeServer[] = JSON.parse(raw)
-    return { status: true, episodes }
-  } catch {
+    const episodes = extractEpisodes(html)
+    return { status: episodes.length > 0, episodes }
+  } catch (err) {
+    console.error('[api] getMovieEpisodes failed for', slug, err)
     return { status: false, episodes: [] }
   }
 }

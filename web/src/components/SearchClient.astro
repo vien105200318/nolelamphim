@@ -6,9 +6,10 @@ interface Props {
   initialQuery?: string
   initialResults?: Movie[]
   initialLabel?: string
+  initialTotalPages?: number
 }
 
-const { initialQuery = '', initialResults = [], initialLabel = '' } = Astro.props
+const { initialQuery = '', initialResults = [], initialLabel = '', initialTotalPages = 1 } = Astro.props
 
 const filterConfig = [
   { key: 'category', label: 'Thể loại' },
@@ -21,6 +22,7 @@ const filterConfig = [
   class="search-client px-4 md:px-8 py-6"
   data-initial-results={JSON.stringify(initialResults.map((m) => ({ slug: m.slug, name: m.name, year: m.year, thumb_url: m.thumb_url })))}
   data-initial-label={initialLabel}
+  data-initial-total-pages={initialTotalPages}
 >
   <div class="relative mb-5">
     <div class="glass-tile rounded-2xl px-5 py-3.5 flex items-center gap-3">
@@ -106,6 +108,8 @@ const filterConfig = [
     }
   </div>
 
+  <div id="search-pagination" class="flex flex-wrap items-center justify-center gap-1.5 mt-6"></div>
+
   <div id="search-loading" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
     {
       Array.from({ length: 10 }).map((_, i) => (
@@ -120,8 +124,16 @@ const filterConfig = [
 </div>
 
 <script>
-  import { gridHTML } from '../scripts/cards'
+  import { gridHTML, escapeHTML } from '../scripts/cards'
   import { getRecentSearches, saveRecentSearches } from '../scripts/store'
+  import {
+    getNewMovies,
+    getMoviesByCategory,
+    getMoviesByCountry,
+    getMoviesByYear,
+    searchMovies,
+  } from '../lib/api'
+  import { SEARCH_LIMIT, SUGGESTION_LIMIT } from '../lib/constants'
 
   const root = document.querySelector<HTMLElement>('.search-client')
   if (root) {
@@ -150,6 +162,8 @@ const filterConfig = [
     let query = input.value
     let results = initialResults
     let loading = false
+    let page = 1
+    let totalPages = Number(root.dataset.initialTotalPages) || 1
     let categories: { slug: string; name: string }[] = []
     let countries: { slug: string; name: string }[] = []
     let years: { slug: string; name: string }[] = []
@@ -173,7 +187,7 @@ const filterConfig = [
       if (resultsEl) resultsEl.style.display = v ? 'none' : ''
     }
 
-    function showEmpty(message: string) {
+    function showEmpty(message: string, retryable = false) {
       if (!resultsEl) return
       resultsEl.innerHTML = `
         <div class="content-card px-8 py-16 flex flex-col items-center">
@@ -182,9 +196,14 @@ const filterConfig = [
               <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </svg>
           </div>
-          <p class="text-text-secondary text-sm">${message}</p>
+          <p class="text-text-secondary text-sm">${escapeHTML(message)}</p>
+          ${retryable ? `<button type="button" id="empty-retry" class="mt-4 px-4 py-2 rounded-xl glass-tile text-xs text-text-secondary hover:text-white transition-colors">Thử lại</button>` : ''}
         </div>
       `
+      document.getElementById('empty-retry')?.addEventListener('click', () => {
+        if (query.trim()) runSearch(page)
+        else fetchByFilter(activeFilter, page)
+      })
     }
 
     function renderResults() {
@@ -208,58 +227,108 @@ const filterConfig = [
       sortRow?.classList.toggle('hidden', results.length === 0)
     }
 
-    async function fetchByFilter(filter: { type: string; label: string; value: string } | null) {
+    function goToPage(p: number) {
+      if (p === page || loading) return
+      if (query.trim()) runSearch(p)
+      else fetchByFilter(activeFilter, p)
+    }
+
+    function renderPagination() {
+      const el = document.getElementById('search-pagination')
+      if (!el) return
+      if (totalPages <= 1) {
+        el.innerHTML = ''
+        return
+      }
+      const pages: (number | '...')[] = []
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+          pages.push(i)
+        } else if (pages[pages.length - 1] !== '...') {
+          pages.push('...')
+        }
+      }
+      el.innerHTML = `
+        <button type="button" class="sp-first w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>«</button>
+        <button type="button" class="sp-prev w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>‹</button>
+        ${pages
+          .map((p) =>
+            p === '...'
+              ? `<span class="px-2 text-text-muted text-xs">...</span>`
+              : `<button type="button" class="sp-page w-9 h-9 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  p === page ? 'pagination-active' : 'glass-tile text-text-secondary hover:text-white'
+                }" data-page="${p}">${p}</button>`,
+          )
+          .join('')}
+        <button type="button" class="sp-next w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page >= totalPages ? 'disabled' : ''}>›</button>
+        <button type="button" class="sp-last w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page >= totalPages ? 'disabled' : ''}>»</button>
+      `
+      el.querySelectorAll<HTMLButtonElement>('.sp-page').forEach((btn) => {
+        btn.addEventListener('click', () => goToPage(Number(btn.dataset.page)))
+      })
+      el.querySelector('.sp-first')?.addEventListener('click', () => goToPage(1))
+      el.querySelector('.sp-prev')?.addEventListener('click', () => goToPage(Math.max(1, page - 1)))
+      el.querySelector('.sp-next')?.addEventListener('click', () => goToPage(Math.min(totalPages, page + 1)))
+      el.querySelector('.sp-last')?.addEventListener('click', () => goToPage(totalPages))
+    }
+
+    async function fetchByFilter(filter: { type: string; label: string; value: string } | null, targetPage = 1) {
       setLoading(true)
       try {
-        let data: { status: boolean; items: typeof results }
+        let data: { status: boolean; items: typeof results; pagination?: { totalPages?: number } }
         if (!filter) {
-          const r = await fetch(`${BASE}/danh-sach/phim-moi-cap-nhat?page=1`, { headers: { Accept: 'application/json' } })
-          data = await r.json()
+          data = await getNewMovies(targetPage)
           setLabel('Phim mới nhất')
         } else if (filter.type === 'category') {
-          const r = await fetch(`${BASE}/the-loai/${filter.value}?limit=40`, { headers: { Accept: 'application/json' } })
-          data = await r.json()
+          data = await getMoviesByCategory(filter.value, { page: targetPage, limit: SEARCH_LIMIT })
           setLabel(filterLabelMap('category', filter.label))
         } else if (filter.type === 'country') {
-          const r = await fetch(`${BASE}/quoc-gia/${filter.value}?limit=40`, { headers: { Accept: 'application/json' } })
-          data = await r.json()
+          data = await getMoviesByCountry(filter.value, { page: targetPage, limit: SEARCH_LIMIT })
           setLabel(filterLabelMap('country', filter.label))
         } else {
-          const r = await fetch(`${BASE}/nam/${filter.value}?limit=40`, { headers: { Accept: 'application/json' } })
-          data = await r.json()
+          data = await getMoviesByYear(filter.value, { page: targetPage, limit: SEARCH_LIMIT })
           setLabel(filterLabelMap('year', filter.label))
         }
         results = Array.isArray(data.items) ? data.items : []
+        page = targetPage
+        totalPages = Number(data.pagination?.totalPages) || 1
         renderResults()
+        renderPagination()
       } catch {
         results = []
-        renderResults()
+        page = targetPage
+        totalPages = 1
+        showEmpty('Không thể tải dữ liệu. Kiểm tra kết nối rồi thử lại.', true)
+        renderPagination()
       } finally {
         setLoading(false)
       }
     }
 
-    async function runSearch() {
+    async function runSearch(targetPage = 1) {
       const q = query.trim()
       if (!q) {
         setLabel('')
         if (activeFilter) {
-          fetchByFilter(activeFilter)
+          fetchByFilter(activeFilter, 1)
         } else {
-          fetchByFilter(null)
+          fetchByFilter(null, 1)
         }
         return
       }
       setLoading(true)
       try {
-        const r = await fetch(`${BASE}/tim-kiem?keyword=${encodeURIComponent(q)}&page=1&limit=20`, { headers: { Accept: 'application/json' } })
-        const data = await r.json()
+        const data = await searchMovies(q, targetPage, SEARCH_LIMIT)
         results = Array.isArray(data.items) ? data.items : []
+        page = targetPage
+        totalPages = Number(data.pagination?.totalPages) || 1
         setLabel(`Kết quả cho "${q}"`)
         renderResults()
+        renderPagination()
       } catch {
         results = []
-        renderResults()
+        showEmpty('Không thể tải dữ liệu. Kiểm tra kết nối rồi thử lại.', true)
+        renderPagination()
       } finally {
         setLoading(false)
       }
@@ -270,7 +339,7 @@ const filterConfig = [
       if (!q) return
       suggestTimer = setTimeout(async () => {
         try {
-          const r = await fetch(`${BASE}/tim-kiem?keyword=${encodeURIComponent(q)}&page=1&limit=8`, { headers: { Accept: 'application/json' } })
+          const r = await fetch(`${BASE}/tim-kiem?keyword=${encodeURIComponent(q)}&page=1&limit=${SUGGESTION_LIMIT}`, { headers: { Accept: 'application/json' } })
           const data = await r.json()
           suggestionQuery = q
           suggestions = Array.isArray(data.items) ? data.items : []
@@ -289,11 +358,11 @@ const filterConfig = [
         suggestionsEl.innerHTML = suggestions
           .map(
             (m) => `
-              <a href="/phim/${m.slug}" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
-                ${m.thumb_url ? `<div class="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame poster-shell"><img src="${m.thumb_url}" alt="${m.name}" class="w-full h-full object-cover" /></div>` : ''}
+              <a href="/phim/${escapeHTML(m.slug)}" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
+                ${m.thumb_url ? `<div class="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame poster-shell"><img src="${escapeHTML(m.thumb_url)}" alt="${escapeHTML(m.name)}" class="w-full h-full object-cover" /></div>` : ''}
                 <div class="min-w-0">
-                  <p class="text-xs text-text-primary truncate">${m.name}</p>
-                  ${m.origin_name ? `<p class="text-[10px] text-text-muted truncate">${m.origin_name}</p>` : ''}
+                  <p class="text-xs text-text-primary truncate">${escapeHTML(m.name)}</p>
+                  ${m.origin_name ? `<p class="text-[10px] text-text-muted truncate">${escapeHTML(m.origin_name)}</p>` : ''}
                 </div>
                 ${m.year ? `<span class="ml-auto text-[10px] text-text-muted shrink-0">${m.year}</span>` : ''}
               </a>
@@ -325,7 +394,7 @@ const filterConfig = [
       recentEl.innerHTML =
         `<span class="text-[10px] text-text-muted">Gần đây:</span>` +
         recentSearches
-          .map((q) => `<button type="button" class="recent-chip px-3 py-1.5 rounded-xl glass-tile text-[11px] text-text-secondary hover:text-white transition-colors" data-q="${q}">${q}</button>`)
+          .map((q) => `<button type="button" class="recent-chip px-3 py-1.5 rounded-xl glass-tile text-[11px] text-text-secondary hover:text-white transition-colors" data-q="${escapeHTML(q)}">${escapeHTML(q)}</button>`)
           .join('') +
         `<button type="button" id="recent-clear" class="px-2 py-1 text-[10px] text-text-muted hover:text-white transition-colors">Xoá</button>`
       recentEl.querySelectorAll<HTMLButtonElement>('.recent-chip').forEach((btn) => {
@@ -343,18 +412,22 @@ const filterConfig = [
       })
     }
 
+    let metaPromise: Promise<void> | null = null
     function loadMeta() {
-      const listOf = (p: string) =>
-        fetch(`${BASE}${p}`, { headers: { Accept: 'application/json' } })
-          .then((r) => r.json())
-          .then((d) => (d.status === 'success' ? d.data.items : []))
-          .catch(() => [])
-      Promise.all([listOf('/the-loai'), listOf('/quoc-gia'), listOf('/nam')]).then(([c, co, y]) => {
+      if (metaPromise) return metaPromise
+      metaPromise = (async () => {
+        const listOf = (p: string) =>
+          fetch(`${BASE}${p}`, { headers: { Accept: 'application/json' } })
+            .then((r) => r.json())
+            .then((d) => (d.status === 'success' ? d.data.items : []))
+            .catch(() => [])
+        const [c, co, y] = await Promise.all([listOf('/the-loai'), listOf('/quoc-gia'), listOf('/nam')])
         categories = c
         countries = co
         years = y
         paintDropdowns()
-      })
+      })()
+      return metaPromise
     }
 
     function paintDropdowns() {
@@ -365,7 +438,7 @@ const filterConfig = [
         el.innerHTML = items
           .map(
             (item) =>
-              `<button type="button" class="filter-option w-full text-left px-4 py-2 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors" data-type="${key}" data-label="${item.name}" data-value="${item.slug}">${item.name}</button>`,
+              `<button type="button" class="filter-option w-full text-left px-4 py-2 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors" data-type="${key}" data-label="${escapeHTML(item.name)}" data-value="${escapeHTML(item.slug)}">${escapeHTML(item.name)}</button>`,
           )
           .join('')
       })
@@ -393,7 +466,7 @@ const filterConfig = [
       input.value = ''
       activeFilter = { type, label, value }
       paintChips()
-      fetchByFilter(activeFilter)
+      fetchByFilter(activeFilter, 1)
       paintRecent()
       paintSuggestions()
     }
@@ -403,7 +476,7 @@ const filterConfig = [
       query = ''
       input.value = ''
       paintChips()
-      fetchByFilter(null)
+      fetchByFilter(null, 1)
       paintRecent()
     }
 
@@ -508,6 +581,7 @@ const filterConfig = [
     paintRecent()
     paintSuggestions()
     renderResults()
+    renderPagination()
     sortRow?.classList.toggle('hidden', results.length === 0)
   }
 </script>

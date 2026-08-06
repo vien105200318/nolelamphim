@@ -1,5 +1,6 @@
 ---
 import type { EpisodeServer } from '../lib/types'
+import { PER_PAGE } from '../lib/constants'
 
 interface Props {
   slug: string
@@ -7,8 +8,6 @@ interface Props {
 }
 
 const { slug, servers } = Astro.props
-
-const PER_PAGE = 24
 
 const serverData = servers.map((s) => ({
   name: s.server_name.trim(),
@@ -107,6 +106,8 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
 </div>
 
 <script>
+  import { escapeHTML } from '../scripts/cards'
+
   const list = document.querySelector<HTMLElement>('.episode-list')
   if (list) {
     const slug = list.dataset.slug || ''
@@ -157,7 +158,7 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
             ? visible
                 .map(
                   (ep) =>
-                    `<a href="/xem/${slug}/${ep.slug}" class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center hover:text-white transition-all">${ep.name}</a>`,
+                    `<a href="/xem/${slug}/${escapeHTML(ep.slug)}" class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center hover:text-white transition-all">${escapeHTML(ep.name)}</a>`,
                 )
                 .join('')
             : `<div class="w-full py-8 flex flex-col items-center justify-center text-center">

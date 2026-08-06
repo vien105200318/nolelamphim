@@ -7,18 +7,21 @@ const q = Astro.url.searchParams.get('q') ?? ''
 
 let initialResults = []
 let initialLabel = ''
+let initialTotalPages = 1
 
 if (q.trim()) {
   const data = await searchMovies(q.trim()).catch(() => ({ items: [] }))
   initialResults = data.items ?? []
   initialLabel = `Kết quả cho "${q.trim()}"`
+  initialTotalPages = Number(data.pagination?.totalPages) || 1
 } else {
   const data = await getNewMovies(1).catch(() => ({ items: [] }))
   initialResults = data.items ?? []
   initialLabel = 'Phim mới nhất'
+  initialTotalPages = Number(data.pagination?.totalPages) || 1
 }
 ---
 
 <BaseLayout title="Tìm kiếm phim" description="Tìm kiếm phim theo từ khoá, thể loại, quốc gia, năm tại Nô Lệ Làm Phim.">
-  <SearchClient initialQuery={q} initialResults={initialResults} initialLabel={initialLabel} />
+  <SearchClient initialQuery={q} initialResults={initialResults} initialLabel={initialLabel} initialTotalPages={initialTotalPages} />
 </BaseLayout>

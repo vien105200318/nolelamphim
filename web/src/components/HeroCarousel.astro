@@ -145,6 +145,8 @@ const first = slides[0]
 </div>
 
 <script>
+  import { AUTOPLAY_MS } from '../lib/constants'
+
   interface Slide {
     slug: string
     name: string
@@ -153,8 +155,6 @@ const first = slides[0]
     quality?: string
     image?: string
   }
-
-  const AUTOPLAY_MS = 6000
 
   const root = document.getElementById('hero')
   if (root) {
@@ -254,12 +254,23 @@ const first = slides[0]
     function onScroll() {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
+        if (document.hidden) return
         const rect = hero.getBoundingClientRect()
         const height = hero.offsetHeight
         const progress = Math.min(1, Math.max(0, -rect.top / height))
         const slidesEl = document.getElementById('hero-slides')
         if (slidesEl) slidesEl.style.transform = `translateY(${progress * 60}px)`
       })
+    }
+
+    function onScrollEnd() {
+      cancelAnimationFrame(raf)
+    }
+
+    const scrollCleanup = () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', onScrollEnd)
+      cancelAnimationFrame(raf)
     }
 
     root.addEventListener('mouseenter', () => {
@@ -273,6 +284,8 @@ const first = slides[0]
     document.getElementById('hero-prev')?.addEventListener('click', () => go(-1))
     document.getElementById('hero-next')?.addEventListener('click', () => go(1))
     window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('scroll', onScrollEnd, { passive: true })
+    window.addEventListener('pagehide', scrollCleanup, { once: true })
 
     renderDots()
     restart()
