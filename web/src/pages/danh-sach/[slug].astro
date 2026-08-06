@@ -25,6 +25,7 @@ if (!meta) {
 const data = await getMoviesByListPath(slug, 1, 24).catch(() => ({
   status: false,
   items: [],
+  pagination: undefined,
 }))
 ---
 

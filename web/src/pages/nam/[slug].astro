@@ -8,6 +8,7 @@ const slug = Astro.params.slug ?? ''
 const data = await getMoviesByYear(slug, { page: 1, limit: 24 }).catch(() => ({
   status: false,
   items: [],
+  pagination: undefined,
 }))
 ---
 

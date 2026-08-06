@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   output: 'server',
-  adapter: vercel(),
+  adapter: vercel({}),
   site: 'https://nolelamphim.vercel.app',
   vite: {
     plugins: [/** @type {any} */ (tailwindcss())],

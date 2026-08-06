@@ -14,6 +14,7 @@ const desc = `Xem các bộ phim ${cat?.name ?? name} mới nhất, hay nhất v
 const data = await getMoviesByCategory(slug, { page: 1, limit: 24 }).catch(() => ({
   status: false,
   items: [],
+  pagination: undefined,
 }))
 ---
 

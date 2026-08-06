@@ -10,8 +10,8 @@ import Reveal from '../components/Reveal.astro'
 import { getNewMovies, getSubteam, getMoviesByCategory } from '../lib/api'
 
 const [newMovies, subteam] = await Promise.all([
-  getNewMovies().catch(() => ({ items: [] })),
-  getSubteam().catch(() => ({ items: [] })),
+  getNewMovies().catch(() => ({ status: false, items: [], pagination: undefined })),
+  getSubteam().catch(() => ({ status: false, items: [], pagination: undefined })),
 ])
 
 const categorySlugs = [
