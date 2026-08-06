@@ -11,6 +11,9 @@ export const GET: APIRoute = async ({ url }) => {
   }
   const result = await getMovieEpisodes(slug)
   return new Response(JSON.stringify(result), {
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+    },
   })
 }

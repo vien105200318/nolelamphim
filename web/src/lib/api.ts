@@ -11,7 +11,10 @@ import { BASE_URL } from './constants'
 
 const FETCH_RETRIES = 2
 
-async function delay(ms: number) {
+const API_CACHE_TTL = 60_000
+const apiCache = new Map<string, { expires: number; value: unknown }>()
+
+function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
@@ -27,12 +30,16 @@ async function fetchAPI<T>(
       url.searchParams.set(k, String(v)),
     )
   }
+  const cacheKey = url.toString()
+  const cached = apiCache.get(cacheKey)
+  if (cached && cached.expires > Date.now()) {
+    return cached.value as T
+  }
   let lastError: unknown
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const res = await fetch(url.toString(), {
         headers: { Accept: 'application/json' },
-        cache: 'no-store',
       })
       if (res.status === 429 || res.status >= 500) {
         throw new Error(`HTTP ${res.status}`)
@@ -43,7 +50,9 @@ async function fetchAPI<T>(
       }
       const text = await res.text()
       try {
-        return JSON.parse(text) as T
+        const data = JSON.parse(text) as T
+        apiCache.set(cacheKey, { expires: Date.now() + API_CACHE_TTL, value: data })
+        return data
       } catch {
         if (fallback !== undefined) return fallback
         throw new Error(`Invalid JSON from ${url.toString()}`)

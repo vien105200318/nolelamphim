@@ -1,5 +1,10 @@
 ---
 import '../styles/global.css'
+import '@fontsource/be-vietnam-pro/400.css'
+import '@fontsource/be-vietnam-pro/500.css'
+import '@fontsource/be-vietnam-pro/600.css'
+import '@fontsource/be-vietnam-pro/700.css'
+import beVietnamPro600Woff2 from '@fontsource/be-vietnam-pro/files/be-vietnam-pro-vietnamese-600-normal.woff2?url'
 import Navbar from '../components/Navbar.astro'
 import Footer from '../components/Footer.astro'
 import { SITE_NAME, SITE_URL } from '../lib/site'
@@ -22,6 +27,11 @@ const {
 
 const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME
 const canonical = new URL(Astro.url.pathname, SITE_URL)
+
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, s-maxage=60, stale-while-revalidate=300',
+)
 ---
 
 <!doctype html>
@@ -34,12 +44,9 @@ const canonical = new URL(Astro.url.pathname, SITE_URL)
     {keywords && <meta name="keywords" content={keywords} />}
     <meta name="theme-color" content="#0a0a0f" />
     {noIndex && <meta name="robots" content="noindex" />}
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preconnect" href="https://vsmov.com" />
+    <link rel="dns-prefetch" href="https://vsmov.com" />
+    <link rel="preload" as="font" type="font/woff2" href={beVietnamPro600Woff2} crossorigin />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

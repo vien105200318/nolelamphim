@@ -3,6 +3,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import MovieFilters from '../../components/MovieFilters.astro'
 import { getMoviesByListPath } from '../../lib/api'
 
+export const prerender = true
+export const revalidate = 60
+export const fallback = 'blocking'
+
+export function getStaticPaths() {
+  return ['phim-bo', 'phim-le'].map((slug) => ({ params: { slug } }))
+}
+
 const slug = Astro.params.slug ?? ''
 
 const LISTS: Record<string, { title: string; desc: string }> = {

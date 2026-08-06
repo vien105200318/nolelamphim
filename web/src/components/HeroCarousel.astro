@@ -26,13 +26,21 @@ const slides: Slide[] = movies.map((m) => ({
   image: m.poster_url || m.thumb_url,
 }))
 
+const dataSlides = movies.map((m) => ({
+  slug: m.slug,
+  name: m.name,
+  origin_name: m.origin_name,
+  year: m.year,
+  quality: m.quality,
+}))
+
 const first = slides[0]
 ---
 
 <div
   id="hero"
   class="relative group/hero"
-  data-slides={JSON.stringify(slides)}
+  data-slides={JSON.stringify(dataSlides)}
   data-count={total}
 >
   <div class="relative overflow-hidden rounded-2xl w-full aspect-[16/10] md:aspect-[21/9] max-h-[80vh] bg-bg-card glass-frame">
@@ -59,6 +67,7 @@ const first = slides[0]
                   src={image}
                   alt={movie.name}
                   loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
                   decoding="async"
                   class={`w-full h-full object-cover ${i === 0 ? 'ken-burns' : ''}`}
                 />

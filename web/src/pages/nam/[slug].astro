@@ -1,7 +1,16 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import MovieFilters from '../../components/MovieFilters.astro'
-import { getMoviesByYear } from '../../lib/api'
+import { getMoviesByYear, getYears } from '../../lib/api'
+
+export const prerender = true
+export const revalidate = 60
+export const fallback = 'blocking'
+
+export async function getStaticPaths() {
+  const years = await getYears().catch(() => null)
+  return (years?.data?.items ?? []).map((y) => ({ params: { slug: String(y.slug) } }))
+}
 
 const slug = Astro.params.slug ?? ''
 

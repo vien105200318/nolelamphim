@@ -6,14 +6,15 @@ interface Props {
   slug: string
   name: string
   items: Movie[]
+  className?: string
 }
 
-const { slug, name, items } = Astro.props
+const { slug, name, items, className = '' } = Astro.props
 
 const isEmpty = items.length === 0
 ---
 
-<section class="mt-10">
+<section class={`mt-10 ${className}`}>
   <div class="liquid-glass rounded-3xl px-4 sm:px-6 py-5">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-sm font-semibold text-text-primary">{name}</h2>

@@ -3,6 +3,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import MovieFilters from '../../components/MovieFilters.astro'
 import { getMoviesByCategory, getCategories } from '../../lib/api'
 
+export const prerender = true
+export const revalidate = 60
+export const fallback = 'blocking'
+
+export async function getStaticPaths() {
+  const cats = await getCategories().catch(() => null)
+  return (cats?.data?.items ?? []).map((c) => ({ params: { slug: c.slug } }))
+}
+
 const slug = Astro.params.slug ?? ''
 const name = slug.charAt(0).toUpperCase() + slug.slice(1)
 
