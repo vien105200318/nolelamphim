@@ -10,6 +10,7 @@ registerPageInit(() => {
     slug: f.slug,
     name: f.name,
     thumb_url: f.thumb,
+    tmdb_vote: f.tmdb_vote,
   }))
 
   if (items.length === 0) {

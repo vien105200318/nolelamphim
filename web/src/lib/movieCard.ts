@@ -10,6 +10,8 @@ export interface CardMovie {
   episode_current?: string
   quality?: string
   lang?: string
+  tmdb_vote?: string
+  tmdb?: { vote_average?: string }
 }
 
 export function escapeHTML(value: unknown): string {
@@ -28,7 +30,9 @@ export function movieCardHTML(movie: CardMovie, dot?: 'new' | 'hot'): string {
   const quality = movie.quality ? escapeHTML(movie.quality) : ''
   const lang = movie.lang ? escapeHTML(movie.lang) : ''
   const episode = movie.episode_current ? escapeHTML(movie.episode_current) : ''
-  const meta = [year, quality, lang].filter(Boolean).join(' \u00b7 ')
+  const voteRaw = movie.tmdb_vote ?? movie.tmdb?.vote_average
+  const vote = voteRaw && Number(voteRaw) > 0 ? `★ ${voteRaw}` : ''
+  const meta = [vote, year, quality, lang].filter(Boolean).join(' \u00b7 ')
   const badge = dot
     ? `<span class="absolute top-3 left-3 z-20 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase ${
         dot === 'new'
@@ -74,5 +78,6 @@ export function movieToCard(movie: Movie): CardMovie {
     episode_current: movie.episode_current,
     quality: movie.quality,
     lang: movie.lang,
+    tmdb_vote: movie.tmdb?.vote_average,
   }
 }

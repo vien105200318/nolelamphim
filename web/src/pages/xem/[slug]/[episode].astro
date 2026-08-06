@@ -57,6 +57,7 @@ try {
         data-movie-name={movie.name}
         data-movie-id={movie._id}
         data-movie-thumb={movie.thumb_url || ''}
+        data-movie-vote={movie.tmdb?.vote_average || ''}
         data-ep-name={currentEp.name}
         data-servers={serverData.length > 0 ? JSON.stringify(serverData) : '[]'}
       >
@@ -170,6 +171,7 @@ try {
       const movieName = page.dataset.movieName || ''
       const movieId = Number(page.dataset.movieId)
       const movieThumb = page.dataset.movieThumb || ''
+      const movieVote = page.dataset.movieVote || ''
       const epName = page.dataset.epName || ''
 
       let servers: { name: string; items: { name: string; slug: string; embed: string }[] }[] = []
@@ -211,6 +213,7 @@ try {
         thumb: movieThumb,
         episode: epName,
         episodeSlug: episode,
+        tmdb_vote: movieVote || undefined,
       })
 
       function epLink(id: string, href: string, text: string) {

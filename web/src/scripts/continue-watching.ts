@@ -12,12 +12,14 @@ registerPageInit(() => {
   const watched = getRecent().filter((r) => r.episodeSlug)
 
   function itemHTML(item: RecentItem): string {
+    const vote = item.tmdb_vote && Number(item.tmdb_vote) > 0 ? item.tmdb_vote : ''
     return `
       <div class="snap-start shrink-0 w-[150px] relative group" data-slug="${escapeHTML(item.slug)}">
         <a href="/xem/${escapeHTML(item.slug)}/${escapeHTML(item.episodeSlug)}" class="block relative aspect-[2/3] rounded-xl overflow-hidden bg-bg-card glass-frame poster-shell${item.thumb ? ' shimmer' : ''}">
           ${item.thumb ? `<img src="${escapeHTML(imgUrl(item.thumb, 300))}" alt="${escapeHTML(item.name)}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />` : '<div class="w-full h-full bg-bg-card"></div>'}
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
           ${item.episode ? `<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#FF6B9D] text-white text-[10px] font-semibold">${escapeHTML(item.episode)}</span>` : ''}
+          ${vote ? `<span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-medium text-white/95 pointer-events-none">★ ${escapeHTML(vote)}</span>` : ''}
           <span class="absolute inset-x-0 bottom-0 px-2.5 py-2 flex items-center gap-1.5 text-white text-[11px] font-medium">
             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             Tiếp tục

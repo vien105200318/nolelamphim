@@ -6,6 +6,7 @@ export interface RecentItem {
   episode?: string
   episodeSlug?: string
   watchedAt: number
+  tmdb_vote?: string
 }
 
 export interface FavoriteItem {
@@ -13,6 +14,7 @@ export interface FavoriteItem {
   name: string
   slug: string
   thumb: string
+  tmdb_vote?: string
 }
 
 export function readJSON<T>(key: string, fallback: T): T {

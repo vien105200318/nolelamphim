@@ -30,6 +30,7 @@ const filterConfig = [
       episode_current: m.episode_current,
       quality: m.quality,
       lang: m.lang,
+      tmdb_vote: m.tmdb?.vote_average,
     })),
   )}
   data-initial-label={initialLabel}
@@ -158,7 +159,7 @@ const filterConfig = [
     if (!root) return () => {}
     const ac = new AbortController()
 
-    let initialResults: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number; episode_current?: string; quality?: string; lang?: string }[] = []
+    let initialResults: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number; episode_current?: string; quality?: string; lang?: string; tmdb_vote?: string; tmdb?: { vote_average?: string } }[] = []
     try {
       initialResults = JSON.parse(root.dataset.initialResults || '[]')
     } catch {
@@ -371,7 +372,7 @@ const filterConfig = [
           setLabel(filterLabelMap('year', filter.label))
         }
         if (query.trim() || (activeFilter ? `${activeFilter.type}:${activeFilter.value}` : '') !== key) return
-        results = Array.isArray(data.items) ? data.items : []
+        results = Array.isArray(data.items) ? data.items.map((m) => ({ ...m, tmdb_vote: m.tmdb?.vote_average })) : []
         page = targetPage
         totalPages = Number(data.pagination?.totalPages) || 1
         renderResults()
@@ -401,7 +402,7 @@ const filterConfig = [
       try {
         const data = await searchMovies(q, targetPage, SEARCH_LIMIT)
         if (query.trim() !== q) return
-        results = Array.isArray(data.items) ? data.items : []
+        results = Array.isArray(data.items) ? data.items.map((m) => ({ ...m, tmdb_vote: m.tmdb?.vote_average })) : []
         page = targetPage
         totalPages = Number(data.pagination?.totalPages) || 1
         setLabel(`Kết quả cho "${q}"`)

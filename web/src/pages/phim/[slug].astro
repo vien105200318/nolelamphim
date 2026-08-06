@@ -53,6 +53,15 @@ const jsonLd = {
 
 const chips = [movie.year, movie.quality, movie.lang, movie.time, movie.status].filter(Boolean)
 
+function formatViewCount(v: number): string {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`
+  if (v >= 1_000) return `${(v / 1_000).toFixed(1).replace(/\.0$/, '')}K`
+  return String(v)
+}
+
+const tmdbVote = movie.tmdb?.vote_average && Number(movie.tmdb?.vote_average) > 0 ? movie.tmdb.vote_average : ''
+const imdbId = movie.imdb?.id || ''
+
 let keywordsList: string[] = []
 if (movie.keywords) {
   keywordsList = Array.isArray(movie.keywords) ? movie.keywords : movie.keywords.split(', ')
@@ -91,7 +100,7 @@ if (movie.keywords) {
             <RatingBox slug={slug} name={movie.name} />
             <ShareButton slug={slug} name={movie.name} />
             <ReportButton slug={slug} name={movie.name} />
-            <FavoriteButton id={movie._id} name={movie.name} slug={slug} thumb={movie.thumb_url || ''} />
+            <FavoriteButton id={movie._id} name={movie.name} slug={slug} thumb={movie.thumb_url || ''} vote={movie.tmdb?.vote_average} />
           </div>
         </div>
 
@@ -102,6 +111,39 @@ if (movie.keywords) {
                 {chip}
               </span>
             ))
+          }
+          {
+            movie.view != null && movie.view > 0 && (
+              <span class="px-3 py-1 rounded-lg glass-chip text-text-secondary text-xs">
+                {formatViewCount(movie.view)} lượt xem
+              </span>
+            )
+          }
+          {
+            tmdbVote && (
+              <span class="px-3 py-1 rounded-lg glass-chip text-text-secondary text-xs">
+                ★ TMDB {tmdbVote}
+              </span>
+            )
+          }
+          {
+            imdbId && (
+              <a
+                href={`https://www.imdb.com/title/${imdbId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="px-3 py-1 rounded-lg glass-chip text-text-secondary text-xs hover:text-white transition-colors"
+              >
+                IMDb
+              </a>
+            )
+          }
+          {
+            movie.sub_docquyen && (
+              <span class="px-3 py-1 rounded-lg bg-gradient-to-r from-[#FF6B9D]/15 to-[#4A9EFF]/15 text-[#FF6B9D] text-xs font-medium">
+                Vietsub độc quyền
+              </span>
+            )
           }
           {
             movie.episode_current && (

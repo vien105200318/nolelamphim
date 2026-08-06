@@ -4,9 +4,10 @@ interface Props {
   name: string
   slug: string
   thumb: string
+  vote?: string
 }
 
-const { id, name, slug, thumb } = Astro.props
+const { id, name, slug, thumb, vote = '' } = Astro.props
 ---
 
 <button
@@ -15,6 +16,7 @@ const { id, name, slug, thumb } = Astro.props
   data-name={name}
   data-slug={slug}
   data-thumb={thumb}
+  data-vote={vote}
   aria-pressed="false"
 >
   <span class="fav-label">♡ Yêu thích</span>
@@ -32,6 +34,7 @@ const { id, name, slug, thumb } = Astro.props
         name: btn.dataset.name || '',
         slug: btn.dataset.slug || '',
         thumb: btn.dataset.thumb || '',
+        tmdb_vote: btn.dataset.vote || undefined,
       }
       const label = btn.querySelector('.fav-label')
 

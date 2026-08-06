@@ -113,7 +113,7 @@ const initialPages = pageList(1, totalPages)
     const lastBtn = root.querySelector<HTMLButtonElement>('.mg-last')
     const loadingEl = root.querySelector<HTMLElement>('.mg-loading')
 
-    let items: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number; episode_current?: string; quality?: string; lang?: string }[] = []
+    let items: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number; episode_current?: string; quality?: string; lang?: string; tmdb_vote?: string }[] = []
     let page = 1
     let totalPages = Number(root.dataset.totalPages) || 1
 
@@ -159,7 +159,7 @@ const initialPages = pageList(1, totalPages)
         if (extra) new URLSearchParams(extra).forEach((v, k) => (params[k] = v))
         const data = await getMoviesByPath(path, params)
         if (data.status && Array.isArray(data.items) && data.items.length > 0) {
-          items = data.items
+          items = data.items.map((m) => ({ ...m, tmdb_vote: m.tmdb?.vote_average }))
           page = p
           const tp = Number(data.pagination?.totalPages)
           if (tp > 0) totalPages = tp

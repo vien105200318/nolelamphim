@@ -30,6 +30,8 @@ registerPageInit(() => {
         const name = escapeHTML(item.name)
         const thumb = escapeHTML(imgUrl(item.thumb, 300))
         const episode = escapeHTML(item.episode)
+        const vote = item.tmdb_vote && Number(item.tmdb_vote) > 0 ? `★ ${escapeHTML(item.tmdb_vote)}` : ''
+        const meta = [episode, vote].filter(Boolean).join(' \u00b7 ')
         const date = new Date(item.watchedAt).toLocaleDateString('vi-VN')
         return `
           <a href="/xem/${escapeHTML(item.slug)}/${epSlug}" class="flex items-center gap-4 px-4 py-3 rounded-xl glass-tile hover:text-white transition-all">
@@ -38,7 +40,7 @@ registerPageInit(() => {
             </div>
             <div class="min-w-0">
               <p class="text-sm font-medium text-text-primary truncate">${name}</p>
-              ${item.episode ? `<p class="text-xs text-text-muted mt-0.5">${episode}</p>` : ''}
+              ${meta ? `<p class="text-xs text-text-muted mt-0.5">${meta}</p>` : ''}
               <p class="text-[10px] text-text-muted mt-1">${date}</p>
             </div>
           </a>

@@ -1,3 +1,11 @@
+export interface TMDb {
+  type?: string
+  id?: string
+  season?: unknown
+  vote_average?: string
+  vote_count?: number
+}
+
 export interface Movie {
   _id: number
   name: string
@@ -14,6 +22,7 @@ export interface Movie {
   episode_current?: string
   episode_total?: string
   keywords?: string | string[]
+  tmdb?: TMDb
 }
 
 export interface Category {
@@ -47,6 +56,10 @@ export interface MovieDetail extends Movie {
   category?: Category[]
   country?: Country[]
   episodes?: EpisodeServer[]
+  view?: number
+  imdb?: { id?: string | null }
+  sub_docquyen?: boolean
+  trailer_url?: string | null
 }
 
 export interface Pagination {
