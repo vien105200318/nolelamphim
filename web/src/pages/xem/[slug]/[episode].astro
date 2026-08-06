@@ -31,9 +31,15 @@ const prevEp = currentEpIdx > 0 ? currentList[currentEpIdx - 1] : null
 const nextEp = currentEpIdx < currentList.length - 1 ? currentList[currentEpIdx + 1] : null
 
 const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` : movie.name
+
+let embedOrigin = ''
+try {
+  if (currentEp?.embed) embedOrigin = new URL(currentEp.embed).origin
+} catch {}
 ---
 
 <BaseLayout title={pageTitle} description={`Xem ${movie.name} ${currentEp ? `tập ${currentEp.name}` : ''} HD VietSub miễn phí tại Nô Lệ Làm Phim.`}>
+  {embedOrigin && <link rel="preconnect" href={embedOrigin} slot="head" />}
   {
     !currentEp ? (
       <div class="px-4 md:px-8 py-20 flex flex-col items-center">
@@ -54,15 +60,36 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
         data-servers={serverData.length > 0 ? JSON.stringify(serverData) : '[]'}
       >
         <div class="rounded-2xl overflow-hidden bg-black glass-frame">
-          <div class="aspect-video w-full">
-            <iframe
-              id="watch-frame"
-              src={currentEp.embed}
-              class="w-full h-full"
-              allowfullscreen
-              allow="autoplay; fullscreen"
-              title={`${movie.name} - ${currentEp.name}`}
-            ></iframe>
+          <div
+            id="player-stage"
+            class="aspect-video w-full relative"
+            data-embed={currentEp.embed}
+            data-title={`${movie.name} - ${currentEp.name}`}
+          >
+            <button
+              id="player-play"
+              type="button"
+              class="absolute inset-0 w-full h-full group"
+              aria-label={`Phát ${movie.name} - ${currentEp.name}`}
+            >
+              <img
+                src={movie.thumb_url || movie.poster_url || ''}
+                alt=""
+                class="absolute inset-0 w-full h-full object-cover"
+                decoding="async"
+              />
+              <div class="absolute inset-0 bg-black/35 group-hover:bg-black/20 transition-colors"></div>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full glass-tile flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <svg class="w-7 h-7 md:w-8 md:h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+              <span class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full glass-tile text-[11px] font-semibold text-white">
+                Bấm để phát
+              </span>
+            </button>
           </div>
         </div>
 
@@ -132,9 +159,11 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
   <script>
     import { addRecent } from '../../../scripts/store'
     import { escapeHTML } from '../../../scripts/cards'
+    import { registerPageInit } from '../../../scripts/lifecycle'
 
-    const page = document.querySelector<HTMLElement>('.watch-page')
-    if (page) {
+    registerPageInit(() => {
+      const page = document.querySelector<HTMLElement>('.watch-page')
+      if (!page) return () => {}
       const slug = page.dataset.slug || ''
       const episode = page.dataset.episode || ''
       const movieName = page.dataset.movieName || ''
@@ -149,8 +178,30 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
         servers = []
       }
 
-      const frame = document.getElementById('watch-frame') as HTMLIFrameElement | null
       const serverBtns = Array.from(page.querySelectorAll<HTMLButtonElement>('.watch-server'))
+
+      const stage = document.getElementById('player-stage')
+      const playBtn = document.getElementById('player-play')
+      let frame: HTMLIFrameElement | null = null
+      let pendingEmbed = stage?.dataset.embed || ''
+      let pendingTitle = stage?.dataset.title || ''
+
+      function createFrame(embed: string, title: string) {
+        if (!stage || frame) return
+        frame = document.createElement('iframe')
+        frame.id = 'watch-frame'
+        frame.className = 'w-full h-full'
+        frame.setAttribute('allowfullscreen', '')
+        frame.setAttribute('allow', 'autoplay; fullscreen')
+        frame.title = title
+        frame.src = embed
+        stage.innerHTML = ''
+        stage.appendChild(frame)
+      }
+
+      playBtn?.addEventListener('click', () => {
+        createFrame(pendingEmbed, pendingTitle)
+      })
 
       addRecent({
         id: movieId,
@@ -192,13 +243,18 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
               ? `watch-server px-4 py-2 rounded-xl text-xs font-medium transition-all glass-tile-active text-white`
               : `watch-server px-4 py-2 rounded-xl text-xs font-medium transition-all glass-tile text-text-secondary`
           })
-          if (ep && frame) {
-            frame.src = ep.embed
-            frame.title = `${movieName} - ${ep.name}`
+          if (ep) {
+            pendingEmbed = ep.embed
+            pendingTitle = `${movieName} - ${ep.name}`
+            if (frame) {
+              frame.src = ep.embed
+              frame.title = pendingTitle
+            }
           }
           renderNav(server.items, idx)
         })
       })
-    }
+      return () => {}
+    })
   </script>
 </BaseLayout>

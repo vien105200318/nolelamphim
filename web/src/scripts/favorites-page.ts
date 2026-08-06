@@ -1,8 +1,10 @@
 import { getFavorites } from './store'
 import { gridHTML } from './cards'
+import { registerPageInit } from './lifecycle'
 
-const root = document.getElementById('favorites-root')
-if (root) {
+registerPageInit(() => {
+  const root = document.getElementById('favorites-root')
+  if (!root) return () => {}
   const items = getFavorites().map((f) => ({
     _id: f.id,
     slug: f.slug,
@@ -25,4 +27,4 @@ if (root) {
   } else {
     root.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">${gridHTML(items)}</div>`
   }
-}
+})

@@ -3,7 +3,7 @@ export function isWebOS(): boolean {
   return !!(window as { webOS?: unknown }).webOS || navigator.userAgent.includes('WebOS');
 }
 
-export function initWebOSRemote() {
+export function initWebOSRemote(signal?: AbortSignal) {
   if (typeof window === 'undefined') return;
 
   const KEY_MAP: Record<number, string> = {
@@ -39,5 +39,5 @@ export function initWebOSRemote() {
       bubbles: true,
       cancelable: true,
     }));
-  });
+  }, { signal });
 }

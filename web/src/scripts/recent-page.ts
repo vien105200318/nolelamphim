@@ -1,9 +1,11 @@
 import { getRecent } from './store'
 import type { RecentItem } from './store'
 import { escapeHTML } from './cards'
+import { registerPageInit } from './lifecycle'
 
-const root = document.getElementById('recent-root')
-if (root) {
+registerPageInit(() => {
+  const root = document.getElementById('recent-root')
+  if (!root) return () => {}
   const items: RecentItem[] = getRecent()
 
   if (items.length === 0) {
@@ -44,4 +46,4 @@ if (root) {
       .join('')
     root.innerHTML = `<div class="space-y-2">${rows}</div>`
   }
-}
+})

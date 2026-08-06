@@ -113,9 +113,11 @@ const chevronBg =
 
 <script>
   import { getYears, getCountries } from '../lib/api'
+  import { registerPageInit } from '../scripts/lifecycle'
 
-  const root = document.querySelector<HTMLElement>('.movie-filters')
-  if (root) {
+  registerPageInit(() => {
+    const root = document.querySelector<HTMLElement>('.movie-filters')
+    if (!root) return () => {}
     const wantYear = root.dataset.year === '1'
     const wantCountry = root.dataset.country === '1'
 
@@ -221,5 +223,6 @@ const chevronBg =
     })
 
     refresh()
-  }
+    return () => {}
+  })
 </script>

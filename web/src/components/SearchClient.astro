@@ -150,9 +150,13 @@ const filterConfig = [
   } from '../lib/api'
   import { SEARCH_LIMIT, SUGGESTION_LIMIT } from '../lib/constants'
   import { pageList } from '../lib/pagination'
+  import { registerPageInit } from '../scripts/lifecycle'
 
-  const root = document.querySelector<HTMLElement>('.search-client')
-  if (root) {
+  registerPageInit(() => {
+    const root = document.querySelector<HTMLElement>('.search-client')
+    if (!root) return () => {}
+    const ac = new AbortController()
+
     let initialResults: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number; episode_current?: string; quality?: string; lang?: string }[] = []
     try {
       initialResults = JSON.parse(root.dataset.initialResults || '[]')
@@ -257,7 +261,7 @@ const filterConfig = [
         if (q.trim()) runSearch(p, false, true)
         else fetchByFilter(activeFilter, p, { skipSync: true })
       })
-    })
+    }, { signal: ac.signal })
 
     function setLoading(v: boolean) {
       loading = v
@@ -658,5 +662,7 @@ const filterConfig = [
     renderResults()
     renderPagination()
     sortRow?.classList.toggle('hidden', results.length === 0)
-  }
+
+    return () => ac.abort()
+  })
 </script>

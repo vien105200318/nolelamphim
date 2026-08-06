@@ -97,8 +97,10 @@ const initialPages = pageList(1, totalPages)
   import { gridHTML } from '../scripts/cards'
   import { getMoviesByPath } from '../lib/api'
   import { pageList } from '../lib/pagination'
+  import { registerPageInit } from '../scripts/lifecycle'
 
-  document.querySelectorAll<HTMLElement>('.movie-grid').forEach((root) => {
+  registerPageInit(() => {
+    document.querySelectorAll<HTMLElement>('.movie-grid').forEach((root) => {
     const path = root.dataset.path || ''
     const sort = root.dataset.sort || 'newest'
     const dot = (root.dataset.dot as 'new' | 'hot' | undefined) || undefined
@@ -188,5 +190,7 @@ const initialPages = pageList(1, totalPages)
     })
 
     renderPagination()
+    })
+    return () => {}
   })
 </script>

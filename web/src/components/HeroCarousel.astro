@@ -50,7 +50,7 @@ const first = slides[0]
       style="background: radial-gradient(60% 80% at 20% 20%, rgba(196,75,237,0.14) 0%, transparent 55%), radial-gradient(60% 80% at 80% 30%, rgba(74,158,255,0.12) 0%, transparent 55%)"
     ></div>
 
-    <div id="hero-slides" class="absolute inset-0">
+    <div id="hero-slides" class="absolute inset-0" style="will-change: transform">
       {
         movies.map((movie, i) => {
           const image = movie.poster_url || movie.thumb_url
@@ -156,6 +156,7 @@ const first = slides[0]
 <script>
   import { AUTOPLAY_MS } from '../lib/constants'
   import { escapeHTML } from '../scripts/cards'
+  import { registerPageInit } from '../scripts/lifecycle'
 
   interface Slide {
     slug: string
@@ -166,8 +167,9 @@ const first = slides[0]
     image?: string
   }
 
-  const root = document.getElementById('hero')
-  if (root) {
+  registerPageInit(() => {
+    const root = document.getElementById('hero')
+    if (!root) return () => {}
     const hero = root
     const slides: Slide[] = JSON.parse(root.dataset.slides || '[]')
     const total = slides.length
@@ -281,12 +283,6 @@ const first = slides[0]
       cancelAnimationFrame(raf)
     }
 
-    const scrollCleanup = () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('scroll', onScrollEnd)
-      cancelAnimationFrame(raf)
-    }
-
     root.addEventListener('mouseenter', () => {
       paused = true
       restart()
@@ -299,9 +295,15 @@ const first = slides[0]
     document.getElementById('hero-next')?.addEventListener('click', () => go(1))
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('scroll', onScrollEnd, { passive: true })
-    window.addEventListener('pagehide', scrollCleanup, { once: true })
 
     renderDots()
     restart()
-  }
+
+    return () => {
+      if (timer) clearInterval(timer)
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', onScrollEnd)
+    }
+  })
 </script>

@@ -101,9 +101,11 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
 <script>
   import { escapeHTML } from '../scripts/cards'
   import { pageList } from '../lib/pagination'
+  import { registerPageInit } from '../scripts/lifecycle'
 
-  const list = document.querySelector<HTMLElement>('.episode-list')
-  if (list) {
+  registerPageInit(() => {
+    const list = document.querySelector<HTMLElement>('.episode-list')
+    if (!list) return () => {}
     const slug = list.dataset.slug || ''
     const PER_PAGE = Number(list.dataset.perPage) || 24
     let servers: { name: string; items: { name: string; slug: string }[] }[] = []
@@ -214,5 +216,6 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
     })
 
     render()
-  }
+    return () => {}
+  })
 </script>

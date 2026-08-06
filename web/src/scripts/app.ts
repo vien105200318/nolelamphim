@@ -1,64 +1,75 @@
 import { initWebOSRemote } from '../lib/webos'
+import { registerPageInit } from './lifecycle'
 
-initWebOSRemote()
+registerPageInit(() => {
+  const ac = new AbortController()
 
-const progressBar = document.getElementById('scroll-progress')
-const backTop = document.getElementById('back-to-top')
+  initWebOSRemote(ac.signal)
 
-let ticking = false
-function onScroll() {
-  if (ticking) return
-  ticking = true
-  requestAnimationFrame(() => {
-    const y = window.scrollY
-    const max = document.documentElement.scrollHeight - window.innerHeight
-    if (progressBar) {
-      progressBar.style.transform = `scaleX(${max > 0 ? y / max : 0})`
-    }
-    if (backTop) {
-      backTop.classList.toggle('show', y > 600)
-    }
-    ticking = false
-  })
-}
+  const progressBar = document.getElementById('scroll-progress')
+  const backTop = document.getElementById('back-to-top')
 
-window.addEventListener('scroll', onScroll, { passive: true })
-onScroll()
-
-backTop?.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-})
-
-document.addEventListener(
-  'error',
-  (e) => {
-    const target = e.target as HTMLElement | null
-    if (target && target.tagName === 'IMG') {
-      const shell = target.closest<HTMLElement>('.poster-shell')
-      if (shell) {
-        shell.classList.remove('shimmer')
-        shell.classList.add('poster-missing')
-        target.remove()
+  let ticking = false
+  function onScroll() {
+    if (ticking) return
+    ticking = true
+    requestAnimationFrame(() => {
+      const y = window.scrollY
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      if (progressBar) {
+        progressBar.style.transform = `scaleX(${max > 0 ? y / max : 0})`
       }
-    }
-  },
-  true,
-)
+      if (backTop) {
+        backTop.classList.toggle('show', y > 600)
+      }
+      ticking = false
+    })
+  }
 
-const revealEls = document.querySelectorAll('.reveal')
-if ('IntersectionObserver' in window) {
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible')
-          io.unobserve(entry.target)
+  window.addEventListener('scroll', onScroll, { passive: true, signal: ac.signal })
+  onScroll()
+
+  backTop?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+
+  document.addEventListener(
+    'error',
+    (e) => {
+      const target = e.target as HTMLElement | null
+      if (target && target.tagName === 'IMG') {
+        const shell = target.closest<HTMLElement>('.poster-shell')
+        if (shell) {
+          shell.classList.remove('shimmer')
+          shell.classList.add('poster-missing')
+          target.remove()
         }
       }
     },
-    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' },
+    { capture: true, signal: ac.signal },
   )
-  revealEls.forEach((el) => io.observe(el))
-} else {
-  revealEls.forEach((el) => el.classList.add('is-visible'))
-}
+
+  const revealEls = document.querySelectorAll('.reveal')
+  let io: IntersectionObserver | null = null
+  if ('IntersectionObserver' in window) {
+    io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            io?.unobserve(entry.target)
+          }
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' },
+    )
+    revealEls.forEach((el) => io?.observe(el))
+  } else {
+    revealEls.forEach((el) => el.classList.add('is-visible'))
+  }
+
+  return () => {
+    ac.abort()
+    io?.disconnect()
+  }
+})

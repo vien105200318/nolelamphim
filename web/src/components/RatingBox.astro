@@ -37,8 +37,10 @@ const STAR_PATH =
 
 <script>
   import { getRatings, saveRating } from '../scripts/store'
+  import { registerPageInit } from '../scripts/lifecycle'
 
-  document.querySelectorAll<HTMLElement>('.rating-box').forEach((box) => {
+  registerPageInit(() => {
+    document.querySelectorAll<HTMLElement>('.rating-box').forEach((box) => {
     const slug = box.dataset.slug || ''
     const stars = Array.from(box.querySelectorAll<HTMLButtonElement>('.rating-star'))
     const label = box.querySelector('.rating-label')
@@ -82,5 +84,6 @@ const STAR_PATH =
     }
 
     paint()
+    })
   })
 </script>

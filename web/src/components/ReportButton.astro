@@ -69,7 +69,10 @@ const ISSUES = [
 </div>
 
 <script>
-  document.querySelectorAll<HTMLElement>('.report-btn').forEach((box) => {
+  import { registerPageInit } from '../scripts/lifecycle'
+
+  registerPageInit(() => {
+    document.querySelectorAll<HTMLElement>('.report-btn').forEach((box) => {
     const slug = box.dataset.slug || ''
     const name = box.dataset.name || ''
     const episode = box.dataset.episode || ''
@@ -121,5 +124,6 @@ const ISSUES = [
       modal?.classList.add('hidden')
       if (note) note.value = ''
     })
+  })
   })
 </script>

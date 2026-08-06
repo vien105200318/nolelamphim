@@ -22,29 +22,32 @@ const { id, name, slug, thumb } = Astro.props
 
 <script>
   import { isFavorite, toggleFavorite } from '../scripts/store'
+  import { registerPageInit } from '../scripts/lifecycle'
 
-  document.querySelectorAll<HTMLButtonElement>('.fav-button').forEach((btn) => {
-    const id = Number(btn.dataset.id)
-    const item = {
-      id,
-      name: btn.dataset.name || '',
-      slug: btn.dataset.slug || '',
-      thumb: btn.dataset.thumb || '',
-    }
-    const label = btn.querySelector('.fav-label')
+  registerPageInit(() => {
+    document.querySelectorAll<HTMLButtonElement>('.fav-button').forEach((btn) => {
+      const id = Number(btn.dataset.id)
+      const item = {
+        id,
+        name: btn.dataset.name || '',
+        slug: btn.dataset.slug || '',
+        thumb: btn.dataset.thumb || '',
+      }
+      const label = btn.querySelector('.fav-label')
 
-    const update = (active: boolean) => {
-      btn.classList.toggle('fav-active', active)
-      btn.classList.toggle('glass-tile', !active)
-      btn.classList.toggle('text-text-secondary', !active)
-      if (label) label.textContent = active ? '♥ Đã thích' : '♡ Yêu thích'
-      btn.setAttribute('aria-pressed', String(active))
-    }
+      const update = (active: boolean) => {
+        btn.classList.toggle('fav-active', active)
+        btn.classList.toggle('glass-tile', !active)
+        btn.classList.toggle('text-text-secondary', !active)
+        if (label) label.textContent = active ? '♥ Đã thích' : '♡ Yêu thích'
+        btn.setAttribute('aria-pressed', String(active))
+      }
 
-    update(isFavorite(id))
+      update(isFavorite(id))
 
-    btn.addEventListener('click', () => {
-      update(toggleFavorite(item))
+      btn.addEventListener('click', () => {
+        update(toggleFavorite(item))
+      })
     })
   })
 </script>

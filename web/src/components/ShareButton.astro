@@ -43,45 +43,53 @@ const url = `${SITE_URL}/phim/${slug}`
 </div>
 
 <script>
-  document.querySelectorAll<HTMLElement>('.share-btn').forEach((box) => {
-    const url = box.dataset.url || ''
-    const name = box.dataset.name || ''
-    const trigger = box.querySelector<HTMLButtonElement>('.share-trigger')
-    const popover = box.querySelector<HTMLElement>('.share-popover')
-    const copyBtn = box.querySelector<HTMLButtonElement>('.share-copy')
-    const copyLabel = box.querySelector('.share-copy-label')
+  import { registerPageInit } from '../scripts/lifecycle'
 
-    trigger?.addEventListener('click', async () => {
-      if (navigator.share) {
-        try {
-          await navigator.share({ title: name, url })
-          return
-        } catch {
-          // fall through to popover
+  registerPageInit(() => {
+    const ac = new AbortController()
+
+    document.querySelectorAll<HTMLElement>('.share-btn').forEach((box) => {
+      const url = box.dataset.url || ''
+      const name = box.dataset.name || ''
+      const trigger = box.querySelector<HTMLButtonElement>('.share-trigger')
+      const popover = box.querySelector<HTMLElement>('.share-popover')
+      const copyBtn = box.querySelector<HTMLButtonElement>('.share-copy')
+      const copyLabel = box.querySelector('.share-copy-label')
+
+      trigger?.addEventListener('click', async () => {
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: name, url })
+            return
+          } catch {
+            // fall through to popover
+          }
         }
-      }
-      popover?.classList.toggle('open')
+        popover?.classList.toggle('open')
+      }, { signal: ac.signal })
+
+      document.addEventListener('click', (e) => {
+        if (!box.contains(e.target as Node)) popover?.classList.remove('open')
+      }, { signal: ac.signal })
+
+      copyBtn?.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(url)
+        } catch {
+          const el = document.createElement('textarea')
+          el.value = url
+          document.body.appendChild(el)
+          el.select()
+          document.execCommand('copy')
+          document.body.removeChild(el)
+        }
+        if (copyLabel) copyLabel.textContent = 'Đã copy!'
+        setTimeout(() => {
+          if (copyLabel) copyLabel.textContent = 'Copy liên kết'
+        }, 2000)
+      }, { signal: ac.signal })
     })
 
-    document.addEventListener('click', (e) => {
-      if (!box.contains(e.target as Node)) popover?.classList.remove('open')
-    })
-
-    copyBtn?.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(url)
-      } catch {
-        const el = document.createElement('textarea')
-        el.value = url
-        document.body.appendChild(el)
-        el.select()
-        document.execCommand('copy')
-        document.body.removeChild(el)
-      }
-      if (copyLabel) copyLabel.textContent = 'Đã copy!'
-      setTimeout(() => {
-        if (copyLabel) copyLabel.textContent = 'Copy liên kết'
-      }, 2000)
-    })
+    return () => ac.abort()
   })
 </script>

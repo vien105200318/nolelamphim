@@ -2,9 +2,11 @@ import { getRecent, removeRecent } from './store'
 import { escapeHTML } from '../lib/movieCard'
 import { CONTINUE_WATCHING_MAX } from '../lib/constants'
 import type { RecentItem } from './store'
+import { registerPageInit } from './lifecycle'
 
-const root = document.getElementById('cw-root')
-if (root) {
+registerPageInit(() => {
+  const root = document.getElementById('cw-root')
+  if (!root) return () => {}
   const el = root
   const watched = getRecent().filter((r) => r.episodeSlug)
 
@@ -70,4 +72,4 @@ if (root) {
       </div>
     `
   }
-}
+})
