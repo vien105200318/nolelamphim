@@ -1,3 +1,5 @@
+export const BASE_URL = 'https://vsmov.com/api'
+
 export const AUTOPLAY_MS = 6000
 
 export const PER_PAGE = 24

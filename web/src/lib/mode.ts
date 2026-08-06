@@ -1,3 +1,5 @@
+import { MODE_STORAGE_KEY } from './constants'
+
 export type Mode = 'normal' | 'tu-tien'
 
 export interface ModeInfo {
@@ -13,14 +15,12 @@ export const MODES: ModeInfo[] = [
 
 export const DEFAULT_MODE: Mode = 'normal'
 
-const STORAGE_KEY = 'phim:mode'
-
 export function readMode(): Mode {
-  const id = localStorage.getItem(STORAGE_KEY)
+  const id = localStorage.getItem(MODE_STORAGE_KEY)
   return MODES.some((m) => m.id === id) ? (id as Mode) : DEFAULT_MODE
 }
 
 export function writeMode(mode: Mode) {
-  localStorage.setItem(STORAGE_KEY, mode)
+  localStorage.setItem(MODE_STORAGE_KEY, mode)
   document.documentElement.dataset.mode = mode
 }

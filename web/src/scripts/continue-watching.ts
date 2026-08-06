@@ -1,5 +1,6 @@
 import { getRecent, removeRecent } from './store'
 import { escapeHTML } from '../lib/movieCard'
+import { CONTINUE_WATCHING_MAX } from '../lib/constants'
 import type { RecentItem } from './store'
 
 const root = document.getElementById('cw-root')
@@ -33,7 +34,7 @@ if (root) {
         <span class="text-[11px] text-text-muted">${watched.length} phim</span>
       </div>
       <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
-        ${watched.slice(0, 10).map(itemHTML).join('')}
+        ${watched.slice(0, CONTINUE_WATCHING_MAX).map(itemHTML).join('')}
       </div>
     `
     el.querySelectorAll<HTMLButtonElement>('.cw-remove').forEach((btn) => {

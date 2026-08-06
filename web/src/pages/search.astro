@@ -2,20 +2,24 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import SearchClient from '../components/SearchClient.astro'
 import { searchMovies, getNewMovies } from '../lib/api'
+import { SEARCH_LIMIT } from '../lib/constants'
+import type { Movie, ListResponse } from '../lib/types'
 
 const q = Astro.url.searchParams.get('q') ?? ''
+
+const emptyMovieList: ListResponse<Movie> = { status: false, items: [] }
 
 let initialResults = []
 let initialLabel = ''
 let initialTotalPages = 1
 
 if (q.trim()) {
-  const data = await searchMovies(q.trim()).catch(() => ({ items: [] }))
+  const data = await searchMovies(q.trim(), 1, SEARCH_LIMIT).catch(() => emptyMovieList)
   initialResults = data.items ?? []
   initialLabel = `Kết quả cho "${q.trim()}"`
   initialTotalPages = Number(data.pagination?.totalPages) || 1
 } else {
-  const data = await getNewMovies(1).catch(() => ({ items: [] }))
+  const data = await getNewMovies(1).catch(() => emptyMovieList)
   initialResults = data.items ?? []
   initialLabel = 'Phim mới nhất'
   initialTotalPages = Number(data.pagination?.totalPages) || 1

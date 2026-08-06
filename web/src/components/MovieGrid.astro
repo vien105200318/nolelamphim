@@ -101,12 +101,12 @@ for (let i = 1; i <= totalPages; i++) {
 
 <script>
   import { gridHTML } from '../scripts/cards'
+  import { getMoviesByPath } from '../lib/api'
 
   document.querySelectorAll<HTMLElement>('.movie-grid').forEach((root) => {
     const path = root.dataset.path || ''
     const sort = root.dataset.sort || 'newest'
     const dot = (root.dataset.dot as 'new' | 'hot' | undefined) || undefined
-    const BASE = 'https://vsmov.com/api'
 
     const grid = root.querySelector<HTMLElement>('.grid')
     const pagesEl = root.querySelector<HTMLElement>('.mg-pages')
@@ -166,10 +166,9 @@ for (let i = 1; i <= totalPages; i++) {
       const extra = root.dataset.extra || ''
       loadingEl!.classList.remove('hidden')
       try {
-        const res = await fetch(`${BASE}${path}?page=${p}${extra ? `&${extra}` : ''}`, {
-          headers: { Accept: 'application/json' },
-        })
-        const data = await res.json()
+        const params: Record<string, string | number> = { page: p }
+        if (extra) new URLSearchParams(extra).forEach((v, k) => (params[k] = v))
+        const data = await getMoviesByPath(path, params)
         if (data.status && Array.isArray(data.items) && data.items.length > 0) {
           items = data.items
           page = p

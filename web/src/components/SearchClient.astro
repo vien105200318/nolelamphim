@@ -132,13 +132,14 @@ const filterConfig = [
     getMoviesByCountry,
     getMoviesByYear,
     searchMovies,
+    getCategories,
+    getCountries,
+    getYears,
   } from '../lib/api'
   import { SEARCH_LIMIT, SUGGESTION_LIMIT } from '../lib/constants'
 
   const root = document.querySelector<HTMLElement>('.search-client')
   if (root) {
-    const BASE = 'https://vsmov.com/api'
-
     let initialResults: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number }[] = []
     try {
       initialResults = JSON.parse(root.dataset.initialResults || '[]')
@@ -339,8 +340,7 @@ const filterConfig = [
       if (!q) return
       suggestTimer = setTimeout(async () => {
         try {
-          const r = await fetch(`${BASE}/tim-kiem?keyword=${encodeURIComponent(q)}&page=1&limit=${SUGGESTION_LIMIT}`, { headers: { Accept: 'application/json' } })
-          const data = await r.json()
+          const data = await searchMovies(q, 1, SUGGESTION_LIMIT)
           suggestionQuery = q
           suggestions = Array.isArray(data.items) ? data.items : []
           showSuggestions = suggestions.length > 0 && suggestionQuery === q
@@ -416,17 +416,12 @@ const filterConfig = [
     function loadMeta() {
       if (metaPromise) return metaPromise
       metaPromise = (async () => {
-        const listOf = (p: string) =>
-          fetch(`${BASE}${p}`, { headers: { Accept: 'application/json' } })
-            .then((r) => r.json())
-            .then((d) => (d.status === 'success' ? d.data.items : []))
-            .catch(() => [])
-        const [c, co, y] = await Promise.all([listOf('/the-loai'), listOf('/quoc-gia'), listOf('/nam')])
-        categories = c
-        countries = co
-        years = y
+        const [c, co, y] = await Promise.all([getCategories(), getCountries(), getYears()])
+        categories = c.status === 'success' ? c.data.items : []
+        countries = co.status === 'success' ? co.data.items : []
+        years = y.status === 'success' ? y.data.items : []
         paintDropdowns()
-      })()
+      })().catch(() => {})
       return metaPromise
     }
 

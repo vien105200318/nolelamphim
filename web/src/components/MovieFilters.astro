@@ -112,9 +112,10 @@ const chevronBg =
 </div>
 
 <script>
+  import { getYears, getCountries } from '../lib/api'
+
   const root = document.querySelector<HTMLElement>('.movie-filters')
   if (root) {
-    const path = root.dataset.path || ''
     const wantYear = root.dataset.year === '1'
     const wantCountry = root.dataset.country === '1'
 
@@ -183,8 +184,7 @@ const chevronBg =
     const requests: Promise<void>[] = []
     if (wantYear) {
       requests.push(
-        fetch('https://vsmov.com/api/nam', { headers: { Accept: 'application/json' } })
-          .then((r) => r.json())
+        getYears()
           .then((d) => {
             if (d.status === 'success') fillSelect(yearSelect, d.data.items)
           })
@@ -193,8 +193,7 @@ const chevronBg =
     }
     if (wantCountry) {
       requests.push(
-        fetch('https://vsmov.com/api/quoc-gia', { headers: { Accept: 'application/json' } })
-          .then((r) => r.json())
+        getCountries()
           .then((d) => {
             if (d.status === 'success') fillSelect(countrySelect, d.data.items)
           })

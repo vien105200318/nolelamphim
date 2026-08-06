@@ -59,7 +59,7 @@ if (movie.keywords) {
 ---
 
 <BaseLayout title={metaTitle} description={metaDescription} keywords={metaKeywords} ogImage={image}>
-  <script set:html={JSON.stringify(jsonLd)} type="application/ld+json" />
+  <script is:inline set:html={JSON.stringify(jsonLd)} type="application/ld+json" />
 
   <div class="px-4 md:px-8 py-6">
     <div class="relative h-[35vh] md:h-[45vh] rounded-2xl overflow-hidden mb-6 glass-frame">
@@ -96,7 +96,7 @@ if (movie.keywords) {
 
         <div class="flex flex-wrap gap-2">
           {
-            chips.map((chip, i) => (
+            chips.map((chip) => (
               <span class="px-3 py-1 rounded-lg glass-chip text-text-secondary text-xs">
                 {chip}
               </span>

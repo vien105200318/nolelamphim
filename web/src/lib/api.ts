@@ -7,8 +7,7 @@ import type {
   MovieDetailResponse,
   ListResponse,
 } from './types'
-
-const BASE_URL = 'https://vsmov.com/api'
+import { BASE_URL } from './constants'
 
 const FETCH_RETRIES = 2
 
@@ -102,6 +101,10 @@ export function getSubteam(limit = 20) {
 
 export function getMoviesByListPath(path: string, page = 1, limit = 24) {
   return fetchAPI<MovieList>(`/danh-sach/${path}`, { page, limit }, { status: false, items: [] }).then(normalizeMovieList)
+}
+
+export function getMoviesByPath(path: string, params?: Record<string, string | number>) {
+  return fetchAPI<MovieList>(path, params, { status: false, items: [] }).then(normalizeMovieList)
 }
 
 export function searchMovies(keyword: string, page = 1, limit = 20) {
@@ -202,16 +205,25 @@ function extractEpisodes(html: string): EpisodeServer[] {
   }
 }
 
+const EPISODES_CACHE_TTL = 10 * 60 * 1000
+const episodesCache = new Map<string, { expires: number; data: { status: boolean; episodes: EpisodeServer[] } }>()
+
 export async function getMovieEpisodes(
   slug: string,
 ): Promise<{ status: boolean; episodes: EpisodeServer[] }> {
+  const cached = episodesCache.get(slug)
+  if (cached && cached.expires > Date.now()) {
+    return cached.data
+  }
   try {
     const res = await fetch(`https://vsmov.com/phim/${slug}`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
     })
     const html = await res.text()
     const episodes = extractEpisodes(html)
-    return { status: episodes.length > 0, episodes }
+    const data = { status: episodes.length > 0, episodes }
+    episodesCache.set(slug, { expires: Date.now() + EPISODES_CACHE_TTL, data })
+    return data
   } catch (err) {
     console.error('[api] getMovieEpisodes failed for', slug, err)
     return { status: false, episodes: [] }
