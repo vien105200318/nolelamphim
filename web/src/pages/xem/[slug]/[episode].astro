@@ -100,6 +100,18 @@ const breadcrumb = [
                 Bấm để phát
               </span>
             </button>
+            {
+              nextEp && (
+                <a
+                  id="watch-next-float"
+                  href={`/xem/${slug}/${nextEp.slug}`}
+                  data-astro-prefetch="load"
+                  class="absolute bottom-3 right-3 z-20 px-3 py-1.5 rounded-full glass-tile text-white text-[11px] font-medium opacity-80 hover:opacity-100 hover:scale-105 transition-all"
+                >
+                  Tập kế tiếp →
+                </a>
+              )
+            }
           </div>
         </div>
 
@@ -239,6 +251,15 @@ const breadcrumb = [
         const n = idx >= 0 && idx < items.length - 1 ? items[idx + 1] : null
         if (prev) prev.outerHTML = p ? epLink('watch-prev', `/xem/${slug}/${p.slug}`, `← ${escapeHTML(p.name)}`) : epEmpty('watch-prev', '← Hết')
         if (next) next.outerHTML = n ? epLink('watch-next', `/xem/${slug}/${n.slug}`, `${escapeHTML(n.name)} →`) : epEmpty('watch-next', 'Hết →')
+        const float = document.getElementById('watch-next-float') as HTMLAnchorElement | null
+        if (float) {
+          if (n) {
+            float.href = `/xem/${slug}/${n.slug}`
+            float.classList.remove('hidden')
+          } else {
+            float.classList.add('hidden')
+          }
+        }
       }
 
       serverBtns.forEach((btn) => {
@@ -266,7 +287,41 @@ const breadcrumb = [
           renderNav(server.items, idx)
         })
       })
-      return () => {}
+
+      function isTyping(): boolean {
+        const el = document.activeElement
+        if (!el) return false
+        const tag = el.tagName
+        return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (el as HTMLElement).isContentEditable
+      }
+
+      function onKey(e: KeyboardEvent) {
+        if (isTyping()) return
+        if (e.key === 'ArrowRight') {
+          const next = document.getElementById('watch-next')
+          if (next && next.tagName === 'A') {
+            e.preventDefault()
+            next.click()
+          }
+        } else if (e.key === 'ArrowLeft') {
+          const prev = document.getElementById('watch-prev')
+          if (prev && prev.tagName === 'A') {
+            e.preventDefault()
+            prev.click()
+          }
+        } else if (e.key === 'f' || e.key === 'F') {
+          const f = document.getElementById('watch-frame') as HTMLIFrameElement | null
+          if (f && typeof f.requestFullscreen === 'function') {
+            e.preventDefault()
+            f.requestFullscreen().catch(() => {})
+          }
+        }
+      }
+      document.addEventListener('keydown', onKey)
+
+      return () => {
+        document.removeEventListener('keydown', onKey)
+      }
     })
   </script>
 </BaseLayout>
