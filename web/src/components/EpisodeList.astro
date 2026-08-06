@@ -71,21 +71,38 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
   <div class="content-card px-5 py-4">
     <div id="episode-grid" class="flex flex-wrap gap-2">
       {
-        initialEpisodes.map((ep) => (
-          <a
-           
-            href={`/xem/${slug}/${ep.slug}`}
-            class="w-14 h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center hover:text-white transition-all"
-          >
-            {ep.name}
-          </a>
-        ))
+        initialEpisodes.length > 0 ? (
+          initialEpisodes.map((ep) => (
+            <a
+              
+              href={`/xem/${slug}/${ep.slug}`}
+              class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center hover:text-white transition-all"
+            >
+              {ep.name}
+            </a>
+          ))
+        ) : (
+          <div class="w-full py-8 flex flex-col items-center justify-center text-center">
+            <p class="text-text-muted text-xs">Chưa có tập nào cho bộ phim này</p>
+            <p class="text-text-muted/70 text-[11px] mt-1">Vui lòng quay lại sau</p>
+          </div>
+        )
       }
     </div>
   </div>
 
   <div id="episode-pagination" class="flex flex-wrap items-center justify-center gap-1.5 mt-3">
-    {totalPages > 1 && pagesHTML(1, totalPages)}
+    {
+      totalPages > 1 && (
+        <>
+          <button type="button" class="w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" disabled>«</button>
+          <button type="button" class="w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" disabled>‹</button>
+          {pagesHTML(1, totalPages)}
+          <button type="button" class="w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white transition-colors">›</button>
+          <button type="button" class="w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white transition-colors">»</button>
+        </>
+      )
+    }
   </div>
 </div>
 
@@ -135,12 +152,18 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
       const visible = items.slice(start, start + PER_PAGE)
 
       if (grid) {
-        grid.innerHTML = visible
-          .map(
-            (ep) =>
-              `<a href="/xem/${slug}/${ep.slug}" class="w-14 h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center hover:text-white transition-all">${ep.name}</a>`,
-          )
-          .join('')
+        grid.innerHTML =
+          visible.length > 0
+            ? visible
+                .map(
+                  (ep) =>
+                    `<a href="/xem/${slug}/${ep.slug}" class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl glass-tile text-text-secondary text-xs flex items-center justify-center hover:text-white transition-all">${ep.name}</a>`,
+                )
+                .join('')
+            : `<div class="w-full py-8 flex flex-col items-center justify-center text-center">
+                <p class="text-text-muted text-xs">Chưa có tập nào cho bộ phim này</p>
+                <p class="text-text-muted/70 text-[11px] mt-1">Vui lòng quay lại sau</p>
+              </div>`
       }
 
       serverBtns.forEach((btn) => {
@@ -157,9 +180,11 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
         pagination.innerHTML =
           total > 1
             ? `
-              <button type="button" class="ep-prev px-3 py-1.5 rounded-lg text-xs text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>◀</button>
+              <button type="button" class="ep-first w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>«</button>
+              <button type="button" class="ep-prev w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>‹</button>
               ${pagesHTML(total)}
-              <button type="button" class="ep-next px-3 py-1.5 rounded-lg text-xs text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page >= total ? 'disabled' : ''}>▶</button>
+              <button type="button" class="ep-next w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page >= total ? 'disabled' : ''}>›</button>
+              <button type="button" class="ep-last w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page >= total ? 'disabled' : ''}>»</button>
             `
             : ''
         pagination.querySelectorAll<HTMLButtonElement>('.ep-page').forEach((btn) => {
@@ -175,6 +200,14 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
         pagination.querySelector<HTMLButtonElement>('.ep-next')?.addEventListener('click', () => {
           const total = Math.max(1, Math.ceil(currentServer().items.length / PER_PAGE))
           page = Math.min(total, page + 1)
+          render()
+        })
+        pagination.querySelector<HTMLButtonElement>('.ep-first')?.addEventListener('click', () => {
+          page = 1
+          render()
+        })
+        pagination.querySelector<HTMLButtonElement>('.ep-last')?.addEventListener('click', () => {
+          page = Math.max(1, Math.ceil(currentServer().items.length / PER_PAGE))
           render()
         })
       }

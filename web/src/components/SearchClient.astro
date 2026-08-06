@@ -290,7 +290,7 @@ const filterConfig = [
           .map(
             (m) => `
               <a href="/phim/${m.slug}" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
-                ${m.thumb_url ? `<div class="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame"><img src="${m.thumb_url}" alt="${m.name}" class="w-full h-full object-cover" /></div>` : ''}
+                ${m.thumb_url ? `<div class="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame poster-shell"><img src="${m.thumb_url}" alt="${m.name}" class="w-full h-full object-cover" /></div>` : ''}
                 <div class="min-w-0">
                   <p class="text-xs text-text-primary truncate">${m.name}</p>
                   ${m.origin_name ? `<p class="text-[10px] text-text-muted truncate">${m.origin_name}</p>` : ''}
@@ -410,6 +410,10 @@ const filterConfig = [
     input?.addEventListener('input', () => {
       query = input.value
       clearBtn?.classList.toggle('hidden', !query)
+      if (query.trim() && activeFilter) {
+        activeFilter = null
+        paintChips()
+      }
       paintRecent()
       if (suggestTimer) clearTimeout(suggestTimer)
       if (searchTimer) clearTimeout(searchTimer)
@@ -463,15 +467,14 @@ const filterConfig = [
 
     root.addEventListener('click', (e) => {
       const target = e.target as HTMLElement
+      const opt = target.closest<HTMLButtonElement>('.filter-option')
+      if (opt) {
+        selectFilter(opt.dataset.type || '', opt.dataset.label || '', opt.dataset.value || '')
+        return
+      }
       if (target.closest('.filter-chip') || target.closest('.filter-dropdown')) return
       dropdownEls.forEach((el) => el.classList.remove('open'))
       openDropdown = null
-    })
-
-    root.querySelectorAll<HTMLButtonElement>('.filter-option').forEach((opt) => {
-      opt.addEventListener('click', () => {
-        selectFilter(opt.dataset.type || '', opt.dataset.label || '', opt.dataset.value || '')
-      })
     })
 
     filterClear?.addEventListener('click', clearFilter)

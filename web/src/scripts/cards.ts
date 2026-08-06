@@ -16,7 +16,7 @@ export function movieCardHTML(movie: CardMovie, dot?: 'new' | 'hot'): string {
     : ''
   return `
     <a href="/phim/${movie.slug}" class="group block focus:outline-none">
-      <div class="relative aspect-[2/3] rounded-xl overflow-hidden bg-bg-card glass-frame transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:shadow-[0_18px_40px_-12px_rgba(196,75,237,0.3)] group-hover:ring-1 group-hover:ring-[#C44BED]/35">
+      <div class="relative aspect-[2/3] rounded-xl overflow-hidden bg-bg-card glass-frame poster-shell${movie.thumb_url ? ' shimmer' : ''} transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:shadow-[0_18px_40px_-12px_rgba(196,75,237,0.3)] group-hover:ring-1 group-hover:ring-[#C44BED]/35">
         ${
           movie.thumb_url
             ? `<img src="${movie.thumb_url}" alt="${movie.name}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />`

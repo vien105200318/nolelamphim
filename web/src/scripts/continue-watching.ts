@@ -3,12 +3,13 @@ import type { RecentItem } from './store'
 
 const root = document.getElementById('cw-root')
 if (root) {
+  const el = root
   const watched = getRecent().filter((r) => r.episodeSlug)
 
   function itemHTML(item: RecentItem): string {
     return `
       <div class="snap-start shrink-0 w-[150px] relative group" data-slug="${item.slug}">
-        <a href="/xem/${item.slug}/${item.episodeSlug}" class="block relative aspect-[2/3] rounded-xl overflow-hidden bg-bg-card glass-frame">
+        <a href="/xem/${item.slug}/${item.episodeSlug}" class="block relative aspect-[2/3] rounded-xl overflow-hidden bg-bg-card glass-frame poster-shell${item.thumb ? ' shimmer' : ''}">
           ${item.thumb ? `<img src="${item.thumb}" alt="${item.name}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />` : '<div class="w-full h-full bg-bg-card"></div>'}
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
           ${item.episode ? `<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#FF6B9D] text-white text-[10px] font-semibold">${item.episode}</span>` : ''}
@@ -25,7 +26,7 @@ if (root) {
   }
 
   if (watched.length > 0) {
-    root.innerHTML = `
+    el.innerHTML = `
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-sm font-semibold text-text-primary">Tiếp tục xem</h2>
         <span class="text-[11px] text-text-muted">${watched.length} phim</span>
@@ -34,17 +35,37 @@ if (root) {
         ${watched.slice(0, 10).map(itemHTML).join('')}
       </div>
     `
-    root.querySelectorAll<HTMLButtonElement>('.cw-remove').forEach((btn) => {
+    el.querySelectorAll<HTMLButtonElement>('.cw-remove').forEach((btn) => {
       btn.addEventListener('click', () => {
         const card = btn.closest<HTMLElement>('[data-slug]')
         if (!card) return
         removeRecent(card.dataset.slug || '')
         card.remove()
-        const remaining = root.querySelectorAll('[data-slug]').length
-        const count = root.querySelector('.text-text-muted')
+        const remaining = el.querySelectorAll('[data-slug]').length
+        const count = el.querySelector('.text-text-muted')
         if (count) count.textContent = `${remaining} phim`
-        if (remaining === 0) root.innerHTML = ''
+        if (remaining === 0) renderEmpty()
       })
     })
+  } else {
+    renderEmpty()
+  }
+
+  function renderEmpty() {
+    el.innerHTML = `
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-text-primary">Tiếp tục xem</h2>
+      </div>
+      <div class="content-card px-6 py-10 flex flex-col items-center text-center">
+        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mb-3">
+          <svg class="w-5 h-5 text-text-muted" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <p class="text-text-muted text-xs">Bạn chưa xem phim nào</p>
+        <p class="text-text-muted/70 text-[11px] mt-1">Hãy khám phá kho phim và bắt đầu xem nhé</p>
+        <a href="/" class="mt-4 px-4 py-1.5 rounded-xl glass-tile text-[11px] text-text-secondary hover:text-white transition-colors">
+          Khám phá phim mới
+        </a>
+      </div>
+    `
   }
 }

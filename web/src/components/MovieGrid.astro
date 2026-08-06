@@ -42,10 +42,21 @@ for (let i = 1; i <= totalPages; i++) {
   <div class="flex flex-wrap items-center justify-center gap-1.5 mt-8">
     <button
       type="button"
-      class="mg-prev px-3 py-1.5 rounded-lg text-xs text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      class="mg-first w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       disabled
+      title="Trang đầu"
+      aria-label="Trang đầu"
     >
-      ◀
+      «
+    </button>
+    <button
+      type="button"
+      class="mg-prev w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      disabled
+      title="Trang trước"
+      aria-label="Trang trước"
+    >
+      ‹
     </button>
     <span class="mg-pages flex flex-wrap items-center justify-center gap-1.5">
       {
@@ -68,9 +79,19 @@ for (let i = 1; i <= totalPages; i++) {
     </span>
     <button
       type="button"
-      class="mg-next px-3 py-1.5 rounded-lg text-xs text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      class="mg-next w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      title="Trang sau"
+      aria-label="Trang sau"
     >
-      ▶
+      ›
+    </button>
+    <button
+      type="button"
+      class="mg-last w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+      title="Trang cuối"
+      aria-label="Trang cuối"
+    >
+      »
     </button>
   </div>
   <div class="mg-loading hidden flex justify-center mt-4">
@@ -91,6 +112,8 @@ for (let i = 1; i <= totalPages; i++) {
     const pagesEl = root.querySelector<HTMLElement>('.mg-pages')
     const prevBtn = root.querySelector<HTMLButtonElement>('.mg-prev')
     const nextBtn = root.querySelector<HTMLButtonElement>('.mg-next')
+    const firstBtn = root.querySelector<HTMLButtonElement>('.mg-first')
+    const lastBtn = root.querySelector<HTMLButtonElement>('.mg-last')
     const loadingEl = root.querySelector<HTMLElement>('.mg-loading')
 
     let items: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number }[] = []
@@ -135,6 +158,8 @@ for (let i = 1; i <= totalPages; i++) {
       })
       prevBtn!.disabled = page <= 1
       nextBtn!.disabled = page >= totalPages
+      if (firstBtn) firstBtn.disabled = page <= 1
+      if (lastBtn) lastBtn.disabled = page >= totalPages
     }
 
     async function fetchPage(p: number) {
@@ -165,6 +190,12 @@ for (let i = 1; i <= totalPages; i++) {
     })
     nextBtn?.addEventListener('click', () => {
       if (page < totalPages) fetchPage(page + 1)
+    })
+    firstBtn?.addEventListener('click', () => {
+      if (page > 1) fetchPage(1)
+    })
+    lastBtn?.addEventListener('click', () => {
+      if (page < totalPages) fetchPage(totalPages)
     })
     root.addEventListener('mg-refresh', () => {
       fetchPage(1)

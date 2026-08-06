@@ -29,6 +29,22 @@ backTop?.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 })
 
+document.addEventListener(
+  'error',
+  (e) => {
+    const target = e.target as HTMLElement | null
+    if (target && target.tagName === 'IMG') {
+      const shell = target.closest<HTMLElement>('.poster-shell')
+      if (shell) {
+        shell.classList.remove('shimmer')
+        shell.classList.add('poster-missing')
+        target.remove()
+      }
+    }
+  },
+  true,
+)
+
 const revealEls = document.querySelectorAll('.reveal')
 if ('IntersectionObserver' in window) {
   const io = new IntersectionObserver(

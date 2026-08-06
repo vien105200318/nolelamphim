@@ -272,6 +272,18 @@ body {
   100% { background-position: 200% 0; }
 }
 
+/* Poster frame — nền shimmer trong lúc load, icon fallback khi ảnh lỗi */
+.poster-shell {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  background-size: 200% 100%;
+}
+.poster-shell.poster-missing {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' opacity='0.35' viewBox='0 0 24 24'%3E%3Cpath d='M18 3v2h-2V3H8v2H6V3H4v18h2v-2h2v2h8v-2h2v2h2V3h-2zM8 17H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6V7h2v2zm10 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 40px 40px;
+}
+
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
