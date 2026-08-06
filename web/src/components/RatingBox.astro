@@ -13,7 +13,7 @@ const STAR_PATH =
 <div
   class="rating-box flex flex-col items-center gap-1 group/rating cursor-pointer"
   data-slug={slug}
-  title="Đánh giá phim này"
+  title="Đánh giá phim này (lưu trên máy của bạn)"
 >
   <div class="flex gap-0.5">
     {
@@ -32,7 +32,7 @@ const STAR_PATH =
       ))
     }
   </div>
-  <span class="rating-label text-[10px] text-text-muted leading-none">Đánh giá</span>
+  <span class="rating-label text-[10px] text-text-muted leading-none">Đánh giá của bạn</span>
 </div>
 
 <script>
@@ -65,8 +65,8 @@ const STAR_PATH =
       star.addEventListener('click', () => {
         value = Number(star.dataset.value)
         saveRating(slug, value)
-        if (label) label.textContent = `${value}/5`
-        box.title = `Bạn đánh giá ${value}/5`
+        if (label) label.textContent = `Bạn: ${value}/5`
+        box.title = `Bạn đã đánh giá ${value}/5 (lưu trên máy này)`
         paint()
       })
     })
@@ -77,8 +77,8 @@ const STAR_PATH =
     })
 
     if (value) {
-      if (label) label.textContent = `${value}/5`
-      box.title = `Bạn đánh giá ${value}/5`
+      if (label) label.textContent = `Bạn: ${value}/5`
+      box.title = `Bạn đã đánh giá ${value}/5 (lưu trên máy này)`
     }
 
     paint()

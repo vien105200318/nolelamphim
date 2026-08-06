@@ -6,6 +6,9 @@ export interface CardMovie {
   name: string
   year?: number
   thumb_url?: string
+  episode_current?: string
+  quality?: string
+  lang?: string
 }
 
 export function escapeHTML(value: unknown): string {
@@ -21,6 +24,10 @@ export function movieCardHTML(movie: CardMovie, dot?: 'new' | 'hot'): string {
   const slug = escapeHTML(movie.slug)
   const name = escapeHTML(movie.name)
   const year = movie.year ? escapeHTML(movie.year) : ''
+  const quality = movie.quality ? escapeHTML(movie.quality) : ''
+  const lang = movie.lang ? escapeHTML(movie.lang) : ''
+  const episode = movie.episode_current ? escapeHTML(movie.episode_current) : ''
+  const meta = [year, quality, lang].filter(Boolean).join(' \u00b7 ')
   const badge = dot
     ? `<span class="absolute top-3 left-3 z-20 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase ${
         dot === 'new'
@@ -28,8 +35,11 @@ export function movieCardHTML(movie: CardMovie, dot?: 'new' | 'hot'): string {
           : 'bg-gradient-to-r from-[#FF6B9D] to-[#C44BED] text-white shadow-[0_0_10px_rgba(196,75,237,0.4)]'
       }">${dot === 'new' ? 'Mới' : 'Hot'}</span>`
     : ''
+  const episodeBadge = episode
+    ? `<span class="absolute bottom-2 right-2 z-20 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[10px] font-medium text-white/95 pointer-events-none">${episode}</span>`
+    : ''
   return `
-    <a href="/phim/${slug}" class="group block focus:outline-none">
+    <a href="/phim/${slug}" class="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C44BED]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark">
       <div class="relative aspect-[2/3] rounded-xl overflow-hidden bg-bg-card glass-frame poster-shell${movie.thumb_url ? ' shimmer' : ''} transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:shadow-[0_18px_40px_-12px_rgba(196,75,237,0.3)] group-hover:ring-1 group-hover:ring-[#C44BED]/35">
         ${
           movie.thumb_url
@@ -38,11 +48,12 @@ export function movieCardHTML(movie: CardMovie, dot?: 'new' | 'hot'): string {
         }
         <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"></div>
         ${badge}
+        ${episodeBadge}
         <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
       <div class="mt-2.5 px-0.5">
         <h3 class="text-[15px] font-medium text-text-primary leading-snug line-clamp-2 transition-colors duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#FF6B9D] group-hover:to-[#4A9EFF]">${name}</h3>
-        ${year ? `<p class="text-xs text-text-muted mt-1 transition-colors duration-300 group-hover:text-text-secondary">${year}</p>` : ''}
+        ${meta ? `<p class="text-xs text-text-muted mt-1 truncate transition-colors duration-300 group-hover:text-text-secondary">${meta}</p>` : ''}
       </div>
     </a>
   `
@@ -59,5 +70,8 @@ export function movieToCard(movie: Movie): CardMovie {
     name: movie.name,
     year: movie.year,
     thumb_url: movie.thumb_url,
+    episode_current: movie.episode_current,
+    quality: movie.quality,
+    lang: movie.lang,
   }
 }

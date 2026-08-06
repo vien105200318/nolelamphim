@@ -116,7 +116,7 @@ for (let i = 1; i <= totalPages; i++) {
     const lastBtn = root.querySelector<HTMLButtonElement>('.mg-last')
     const loadingEl = root.querySelector<HTMLElement>('.mg-loading')
 
-    let items: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number }[] = []
+    let items: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number; episode_current?: string; quality?: string; lang?: string }[] = []
     let page = 1
     let totalPages = Number(root.dataset.totalPages) || 1
 

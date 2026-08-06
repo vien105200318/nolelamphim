@@ -1,7 +1,7 @@
 ---
 import MovieCard from './MovieCard.astro'
 import { getMoviesByCategory } from '../lib/api'
-import type { Category } from '../lib/types'
+import type { Category, Movie } from '../lib/types'
 
 interface Props {
   categories: Category[]
@@ -10,11 +10,26 @@ interface Props {
 
 const { categories, excludeSlug } = Astro.props
 
-let items: { _id: number; slug: string; name: string; year?: number; thumb_url?: string; poster_url?: string }[] = []
+let items: Movie[] = []
 
 if (categories.length > 0) {
-  const data = await getMoviesByCategory(categories[0].slug, { limit: 10 }).catch(() => ({ status: false, items: [] }))
-  items = data.items?.filter((m) => m.slug !== excludeSlug).slice(0, 6) ?? []
+  const lists = await Promise.all(
+    categories.slice(0, 4).map((c) =>
+      getMoviesByCategory(c.slug, { limit: 8 })
+        .then((d) => (Array.isArray(d.items) ? d.items : []))
+        .catch(() => [] as Movie[]),
+    ),
+  )
+  const seen = new Set<string>()
+  const merged: Movie[] = []
+  for (const list of lists) {
+    for (const m of list) {
+      if (m.slug === excludeSlug || seen.has(m.slug)) continue
+      seen.add(m.slug)
+      merged.push(m)
+    }
+  }
+  items = merged.slice(0, 6)
 }
 ---
 

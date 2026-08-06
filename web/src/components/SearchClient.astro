@@ -7,9 +7,10 @@ interface Props {
   initialResults?: Movie[]
   initialLabel?: string
   initialTotalPages?: number
+  initialFilter?: { type: string; label: string; value: string } | null
 }
 
-const { initialQuery = '', initialResults = [], initialLabel = '', initialTotalPages = 1 } = Astro.props
+const { initialQuery = '', initialResults = [], initialLabel = '', initialTotalPages = 1, initialFilter = null } = Astro.props
 
 const filterConfig = [
   { key: 'category', label: 'Thể loại' },
@@ -20,9 +21,20 @@ const filterConfig = [
 
 <div
   class="search-client px-4 md:px-8 py-6"
-  data-initial-results={JSON.stringify(initialResults.map((m) => ({ slug: m.slug, name: m.name, year: m.year, thumb_url: m.thumb_url })))}
+  data-initial-results={JSON.stringify(
+    initialResults.map((m) => ({
+      slug: m.slug,
+      name: m.name,
+      year: m.year,
+      thumb_url: m.thumb_url,
+      episode_current: m.episode_current,
+      quality: m.quality,
+      lang: m.lang,
+    })),
+  )}
   data-initial-label={initialLabel}
   data-initial-total-pages={initialTotalPages}
+  data-initial-filter={initialFilter ? JSON.stringify(initialFilter) : ''}
 >
   <div class="relative mb-5">
     <div class="glass-tile rounded-2xl px-5 py-3.5 flex items-center gap-3">
@@ -140,13 +152,20 @@ const filterConfig = [
 
   const root = document.querySelector<HTMLElement>('.search-client')
   if (root) {
-    let initialResults: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number }[] = []
+    let initialResults: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number; episode_current?: string; quality?: string; lang?: string }[] = []
     try {
       initialResults = JSON.parse(root.dataset.initialResults || '[]')
     } catch {
       initialResults = []
     }
     let initialLabel = root.dataset.initialLabel || ''
+    let initialFilter: { type: string; label: string; value: string } | null = null
+    try {
+      const raw = root.dataset.initialFilter
+      if (raw) initialFilter = JSON.parse(raw)
+    } catch {
+      initialFilter = null
+    }
 
     const input = document.getElementById('search-input') as HTMLInputElement
     const clearBtn = document.getElementById('search-clear')
@@ -173,7 +192,7 @@ const filterConfig = [
     let suggestions: { slug: string; name: string; origin_name?: string; year?: number; thumb_url?: string }[] = []
     let suggestionQuery = ''
     let showSuggestions = false
-    let activeFilter: { type: string; label: string; value: string } | null = null
+    let activeFilter: { type: string; label: string; value: string } | null = initialFilter
     let sortBy: 'name' | 'year' | null = null
 
     let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -181,6 +200,63 @@ const filterConfig = [
 
     const filterLabelMap = (type: string, label: string) =>
       type === 'category' ? `Thể loại: ${label}` : type === 'country' ? `Quốc gia: ${label}` : `Năm: ${label}`
+
+    function currentURLParams(): URLSearchParams {
+      const sp = new URLSearchParams()
+      if (query.trim()) {
+        sp.set('q', query.trim())
+      } else if (activeFilter) {
+        const fType = activeFilter.type === 'category' ? 'the-loai' : activeFilter.type === 'country' ? 'quoc-gia' : 'nam'
+        sp.set('f', `${fType}:${activeFilter.value}`)
+      }
+      if (page > 1) sp.set('p', String(page))
+      return sp
+    }
+
+    function syncURL(mode: 'replace' | 'push') {
+      const sp = currentURLParams()
+      const target = `${location.pathname}${sp.toString() ? `?${sp.toString()}` : ''}`
+      if (mode === 'push') {
+        history.pushState({}, '', target)
+        return
+      }
+      if (target !== location.pathname + location.search) {
+        history.replaceState({}, '', target)
+      }
+    }
+
+    function decodeFilter(fParam: string): { type: string; label: string; value: string } | null {
+      const [rawType, ...rest] = fParam.split(':')
+      const value = rest.join(':')
+      if (!rawType || !value) return null
+      const type = rawType === 'the-loai' ? 'category' : rawType === 'quoc-gia' ? 'country' : rawType === 'nam' ? 'year' : null
+      if (!type) return null
+      const meta = type === 'category' ? categories : type === 'country' ? countries : years
+      const item = meta.find((m) => m.slug === value)
+      return { type, label: item?.name || value, value }
+    }
+
+    window.addEventListener('popstate', () => {
+      loadMeta().then(() => {
+        const sp = new URLSearchParams(location.search)
+        const q = sp.get('q') || ''
+        const f = sp.get('f') || ''
+        const p = Math.max(1, Number(sp.get('p')) || 1)
+        query = q
+        input.value = q
+        clearBtn?.classList.toggle('hidden', !q)
+        if (suggestTimer) clearTimeout(suggestTimer)
+        suggestionsEl?.classList.remove('open')
+        suggestionsEl && (suggestionsEl.innerHTML = '')
+        showSuggestions = false
+        activeFilter = f ? decodeFilter(f) : null
+        paintChips()
+        paintRecent()
+        paintSuggestions()
+        if (q.trim()) runSearch(p, false, true)
+        else fetchByFilter(activeFilter, p, { skipSync: true })
+      })
+    })
 
     function setLoading(v: boolean) {
       loading = v
@@ -273,7 +349,12 @@ const filterConfig = [
       el.querySelector('.sp-last')?.addEventListener('click', () => goToPage(totalPages))
     }
 
-    async function fetchByFilter(filter: { type: string; label: string; value: string } | null, targetPage = 1) {
+    async function fetchByFilter(
+      filter: { type: string; label: string; value: string } | null,
+      targetPage = 1,
+      opts: { push?: boolean; skipSync?: boolean } = {},
+    ) {
+      const key = filter ? `${filter.type}:${filter.value}` : ''
       setLoading(true)
       try {
         let data: { status: boolean; items: typeof results; pagination?: { totalPages?: number } }
@@ -290,46 +371,50 @@ const filterConfig = [
           data = await getMoviesByYear(filter.value, { page: targetPage, limit: SEARCH_LIMIT })
           setLabel(filterLabelMap('year', filter.label))
         }
+        if (query.trim() || (activeFilter ? `${activeFilter.type}:${activeFilter.value}` : '') !== key) return
         results = Array.isArray(data.items) ? data.items : []
         page = targetPage
         totalPages = Number(data.pagination?.totalPages) || 1
         renderResults()
         renderPagination()
+        if (!opts.skipSync) syncURL(opts.push ? 'push' : 'replace')
       } catch {
+        if (query.trim() || (activeFilter ? `${activeFilter.type}:${activeFilter.value}` : '') !== key) return
         results = []
         page = targetPage
         totalPages = 1
         showEmpty('Không thể tải dữ liệu. Kiểm tra kết nối rồi thử lại.', true)
         renderPagination()
+        if (!opts.skipSync) syncURL(opts.push ? 'push' : 'replace')
       } finally {
         setLoading(false)
       }
     }
 
-    async function runSearch(targetPage = 1) {
+    async function runSearch(targetPage = 1, push = false, skipSync = false) {
       const q = query.trim()
       if (!q) {
         setLabel('')
-        if (activeFilter) {
-          fetchByFilter(activeFilter, 1)
-        } else {
-          fetchByFilter(null, 1)
-        }
+        fetchByFilter(activeFilter, 1, { push, skipSync })
         return
       }
       setLoading(true)
       try {
         const data = await searchMovies(q, targetPage, SEARCH_LIMIT)
+        if (query.trim() !== q) return
         results = Array.isArray(data.items) ? data.items : []
         page = targetPage
         totalPages = Number(data.pagination?.totalPages) || 1
         setLabel(`Kết quả cho "${q}"`)
         renderResults()
         renderPagination()
+        if (!skipSync) syncURL(push ? 'push' : 'replace')
       } catch {
+        if (query.trim() !== q) return
         results = []
         showEmpty('Không thể tải dữ liệu. Kiểm tra kết nối rồi thử lại.', true)
         renderPagination()
+        if (!skipSync) syncURL(push ? 'push' : 'replace')
       } finally {
         setLoading(false)
       }
@@ -402,7 +487,7 @@ const filterConfig = [
           query = btn.dataset.q || ''
           input.value = query
           recordSearch(query)
-          runSearch()
+          runSearch(1, true)
         })
       })
       recentEl.querySelector<HTMLButtonElement>('#recent-clear')?.addEventListener('click', () => {
@@ -461,7 +546,7 @@ const filterConfig = [
       input.value = ''
       activeFilter = { type, label, value }
       paintChips()
-      fetchByFilter(activeFilter, 1)
+      fetchByFilter(activeFilter, 1, { push: true })
       paintRecent()
       paintSuggestions()
     }
@@ -471,7 +556,7 @@ const filterConfig = [
       query = ''
       input.value = ''
       paintChips()
-      fetchByFilter(null, 1)
+      fetchByFilter(null, 1, { push: true })
       paintRecent()
     }
 
@@ -489,11 +574,11 @@ const filterConfig = [
         suggestionsEl?.classList.remove('open')
         suggestionsEl && (suggestionsEl.innerHTML = '')
         showSuggestions = false
-        searchTimer = setTimeout(() => runSearch(), 100)
+        searchTimer = setTimeout(() => runSearch(1), 100)
         return
       }
       loadSuggestions()
-      searchTimer = setTimeout(() => runSearch(), 400)
+      searchTimer = setTimeout(() => runSearch(1), 400)
     })
 
     input?.addEventListener('keydown', (e) => {
@@ -502,6 +587,7 @@ const filterConfig = [
         showSuggestions = false
         suggestionsEl?.classList.remove('open')
         paintSuggestions()
+        runSearch(1, true)
       }
     })
 
@@ -519,7 +605,7 @@ const filterConfig = [
       if (suggestTimer) clearTimeout(suggestTimer)
       suggestionsEl?.classList.remove('open')
       suggestionsEl && (suggestionsEl.innerHTML = '')
-      runSearch()
+      runSearch(1, true)
       paintRecent()
     })
 
