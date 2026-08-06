@@ -1,5 +1,6 @@
 import { getRecent } from './store'
 import type { RecentItem } from './store'
+import { escapeHTML } from './cards'
 
 const root = document.getElementById('recent-root')
 if (root) {
@@ -21,17 +22,20 @@ if (root) {
     const rows = items
       .map((item) => {
         const epSlug =
-          item.episodeSlug ||
-          (item.episode ? `tap-${item.episode.replace('Tập ', '')}` : 'tap-1')
+          escapeHTML(item.episodeSlug) ||
+          (item.episode ? `tap-${escapeHTML(item.episode.replace('Tập ', ''))}` : 'tap-1')
+        const name = escapeHTML(item.name)
+        const thumb = escapeHTML(item.thumb)
+        const episode = escapeHTML(item.episode)
         const date = new Date(item.watchedAt).toLocaleDateString('vi-VN')
         return `
-          <a href="/xem/${item.slug}/${epSlug}" class="flex items-center gap-4 px-4 py-3 rounded-xl glass-tile hover:text-white transition-all">
+          <a href="/xem/${escapeHTML(item.slug)}/${epSlug}" class="flex items-center gap-4 px-4 py-3 rounded-xl glass-tile hover:text-white transition-all">
             <div class="w-14 h-20 rounded-lg overflow-hidden bg-bg-card shrink-0 relative glass-frame">
-              ${item.thumb ? `<img src="${item.thumb}" alt="" loading="lazy" class="w-full h-full object-cover" />` : '<div class="w-full h-full bg-bg-card"></div>'}
+              ${item.thumb ? `<img src="${thumb}" alt="" loading="lazy" class="w-full h-full object-cover" />` : '<div class="w-full h-full bg-bg-card"></div>'}
             </div>
             <div class="min-w-0">
-              <p class="text-sm font-medium text-text-primary truncate">${item.name}</p>
-              ${item.episode ? `<p class="text-xs text-text-muted mt-0.5">${item.episode}</p>` : ''}
+              <p class="text-sm font-medium text-text-primary truncate">${name}</p>
+              ${item.episode ? `<p class="text-xs text-text-muted mt-0.5">${episode}</p>` : ''}
               <p class="text-[10px] text-text-muted mt-1">${date}</p>
             </div>
           </a>

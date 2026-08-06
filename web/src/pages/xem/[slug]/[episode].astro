@@ -105,7 +105,7 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
                 ← {prevEp.name}
               </a>
             ) : (
-              <span class="px-5 py-2.5 rounded-xl text-text-muted text-xs opacity-40">← Hết</span>
+              <span id="watch-prev" class="px-5 py-2.5 rounded-xl text-text-muted text-xs opacity-40">← Hết</span>
             )
           }
 
@@ -121,7 +121,7 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
                 {nextEp.name} →
               </a>
             ) : (
-              <span class="px-5 py-2.5 rounded-xl text-text-muted text-xs opacity-40">Hết →</span>
+              <span id="watch-next" class="px-5 py-2.5 rounded-xl text-text-muted text-xs opacity-40">Hết →</span>
             )
           }
         </div>
@@ -131,6 +131,7 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
 
   <script>
     import { addRecent } from '../../../scripts/store'
+    import { escapeHTML } from '../../../scripts/cards'
 
     const page = document.querySelector<HTMLElement>('.watch-page')
     if (page) {
@@ -150,8 +151,6 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
 
       const frame = document.getElementById('watch-frame') as HTMLIFrameElement | null
       const serverBtns = Array.from(page.querySelectorAll<HTMLButtonElement>('.watch-server'))
-      const prevLink = document.getElementById('watch-prev') as HTMLAnchorElement | null
-      const nextLink = document.getElementById('watch-next') as HTMLAnchorElement | null
 
       addRecent({
         id: movieId,
@@ -162,12 +161,31 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
         episodeSlug: episode,
       })
 
+      function epLink(id: string, href: string, text: string) {
+        return `<a id="${id}" href="${href}" class="px-5 py-2.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white">${text}</a>`
+      }
+
+      function epEmpty(id: string, text: string) {
+        return `<span id="${id}" class="px-5 py-2.5 rounded-xl text-text-muted text-xs opacity-40">${text}</span>`
+      }
+
+      function renderNav(items: { name: string; slug: string }[], idx: number) {
+        const prev = document.getElementById('watch-prev')
+        const next = document.getElementById('watch-next')
+        const p = idx > 0 ? items[idx - 1] : null
+        const n = idx >= 0 && idx < items.length - 1 ? items[idx + 1] : null
+        if (prev) prev.outerHTML = p ? epLink('watch-prev', `/xem/${slug}/${p.slug}`, `← ${escapeHTML(p.name)}`) : epEmpty('watch-prev', '← Hết')
+        if (next) next.outerHTML = n ? epLink('watch-next', `/xem/${slug}/${n.slug}`, `${escapeHTML(n.name)} →`) : epEmpty('watch-next', 'Hết →')
+      }
+
       serverBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
           const i = Number(btn.dataset.server)
           const server = servers[i]
           if (!server) return
-          const ep = server.items.find((e) => e.slug === episode)
+          let idx = server.items.findIndex((e) => e.slug === episode)
+          if (idx < 0) idx = 0
+          const ep = server.items[idx]
           serverBtns.forEach((b) => {
             const active = Number(b.dataset.server) === i
             b.className = active
@@ -178,23 +196,7 @@ const pageTitle = movie.name && currentEp ? `${movie.name} - ${currentEp.name}` 
             frame.src = ep.embed
             frame.title = `${movieName} - ${ep.name}`
           }
-          const idx = server.items.findIndex((e) => e.slug === episode)
-          if (prevLink) {
-            const p = idx > 0 ? server.items[idx - 1] : null
-            if (p) {
-              prevLink.href = `/xem/${slug}/${p.slug}`
-              prevLink.textContent = `← ${p.name}`
-              prevLink.classList.remove('opacity-40')
-            }
-          }
-          if (nextLink) {
-            const n = idx >= 0 && idx < server.items.length - 1 ? server.items[idx + 1] : null
-            if (n) {
-              nextLink.href = `/xem/${slug}/${n.slug}`
-              nextLink.textContent = `${n.name} →`
-              nextLink.classList.remove('opacity-40')
-            }
-          }
+          renderNav(server.items, idx)
         })
       })
     }

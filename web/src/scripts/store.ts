@@ -25,7 +25,11 @@ export function readJSON<T>(key: string, fallback: T): T {
 }
 
 export function writeJSON(key: string, value: unknown) {
-  localStorage.setItem(key, JSON.stringify(value))
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // ignore quota / storage-unavailable errors
+  }
 }
 
 export function getRecent(): RecentItem[] {

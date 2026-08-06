@@ -149,6 +149,7 @@ const filterConfig = [
     getYears,
   } from '../lib/api'
   import { SEARCH_LIMIT, SUGGESTION_LIMIT } from '../lib/constants'
+  import { pageList } from '../lib/pagination'
 
   const root = document.querySelector<HTMLElement>('.search-client')
   if (root) {
@@ -317,14 +318,7 @@ const filterConfig = [
         el.innerHTML = ''
         return
       }
-      const pages: (number | '...')[] = []
-      for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
-          pages.push(i)
-        } else if (pages[pages.length - 1] !== '...') {
-          pages.push('...')
-        }
-      }
+      const pages = pageList(page, totalPages)
       el.innerHTML = `
         <button type="button" class="sp-first w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>«</button>
         <button type="button" class="sp-prev w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>‹</button>

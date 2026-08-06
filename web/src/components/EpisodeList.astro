@@ -1,6 +1,7 @@
 ---
 import type { EpisodeServer } from '../lib/types'
 import { PER_PAGE } from '../lib/constants'
+import { pageList } from '../lib/pagination'
 
 interface Props {
   slug: string
@@ -19,15 +20,7 @@ const totalPages = Math.max(1, Math.ceil((current?.list.length ?? 0) / PER_PAGE)
 const initialEpisodes = current ? current.list.slice(0, PER_PAGE) : []
 
 function pagesHTML(page: number, total: number): string {
-  const pages: (number | '...')[] = []
-  for (let i = 1; i <= total; i++) {
-    if (i === 1 || i === total || (i >= page - 1 && i <= page + 1)) {
-      pages.push(i)
-    } else if (pages[pages.length - 1] !== '...') {
-      pages.push('...')
-    }
-  }
-  return pages
+  return pageList(page, total)
     .map((p) =>
       p === '...'
         ? `<span class="px-2 text-text-muted text-xs">...</span>`
@@ -107,12 +100,18 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
 
 <script>
   import { escapeHTML } from '../scripts/cards'
+  import { pageList } from '../lib/pagination'
 
   const list = document.querySelector<HTMLElement>('.episode-list')
   if (list) {
     const slug = list.dataset.slug || ''
     const PER_PAGE = Number(list.dataset.perPage) || 24
-    const servers: { name: string; items: { name: string; slug: string }[] }[] = JSON.parse(list.dataset.servers || '[]')
+    let servers: { name: string; items: { name: string; slug: string }[] }[] = []
+    try {
+      servers = JSON.parse(list.dataset.servers || '[]')
+    } catch {
+      servers = []
+    }
     const grid = document.getElementById('episode-grid')
     const pagination = document.getElementById('episode-pagination')
     const serverBtns = Array.from(list.querySelectorAll<HTMLButtonElement>('.ep-server'))
@@ -126,15 +125,7 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
     }
 
     function pagesHTML(total: number): string {
-      const pages: (number | '...')[] = []
-      for (let i = 1; i <= total; i++) {
-        if (i === 1 || i === total || (i >= page - 1 && i <= page + 1)) {
-          pages.push(i)
-        } else if (pages[pages.length - 1] !== '...') {
-          pages.push('...')
-        }
-      }
-      return pages
+      return pageList(page, total)
         .map((p) =>
           p === '...'
             ? `<span class="px-2 text-text-muted text-xs">...</span>`

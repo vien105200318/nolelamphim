@@ -1,6 +1,7 @@
 ---
 import MovieCard from './MovieCard.astro'
 import type { Movie } from '../lib/types'
+import { pageList } from '../lib/pagination'
 
 interface Props {
   initialItems: Movie[]
@@ -13,14 +14,7 @@ interface Props {
 
 const { initialItems, path, extraParams = '', sort = 'newest', dot, totalPages = 10 } = Astro.props
 
-const initialPages: (number | '...')[] = []
-for (let i = 1; i <= totalPages; i++) {
-  if (i === 1 || i === totalPages || (i >= 1 - 1 && i <= 1 + 1)) {
-    initialPages.push(i)
-  } else if (initialPages[initialPages.length - 1] !== '...') {
-    initialPages.push('...')
-  }
-}
+const initialPages = pageList(1, totalPages)
 ---
 
 <div
@@ -102,6 +96,7 @@ for (let i = 1; i <= totalPages; i++) {
 <script>
   import { gridHTML } from '../scripts/cards'
   import { getMoviesByPath } from '../lib/api'
+  import { pageList } from '../lib/pagination'
 
   document.querySelectorAll<HTMLElement>('.movie-grid').forEach((root) => {
     const path = root.dataset.path || ''
@@ -131,15 +126,7 @@ for (let i = 1; i <= totalPages; i++) {
     }
 
     function pagesHTML(page: number): string {
-      const pages: (number | '...')[] = []
-      for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
-          pages.push(i)
-        } else if (pages[pages.length - 1] !== '...') {
-          pages.push('...')
-        }
-      }
-      return pages
+      return pageList(page, totalPages)
         .map((p) =>
           p === '...'
             ? `<span class="px-2 text-text-muted text-xs">...</span>`

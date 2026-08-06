@@ -227,6 +227,7 @@ export async function getMovieEpisodes(
   try {
     const res = await fetch(`https://vsmov.com/phim/${slug}`, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: AbortSignal.timeout(10_000),
     })
     const html = await res.text()
     const episodes = extractEpisodes(html)
