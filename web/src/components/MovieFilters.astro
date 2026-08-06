@@ -6,6 +6,8 @@ interface Props {
   path: string
   initialItems: Movie[]
   totalPages?: number
+  apiPath?: string
+  defaultParams?: Record<string, string>
   options?: {
     type?: boolean
     status?: boolean
@@ -14,7 +16,7 @@ interface Props {
   }
 }
 
-const { path, initialItems, totalPages, options = {} } = Astro.props
+const { path, initialItems, totalPages, apiPath = '', defaultParams, options = {} } = Astro.props
 
 const TYPE_OPTIONS = [
   { key: 'series', label: 'Phim bộ' },
@@ -30,7 +32,7 @@ const chevronBg =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%23a0a0b8'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E\")"
 ---
 
-<div class="movie-filters" data-path={path} data-year={options.year ? '1' : ''} data-country={options.country ? '1' : ''}>
+<div class="movie-filters" data-path={path} data-year={options.year ? '1' : ''} data-country={options.country ? '1' : ''} data-default-params={JSON.stringify(defaultParams || {})}>
   <div class="flex flex-wrap items-center gap-2 mb-5">
     {
       options.type && (
@@ -108,7 +110,7 @@ const chevronBg =
     </div>
   </div>
 
-  <MovieGrid initialItems={initialItems} path={path} totalPages={totalPages} />
+  <MovieGrid initialItems={initialItems} path={path} totalPages={totalPages} apiPath={apiPath} />
 </div>
 
 <script>
@@ -120,6 +122,10 @@ const chevronBg =
     if (!root) return () => {}
     const wantYear = root.dataset.year === '1'
     const wantCountry = root.dataset.country === '1'
+    let defaultParams: Record<string, string> = {}
+    try {
+      defaultParams = JSON.parse(root.dataset.defaultParams || '{}')
+    } catch {}
 
     const chips = Array.from(root.querySelectorAll<HTMLButtonElement>('.mf-chip'))
     const yearSelect = root.querySelector<HTMLSelectElement>('.mf-select-year')
@@ -128,7 +134,7 @@ const chevronBg =
     const sortBtn = root.querySelector<HTMLButtonElement>('.mf-sort')
     const gridRoot = root.querySelector<HTMLElement>('.movie-grid')
 
-    const state: Record<string, string> = { type: '', status: '', year: '', country: '' }
+    const state: Record<string, string> = { type: '', status: '', year: '', country: '', ...defaultParams }
     let sort = 'newest'
 
     function extraParams(): string {

@@ -10,6 +10,7 @@ import ReportButton from '../../components/ReportButton.astro'
 import { getMovieDetail, getMovieEpisodes } from '../../lib/api'
 import { imgUrl } from '../../lib/img'
 import { SITE_URL } from '../../lib/site'
+import { breadcrumbLd } from '../../lib/seo'
 
 const slug = Astro.params.slug ?? ''
 
@@ -66,10 +67,17 @@ let keywordsList: string[] = []
 if (movie.keywords) {
   keywordsList = Array.isArray(movie.keywords) ? movie.keywords : movie.keywords.split(', ')
 }
+
+const breadcrumb = [
+  { name: 'Trang chủ', path: '/' },
+  { name: movie.name, path: `/phim/${slug}` },
+]
+const ogImage = image ? `${SITE_URL}${imgUrl(image, 1200)}` : undefined
 ---
 
-<BaseLayout title={metaTitle} description={metaDescription} keywords={metaKeywords} ogImage={image}>
+<BaseLayout title={metaTitle} description={metaDescription} keywords={metaKeywords} ogImage={ogImage}>
   <script is:inline set:html={JSON.stringify(jsonLd)} type="application/ld+json" />
+  <script is:inline set:html={breadcrumbLd(breadcrumb)} type="application/ld+json" />
 
   <div class="px-4 md:px-8 py-6">
     <div class="relative h-[35vh] md:h-[45vh] rounded-2xl overflow-hidden mb-6 glass-frame">
@@ -209,9 +217,12 @@ if (movie.keywords) {
             <div class="flex flex-wrap gap-1.5">
               {
                 keywordsList.slice(0, 10).map((kw) => (
-                  <span class="px-2.5 py-1 rounded-lg glass-chip text-text-muted text-[10px]">
+                  <a
+                    href={`/search?q=${encodeURIComponent(kw)}`}
+                    class="px-2.5 py-1 rounded-lg glass-chip text-text-muted text-[10px]"
+                  >
                     {kw}
-                  </span>
+                  </a>
                 ))
               }
             </div>

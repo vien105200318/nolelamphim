@@ -10,9 +10,10 @@ interface Props {
   sort?: 'newest' | 'year'
   dot?: 'new' | 'hot'
   totalPages?: number
+  apiPath?: string
 }
 
-const { initialItems, path, extraParams = '', sort = 'newest', dot, totalPages = 10 } = Astro.props
+const { initialItems, path, extraParams = '', sort = 'newest', dot, totalPages = 10, apiPath = '' } = Astro.props
 
 const initialPages = pageList(1, totalPages)
 ---
@@ -24,6 +25,7 @@ const initialPages = pageList(1, totalPages)
   data-sort={sort}
   data-dot={dot || ''}
   data-total-pages={totalPages}
+  data-api-path={apiPath}
 >
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
     {
@@ -102,6 +104,7 @@ const initialPages = pageList(1, totalPages)
   registerPageInit(() => {
     document.querySelectorAll<HTMLElement>('.movie-grid').forEach((root) => {
     const path = root.dataset.path || ''
+    const apiPath = root.dataset.apiPath || path
     const sort = root.dataset.sort || 'newest'
     const dot = (root.dataset.dot as 'new' | 'hot' | undefined) || undefined
 
@@ -157,7 +160,7 @@ const initialPages = pageList(1, totalPages)
       try {
         const params: Record<string, string | number> = { page: p }
         if (extra) new URLSearchParams(extra).forEach((v, k) => (params[k] = v))
-        const data = await getMoviesByPath(path, params)
+        const data = await getMoviesByPath(apiPath, params)
         if (data.status && Array.isArray(data.items) && data.items.length > 0) {
           items = data.items.map((m) => ({ ...m, tmdb_vote: m.tmdb?.vote_average }))
           page = p

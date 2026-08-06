@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import MovieFilters from '../../components/MovieFilters.astro'
 import { getMoviesByYear, getYears } from '../../lib/api'
+import { breadcrumbLd } from '../../lib/seo'
 
 export const prerender = true
 export const revalidate = 60
@@ -19,9 +20,15 @@ const data = await getMoviesByYear(slug, { page: 1, limit: 24 }).catch(() => ({
   items: [],
   pagination: undefined,
 }))
+const breadcrumb = [
+  { name: 'Trang chủ', path: '/' },
+  { name: 'Danh mục', path: '/search' },
+  { name: `Phim năm ${slug}`, path: `/nam/${slug}` },
+]
 ---
 
 <BaseLayout title={`Phim năm ${slug}`} description={`Xem các bộ phim ra mắt năm ${slug}, hay nhất với chất lượng HD VietSub miễn phí tại Nô Lệ Làm Phim.`}>
+  <script is:inline set:html={breadcrumbLd(breadcrumb)} type="application/ld+json" />
   <div class="px-4 md:px-8 py-6">
     <div class="flex items-center gap-2 text-xs text-text-muted mb-4">
       <a href="/" class="hover:text-white transition-colors">Trang chủ</a>

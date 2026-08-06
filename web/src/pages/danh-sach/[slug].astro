@@ -2,18 +2,19 @@
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import MovieFilters from '../../components/MovieFilters.astro'
 import { getMoviesByListPath } from '../../lib/api'
+import { breadcrumbLd } from '../../lib/seo'
 
 export const prerender = true
 export const revalidate = 60
 export const fallback = 'blocking'
 
 export function getStaticPaths() {
-  return ['phim-bo', 'phim-le'].map((slug) => ({ params: { slug } }))
+  return ['phim-bo', 'phim-le', 'phim-dang-chieu'].map((slug) => ({ params: { slug } }))
 }
 
 const slug = Astro.params.slug ?? ''
 
-const LISTS: Record<string, { title: string; desc: string }> = {
+const LISTS: Record<string, { title: string; desc: string; apiPath?: string; defaultParams?: Record<string, string> }> = {
   'phim-bo': {
     title: 'Phim Bộ',
     desc: 'Xem các bộ phim truyền hình dài tập mới nhất, hay nhất với chất lượng HD VietSub miễn phí.',
@@ -21,6 +22,12 @@ const LISTS: Record<string, { title: string; desc: string }> = {
   'phim-le': {
     title: 'Phim Lẻ',
     desc: 'Xem các bộ phim điện ảnh mới nhất, hay nhất với chất lượng HD VietSub miễn phí.',
+  },
+  'phim-dang-chieu': {
+    title: 'Phim Đang Chiếu',
+    desc: 'Xem các bộ phim đang phát sóng mới nhất, cập nhật tập mới liên tục với chất lượng HD VietSub miễn phí.',
+    apiPath: '/danh-sach/phim-bo',
+    defaultParams: { status: 'ongoing' },
   },
 }
 
@@ -30,14 +37,24 @@ if (!meta) {
   return Astro.redirect('/404', 404)
 }
 
-const data = await getMoviesByListPath(slug, 1, 24).catch(() => ({
+const data = await getMoviesByListPath(
+  slug === 'phim-dang-chieu' ? 'phim-bo' : slug,
+  1,
+  24,
+  meta.defaultParams,
+).catch(() => ({
   status: false,
   items: [],
   pagination: undefined,
 }))
+const breadcrumb = [
+  { name: 'Trang chủ', path: '/' },
+  { name: meta.title, path: `/danh-sach/${slug}` },
+]
 ---
 
 <BaseLayout title={meta.title} description={meta.desc}>
+  <script is:inline set:html={breadcrumbLd(breadcrumb)} type="application/ld+json" />
   <div class="px-4 md:px-8 py-6">
     <div class="flex items-center gap-2 text-xs text-text-muted mb-4">
       <a href="/" class="hover:text-white transition-colors">Trang chủ</a>
@@ -53,6 +70,8 @@ const data = await getMoviesByListPath(slug, 1, 24).catch(() => ({
           initialItems={data.items}
           totalPages={data.pagination?.totalPages}
           path={`/danh-sach/${slug}`}
+          apiPath={meta.apiPath || ''}
+          defaultParams={meta.defaultParams}
           options={{ status: true, year: true, country: true }}
         />
       ) : (
