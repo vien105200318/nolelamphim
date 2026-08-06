@@ -1,5 +1,6 @@
 ---
 import { getMoviesByCategory, searchMovies, getNewMovies, getMoviesByListPath } from '../lib/api'
+import { imgUrl } from '../lib/img'
 
 interface ThemeConfig {
   label: string
@@ -83,7 +84,7 @@ const THEMES: ThemeConfig[] = [
 ]
 
 const themes = await Promise.all(
-  THEMES.map(async (t) => ({ ...t, image: await t.fetchThumb() })),
+  THEMES.map(async (t) => ({ ...t, image: imgUrl(await t.fetchThumb(), 1600) })),
 )
 ---
 

@@ -137,6 +137,7 @@ const filterConfig = [
 
 <script>
   import { gridHTML, escapeHTML } from '../scripts/cards'
+  import { imgUrl } from '../lib/img'
   import { getRecentSearches, saveRecentSearches } from '../scripts/store'
   import {
     getNewMovies,
@@ -442,7 +443,7 @@ const filterConfig = [
           .map(
             (m) => `
               <a href="/phim/${escapeHTML(m.slug)}" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
-                ${m.thumb_url ? `<div class="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame poster-shell"><img src="${escapeHTML(m.thumb_url)}" alt="${escapeHTML(m.name)}" class="w-full h-full object-cover" /></div>` : ''}
+                ${m.thumb_url ? `<div class="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame poster-shell"><img src="${escapeHTML(imgUrl(m.thumb_url, 300))}" alt="${escapeHTML(m.name)}" class="w-full h-full object-cover" /></div>` : ''}
                 <div class="min-w-0">
                   <p class="text-xs text-text-primary truncate">${escapeHTML(m.name)}</p>
                   ${m.origin_name ? `<p class="text-[10px] text-text-muted truncate">${escapeHTML(m.origin_name)}</p>` : ''}

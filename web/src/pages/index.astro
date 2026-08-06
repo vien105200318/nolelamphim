@@ -8,6 +8,7 @@ import MovieGrid from '../components/MovieGrid.astro'
 import MovieCard from '../components/MovieCard.astro'
 import Reveal from '../components/Reveal.astro'
 import { getNewMovies, getSubteam, getMoviesByCategory } from '../lib/api'
+import { imgUrl } from '../lib/img'
 import { HERO_IMAGE_LIMIT } from '../lib/constants'
 
 export const prerender = true
@@ -41,7 +42,7 @@ const heroImage = heroMovies[0] ? heroMovies[0].poster_url || heroMovies[0].thum
 
 <BaseLayout>
   <Fragment slot="head">
-    {heroImage && <link rel="preload" as="image" href={heroImage} fetchpriority="high" />}
+    {heroImage && <link rel="preload" as="image" href={imgUrl(heroImage, 1600)} fetchpriority="high" />}
   </Fragment>
   <div class="px-4 md:px-8">
     {

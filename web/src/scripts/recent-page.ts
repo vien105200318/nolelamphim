@@ -1,6 +1,7 @@
 import { getRecent } from './store'
 import type { RecentItem } from './store'
 import { escapeHTML } from './cards'
+import { imgUrl } from '../lib/img'
 import { registerPageInit } from './lifecycle'
 
 registerPageInit(() => {
@@ -27,7 +28,7 @@ registerPageInit(() => {
           escapeHTML(item.episodeSlug) ||
           (item.episode ? `tap-${escapeHTML(item.episode.replace('Tập ', ''))}` : 'tap-1')
         const name = escapeHTML(item.name)
-        const thumb = escapeHTML(item.thumb)
+        const thumb = escapeHTML(imgUrl(item.thumb, 300))
         const episode = escapeHTML(item.episode)
         const date = new Date(item.watchedAt).toLocaleDateString('vi-VN')
         return `

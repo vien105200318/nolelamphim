@@ -1,5 +1,6 @@
 ---
 import type { Movie } from '../lib/types'
+import { imgUrl } from '../lib/img'
 
 interface Props {
   movies: Movie[]
@@ -53,7 +54,7 @@ const first = slides[0]
     <div id="hero-slides" class="absolute inset-0" style="will-change: transform">
       {
         movies.map((movie, i) => {
-          const image = movie.poster_url || movie.thumb_url
+          const image = imgUrl(movie.poster_url || movie.thumb_url, 1600)
           return (
             <a
              

@@ -8,6 +8,7 @@ import RatingBox from '../../components/RatingBox.astro'
 import ShareButton from '../../components/ShareButton.astro'
 import ReportButton from '../../components/ReportButton.astro'
 import { getMovieDetail, getMovieEpisodes } from '../../lib/api'
+import { imgUrl } from '../../lib/img'
 import { SITE_URL } from '../../lib/site'
 
 const slug = Astro.params.slug ?? ''
@@ -66,7 +67,7 @@ if (movie.keywords) {
       {
         image ? (
           <img
-            src={image}
+            src={imgUrl(image, 1600)}
             alt={movie.name}
             class="w-full h-full object-cover ken-burns"
           />

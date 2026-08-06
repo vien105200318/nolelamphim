@@ -2,6 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro'
 import ReportButton from '../../../components/ReportButton.astro'
 import { getMovieDetail, getMovieEpisodes } from '../../../lib/api'
+import { imgUrl } from '../../../lib/img'
 
 const slug = Astro.params.slug ?? ''
 const episode = Astro.params.episode ?? ''
@@ -73,7 +74,7 @@ try {
               aria-label={`Phát ${movie.name} - ${currentEp.name}`}
             >
               <img
-                src={movie.thumb_url || movie.poster_url || ''}
+                src={imgUrl(movie.thumb_url || movie.poster_url || '', 1600)}
                 alt=""
                 class="absolute inset-0 w-full h-full object-cover"
                 decoding="async"
