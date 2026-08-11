@@ -31,7 +31,9 @@ final _mobileRouter = GoRouter(
         ),
         GoRoute(
           path: '/search',
-          builder: (_, _) => const SearchScreen(),
+          builder: (_, state) => SearchScreen(
+            initialQuery: state.extra as String?,
+          ),
         ),
         GoRoute(
           path: '/category',

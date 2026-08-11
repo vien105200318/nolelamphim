@@ -5,11 +5,13 @@ import '../../../core/theme/app_colors.dart';
 class SearchBarWidget extends StatefulWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onSubmitted;
 
   const SearchBarWidget({
     super.key,
     required this.controller,
     required this.onChanged,
+    this.onSubmitted,
   });
 
   @override
@@ -33,6 +35,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   }
 
   void _onTextChanged() {
+    setState(() {});
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {
       widget.onChanged(widget.controller.text);
@@ -45,6 +48,11 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
       controller: widget.controller,
       autofocus: true,
       style: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
+      onSubmitted: (value) {
+        _debounce?.cancel();
+        widget.onChanged(value);
+        widget.onSubmitted?.call(value);
+      },
       decoration: InputDecoration(
         hintText: 'Tìm kiếm phim...',
         hintStyle: TextStyle(color: AppColors.textMuted),

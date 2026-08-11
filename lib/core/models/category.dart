@@ -11,10 +11,6 @@ class Category with _$Category {
     required String slug,
   }) = _Category;
 
-  factory Category.fromJson(Map<String, dynamic> json) {
-    if (json.containsKey('id') && !json.containsKey('_id')) {
-      json = Map<String, dynamic>.from(json)..['_id'] = json['id'];
-    }
-    return _$CategoryFromJson(json);
-  }
+  factory Category.fromJson(Map<String, dynamic> json) =>
+      _$CategoryFromJson(json);
 }

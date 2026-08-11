@@ -60,18 +60,21 @@ class _$CountryCopyWithImpl<$Res, $Val extends Country>
   $Res call({Object? id = null, Object? name = null, Object? slug = null}) {
     return _then(
       _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as int,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            slug: null == slug
-                ? _value.slug
-                : slug // ignore: cast_nullable_to_non_nullable
-                      as String,
+            id:
+                null == id
+                    ? _value.id
+                    : id // ignore: cast_nullable_to_non_nullable
+                        as int,
+            name:
+                null == name
+                    ? _value.name
+                    : name // ignore: cast_nullable_to_non_nullable
+                        as String,
+            slug:
+                null == slug
+                    ? _value.slug
+                    : slug // ignore: cast_nullable_to_non_nullable
+                        as String,
           )
           as $Val,
     );
@@ -105,18 +108,21 @@ class __$$CountryImplCopyWithImpl<$Res>
   $Res call({Object? id = null, Object? name = null, Object? slug = null}) {
     return _then(
       _$CountryImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as int,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        slug: null == slug
-            ? _value.slug
-            : slug // ignore: cast_nullable_to_non_nullable
-                  as String,
+        id:
+            null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                    as int,
+        name:
+            null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                    as String,
+        slug:
+            null == slug
+                ? _value.slug
+                : slug // ignore: cast_nullable_to_non_nullable
+                    as String,
       ),
     );
   }

@@ -20,9 +20,13 @@ class Movie with _$Movie {
     String? status,
     @JsonKey(name: 'episode_current') String? episodeCurrent,
     @JsonKey(name: 'episode_total') String? episodeTotal,
+    @JsonKey(name: 'tmdb') TMDbInfo? tmdb,
   }) = _Movie;
 
-  factory Movie.fromJson(Map<String, dynamic> json) {
+  factory Movie.fromJson(Map<String, dynamic> json) =>
+      _$MovieFromJson(_cleanJson(json));
+
+  static Map<String, dynamic> _cleanJson(Map<String, dynamic> json) {
     final cleaned = Map<String, dynamic>.from(json);
     for (final key in const [
       'origin_name',
@@ -41,6 +45,27 @@ class Movie with _$Movie {
         cleaned[key] = null;
       }
     }
-    return _$MovieFromJson(cleaned);
+    return cleaned;
+  }
+}
+
+/// `tmdb` trên API trả `{ vote_average: "8.5", vote_count, ... }`.
+@JsonSerializable()
+class TMDbInfo {
+  final String? voteAverage;
+  final int? voteCount;
+  final String? id;
+
+  const TMDbInfo({this.voteAverage, this.voteCount, this.id});
+
+  factory TMDbInfo.fromJson(Map<String, dynamic> json) =>
+      _$TMDbInfoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TMDbInfoToJson(this);
+
+  String? get voteString {
+    final v = double.tryParse(voteAverage ?? '');
+    if (v == null || v <= 0) return null;
+    return voteAverage!.replaceAll(RegExp(r'\.0+$'), '');
   }
 }

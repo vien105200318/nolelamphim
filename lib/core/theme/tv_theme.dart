@@ -4,12 +4,16 @@ import 'app_colors.dart';
 class TvTheme {
   TvTheme._();
 
+  static const String fontFamily = 'BeVietnamPro';
+
   static ThemeData get dark => ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.bgDark,
+        fontFamily: fontFamily,
         colorScheme: ColorScheme.dark(
           primary: AppColors.gradientStart,
           secondary: AppColors.gradientMid,
+          tertiary: AppColors.gradientEnd,
           surface: AppColors.bgSurface,
         ),
         appBarTheme: const AppBarTheme(

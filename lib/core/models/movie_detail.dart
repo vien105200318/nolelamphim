@@ -2,9 +2,20 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'category.dart';
 import 'country.dart';
 import 'episode.dart';
+import 'movie.dart';
 
 part 'movie_detail.freezed.dart';
 part 'movie_detail.g.dart';
+
+@freezed
+class IMDbInfo with _$IMDbInfo {
+  const factory IMDbInfo({
+    String? id,
+  }) = _IMDbInfo;
+
+  factory IMDbInfo.fromJson(Map<String, dynamic> json) =>
+      _$IMDbInfoFromJson(json);
+}
 
 @freezed
 class MovieDetail with _$MovieDetail {
@@ -36,6 +47,8 @@ class MovieDetail with _$MovieDetail {
     @JsonKey(name: 'category') @Default([]) List<Category> categories,
     @JsonKey(name: 'country') @Default([]) List<Country> countries,
     @Default([]) List<EpisodeServer> episodes,
+    @JsonKey(name: 'tmdb') TMDbInfo? tmdb,
+    @JsonKey(name: 'imdb') @Default(IMDbInfo()) IMDbInfo imdb,
   }) = _MovieDetail;
 
   factory MovieDetail.fromJson(Map<String, dynamic> json) =>

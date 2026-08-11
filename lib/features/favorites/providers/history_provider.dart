@@ -9,6 +9,8 @@ class HistoryItem {
   final String name;
   final String? thumbUrl;
   final String episode;
+  final String episodeSlug;
+  final String? tmdbVote;
   final int watchedAt;
 
   HistoryItem({
@@ -17,8 +19,19 @@ class HistoryItem {
     required this.name,
     this.thumbUrl,
     required this.episode,
+    this.episodeSlug = '',
+    this.tmdbVote,
     required this.watchedAt,
   });
+
+  /// Slug tập để điều hướng `/xem/{slug}/{episodeSlug}`; fallback từ tên tập
+  /// (web: "Tập 5" → "tap-5", cuối cùng "tap-1").
+  String get resolveEpisodeSlug {
+    if (episodeSlug.isNotEmpty) return episodeSlug;
+    final clean = episode.replaceFirst('Tập ', '').trim();
+    if (clean.isNotEmpty) return 'tap-$clean';
+    return 'tap-1';
+  }
 
   Map<String, dynamic> toJson() => {
         '_id': id,
@@ -26,6 +39,8 @@ class HistoryItem {
         'name': name,
         if (thumbUrl != null) 'thumb_url': thumbUrl,
         'episode': episode,
+        if (episodeSlug.isNotEmpty) 'episodeSlug': episodeSlug,
+        if (tmdbVote != null) 'tmdb_vote': tmdbVote,
         'watchedAt': watchedAt,
       };
 
@@ -35,6 +50,8 @@ class HistoryItem {
         name: json['name'] as String,
         thumbUrl: json['thumb_url'] as String?,
         episode: json['episode'] as String? ?? '',
+        episodeSlug: json['episodeSlug'] as String? ?? '',
+        tmdbVote: json['tmdb_vote'] as String?,
         watchedAt: json['watchedAt'] as int? ?? 0,
       );
 }
@@ -63,6 +80,12 @@ class HistoryNotifier extends StateNotifier<List<HistoryItem>> {
     await _ready;
     state = [item, ...state.where((e) => e.slug != item.slug)];
     if (state.length > 20) state = state.sublist(0, 20);
+    await _persist();
+  }
+
+  Future<void> remove(String slug) async {
+    await _ready;
+    state = state.where((e) => e.slug != slug).toList();
     await _persist();
   }
 }

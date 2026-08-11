@@ -66,14 +66,16 @@ class _$EpisodeServerCopyWithImpl<$Res, $Val extends EpisodeServer>
   $Res call({Object? serverName = null, Object? serverData = null}) {
     return _then(
       _value.copyWith(
-            serverName: null == serverName
-                ? _value.serverName
-                : serverName // ignore: cast_nullable_to_non_nullable
-                      as String,
-            serverData: null == serverData
-                ? _value.serverData
-                : serverData // ignore: cast_nullable_to_non_nullable
-                      as List<EpisodeData>,
+            serverName:
+                null == serverName
+                    ? _value.serverName
+                    : serverName // ignore: cast_nullable_to_non_nullable
+                        as String,
+            serverData:
+                null == serverData
+                    ? _value.serverData
+                    : serverData // ignore: cast_nullable_to_non_nullable
+                        as List<EpisodeData>,
           )
           as $Val,
     );
@@ -111,14 +113,16 @@ class __$$EpisodeServerImplCopyWithImpl<$Res>
   $Res call({Object? serverName = null, Object? serverData = null}) {
     return _then(
       _$EpisodeServerImpl(
-        serverName: null == serverName
-            ? _value.serverName
-            : serverName // ignore: cast_nullable_to_non_nullable
-                  as String,
-        serverData: null == serverData
-            ? _value._serverData
-            : serverData // ignore: cast_nullable_to_non_nullable
-                  as List<EpisodeData>,
+        serverName:
+            null == serverName
+                ? _value.serverName
+                : serverName // ignore: cast_nullable_to_non_nullable
+                    as String,
+        serverData:
+            null == serverData
+                ? _value._serverData
+                : serverData // ignore: cast_nullable_to_non_nullable
+                    as List<EpisodeData>,
       ),
     );
   }
@@ -270,22 +274,26 @@ class _$EpisodeDataCopyWithImpl<$Res, $Val extends EpisodeData>
   }) {
     return _then(
       _value.copyWith(
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            slug: null == slug
-                ? _value.slug
-                : slug // ignore: cast_nullable_to_non_nullable
-                      as String,
-            filename: freezed == filename
-                ? _value.filename
-                : filename // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            linkEmbed: null == linkEmbed
-                ? _value.linkEmbed
-                : linkEmbed // ignore: cast_nullable_to_non_nullable
-                      as String,
+            name:
+                null == name
+                    ? _value.name
+                    : name // ignore: cast_nullable_to_non_nullable
+                        as String,
+            slug:
+                null == slug
+                    ? _value.slug
+                    : slug // ignore: cast_nullable_to_non_nullable
+                        as String,
+            filename:
+                freezed == filename
+                    ? _value.filename
+                    : filename // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            linkEmbed:
+                null == linkEmbed
+                    ? _value.linkEmbed
+                    : linkEmbed // ignore: cast_nullable_to_non_nullable
+                        as String,
           )
           as $Val,
     );
@@ -330,22 +338,26 @@ class __$$EpisodeDataImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$EpisodeDataImpl(
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        slug: null == slug
-            ? _value.slug
-            : slug // ignore: cast_nullable_to_non_nullable
-                  as String,
-        filename: freezed == filename
-            ? _value.filename
-            : filename // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        linkEmbed: null == linkEmbed
-            ? _value.linkEmbed
-            : linkEmbed // ignore: cast_nullable_to_non_nullable
-                  as String,
+        name:
+            null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                    as String,
+        slug:
+            null == slug
+                ? _value.slug
+                : slug // ignore: cast_nullable_to_non_nullable
+                    as String,
+        filename:
+            freezed == filename
+                ? _value.filename
+                : filename // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        linkEmbed:
+            null == linkEmbed
+                ? _value.linkEmbed
+                : linkEmbed // ignore: cast_nullable_to_non_nullable
+                    as String,
       ),
     );
   }

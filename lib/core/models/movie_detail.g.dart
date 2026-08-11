@@ -6,6 +6,12 @@ part of 'movie_detail.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_$IMDbInfoImpl _$$IMDbInfoImplFromJson(Map<String, dynamic> json) =>
+    _$IMDbInfoImpl(id: json['id'] as String?);
+
+Map<String, dynamic> _$$IMDbInfoImplToJson(_$IMDbInfoImpl instance) =>
+    <String, dynamic>{'id': instance.id};
+
 _$MovieDetailImpl _$$MovieDetailImplFromJson(
   Map<String, dynamic> json,
 ) => _$MovieDetailImpl(
@@ -54,6 +60,14 @@ _$MovieDetailImpl _$$MovieDetailImplFromJson(
           ?.map((e) => EpisodeServer.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  tmdb:
+      json['tmdb'] == null
+          ? null
+          : TMDbInfo.fromJson(json['tmdb'] as Map<String, dynamic>),
+  imdb:
+      json['imdb'] == null
+          ? const IMDbInfo()
+          : IMDbInfo.fromJson(json['imdb'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$$MovieDetailImplToJson(_$MovieDetailImpl instance) =>
@@ -85,4 +99,6 @@ Map<String, dynamic> _$$MovieDetailImplToJson(_$MovieDetailImpl instance) =>
       'category': instance.categories,
       'country': instance.countries,
       'episodes': instance.episodes,
+      'tmdb': instance.tmdb,
+      'imdb': instance.imdb,
     };

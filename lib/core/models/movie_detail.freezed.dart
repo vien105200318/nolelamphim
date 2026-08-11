@@ -15,6 +15,157 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
+IMDbInfo _$IMDbInfoFromJson(Map<String, dynamic> json) {
+  return _IMDbInfo.fromJson(json);
+}
+
+/// @nodoc
+mixin _$IMDbInfo {
+  String? get id => throw _privateConstructorUsedError;
+
+  /// Serializes this IMDbInfo to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of IMDbInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $IMDbInfoCopyWith<IMDbInfo> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $IMDbInfoCopyWith<$Res> {
+  factory $IMDbInfoCopyWith(IMDbInfo value, $Res Function(IMDbInfo) then) =
+      _$IMDbInfoCopyWithImpl<$Res, IMDbInfo>;
+  @useResult
+  $Res call({String? id});
+}
+
+/// @nodoc
+class _$IMDbInfoCopyWithImpl<$Res, $Val extends IMDbInfo>
+    implements $IMDbInfoCopyWith<$Res> {
+  _$IMDbInfoCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of IMDbInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? id = freezed}) {
+    return _then(
+      _value.copyWith(
+            id:
+                freezed == id
+                    ? _value.id
+                    : id // ignore: cast_nullable_to_non_nullable
+                        as String?,
+          )
+          as $Val,
+    );
+  }
+}
+
+/// @nodoc
+abstract class _$$IMDbInfoImplCopyWith<$Res>
+    implements $IMDbInfoCopyWith<$Res> {
+  factory _$$IMDbInfoImplCopyWith(
+    _$IMDbInfoImpl value,
+    $Res Function(_$IMDbInfoImpl) then,
+  ) = __$$IMDbInfoImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String? id});
+}
+
+/// @nodoc
+class __$$IMDbInfoImplCopyWithImpl<$Res>
+    extends _$IMDbInfoCopyWithImpl<$Res, _$IMDbInfoImpl>
+    implements _$$IMDbInfoImplCopyWith<$Res> {
+  __$$IMDbInfoImplCopyWithImpl(
+    _$IMDbInfoImpl _value,
+    $Res Function(_$IMDbInfoImpl) _then,
+  ) : super(_value, _then);
+
+  /// Create a copy of IMDbInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({Object? id = freezed}) {
+    return _then(
+      _$IMDbInfoImpl(
+        id:
+            freezed == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                    as String?,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$IMDbInfoImpl implements _IMDbInfo {
+  const _$IMDbInfoImpl({this.id});
+
+  factory _$IMDbInfoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$IMDbInfoImplFromJson(json);
+
+  @override
+  final String? id;
+
+  @override
+  String toString() {
+    return 'IMDbInfo(id: $id)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$IMDbInfoImpl &&
+            (identical(other.id, id) || other.id == id));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, id);
+
+  /// Create a copy of IMDbInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$IMDbInfoImplCopyWith<_$IMDbInfoImpl> get copyWith =>
+      __$$IMDbInfoImplCopyWithImpl<_$IMDbInfoImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$IMDbInfoImplToJson(this);
+  }
+}
+
+abstract class _IMDbInfo implements IMDbInfo {
+  const factory _IMDbInfo({final String? id}) = _$IMDbInfoImpl;
+
+  factory _IMDbInfo.fromJson(Map<String, dynamic> json) =
+      _$IMDbInfoImpl.fromJson;
+
+  @override
+  String? get id;
+
+  /// Create a copy of IMDbInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$IMDbInfoImplCopyWith<_$IMDbInfoImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 MovieDetail _$MovieDetailFromJson(Map<String, dynamic> json) {
   return _MovieDetail.fromJson(json);
 }
@@ -62,6 +213,10 @@ mixin _$MovieDetail {
   @JsonKey(name: 'country')
   List<Country> get countries => throw _privateConstructorUsedError;
   List<EpisodeServer> get episodes => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tmdb')
+  TMDbInfo? get tmdb => throw _privateConstructorUsedError;
+  @JsonKey(name: 'imdb')
+  IMDbInfo get imdb => throw _privateConstructorUsedError;
 
   /// Serializes this MovieDetail to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -108,7 +263,11 @@ abstract class $MovieDetailCopyWith<$Res> {
     @JsonKey(name: 'category') List<Category> categories,
     @JsonKey(name: 'country') List<Country> countries,
     List<EpisodeServer> episodes,
+    @JsonKey(name: 'tmdb') TMDbInfo? tmdb,
+    @JsonKey(name: 'imdb') IMDbInfo imdb,
   });
+
+  $IMDbInfoCopyWith<$Res> get imdb;
 }
 
 /// @nodoc
@@ -153,120 +312,169 @@ class _$MovieDetailCopyWithImpl<$Res, $Val extends MovieDetail>
     Object? categories = null,
     Object? countries = null,
     Object? episodes = null,
+    Object? tmdb = freezed,
+    Object? imdb = null,
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as int,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            originName: freezed == originName
-                ? _value.originName
-                : originName // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            slug: null == slug
-                ? _value.slug
-                : slug // ignore: cast_nullable_to_non_nullable
-                      as String,
-            posterUrl: freezed == posterUrl
-                ? _value.posterUrl
-                : posterUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            thumbUrl: freezed == thumbUrl
-                ? _value.thumbUrl
-                : thumbUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            year: freezed == year
-                ? _value.year
-                : year // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            quality: freezed == quality
-                ? _value.quality
-                : quality // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            lang: freezed == lang
-                ? _value.lang
-                : lang // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            time: freezed == time
-                ? _value.time
-                : time // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            type: freezed == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            status: freezed == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            episodeCurrent: freezed == episodeCurrent
-                ? _value.episodeCurrent
-                : episodeCurrent // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            episodeTotal: freezed == episodeTotal
-                ? _value.episodeTotal
-                : episodeTotal // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            content: freezed == content
-                ? _value.content
-                : content // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            trailerUrl: freezed == trailerUrl
-                ? _value.trailerUrl
-                : trailerUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            isCopyright: freezed == isCopyright
-                ? _value.isCopyright
-                : isCopyright // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            keywords: null == keywords
-                ? _value.keywords
-                : keywords // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            view: freezed == view
-                ? _value.view
-                : view // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            chieurap: freezed == chieurap
-                ? _value.chieurap
-                : chieurap // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            subDocquyen: freezed == subDocquyen
-                ? _value.subDocquyen
-                : subDocquyen // ignore: cast_nullable_to_non_nullable
-                      as bool?,
-            showtimes: freezed == showtimes
-                ? _value.showtimes
-                : showtimes // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            actors: null == actors
-                ? _value.actors
-                : actors // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            directors: null == directors
-                ? _value.directors
-                : directors // ignore: cast_nullable_to_non_nullable
-                      as List<String>,
-            categories: null == categories
-                ? _value.categories
-                : categories // ignore: cast_nullable_to_non_nullable
-                      as List<Category>,
-            countries: null == countries
-                ? _value.countries
-                : countries // ignore: cast_nullable_to_non_nullable
-                      as List<Country>,
-            episodes: null == episodes
-                ? _value.episodes
-                : episodes // ignore: cast_nullable_to_non_nullable
-                      as List<EpisodeServer>,
+            id:
+                null == id
+                    ? _value.id
+                    : id // ignore: cast_nullable_to_non_nullable
+                        as int,
+            name:
+                null == name
+                    ? _value.name
+                    : name // ignore: cast_nullable_to_non_nullable
+                        as String,
+            originName:
+                freezed == originName
+                    ? _value.originName
+                    : originName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            slug:
+                null == slug
+                    ? _value.slug
+                    : slug // ignore: cast_nullable_to_non_nullable
+                        as String,
+            posterUrl:
+                freezed == posterUrl
+                    ? _value.posterUrl
+                    : posterUrl // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            thumbUrl:
+                freezed == thumbUrl
+                    ? _value.thumbUrl
+                    : thumbUrl // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            year:
+                freezed == year
+                    ? _value.year
+                    : year // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            quality:
+                freezed == quality
+                    ? _value.quality
+                    : quality // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            lang:
+                freezed == lang
+                    ? _value.lang
+                    : lang // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            time:
+                freezed == time
+                    ? _value.time
+                    : time // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            type:
+                freezed == type
+                    ? _value.type
+                    : type // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            status:
+                freezed == status
+                    ? _value.status
+                    : status // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            episodeCurrent:
+                freezed == episodeCurrent
+                    ? _value.episodeCurrent
+                    : episodeCurrent // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            episodeTotal:
+                freezed == episodeTotal
+                    ? _value.episodeTotal
+                    : episodeTotal // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            content:
+                freezed == content
+                    ? _value.content
+                    : content // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            trailerUrl:
+                freezed == trailerUrl
+                    ? _value.trailerUrl
+                    : trailerUrl // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            isCopyright:
+                freezed == isCopyright
+                    ? _value.isCopyright
+                    : isCopyright // ignore: cast_nullable_to_non_nullable
+                        as bool?,
+            keywords:
+                null == keywords
+                    ? _value.keywords
+                    : keywords // ignore: cast_nullable_to_non_nullable
+                        as List<String>,
+            view:
+                freezed == view
+                    ? _value.view
+                    : view // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            chieurap:
+                freezed == chieurap
+                    ? _value.chieurap
+                    : chieurap // ignore: cast_nullable_to_non_nullable
+                        as bool?,
+            subDocquyen:
+                freezed == subDocquyen
+                    ? _value.subDocquyen
+                    : subDocquyen // ignore: cast_nullable_to_non_nullable
+                        as bool?,
+            showtimes:
+                freezed == showtimes
+                    ? _value.showtimes
+                    : showtimes // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            actors:
+                null == actors
+                    ? _value.actors
+                    : actors // ignore: cast_nullable_to_non_nullable
+                        as List<String>,
+            directors:
+                null == directors
+                    ? _value.directors
+                    : directors // ignore: cast_nullable_to_non_nullable
+                        as List<String>,
+            categories:
+                null == categories
+                    ? _value.categories
+                    : categories // ignore: cast_nullable_to_non_nullable
+                        as List<Category>,
+            countries:
+                null == countries
+                    ? _value.countries
+                    : countries // ignore: cast_nullable_to_non_nullable
+                        as List<Country>,
+            episodes:
+                null == episodes
+                    ? _value.episodes
+                    : episodes // ignore: cast_nullable_to_non_nullable
+                        as List<EpisodeServer>,
+            tmdb:
+                freezed == tmdb
+                    ? _value.tmdb
+                    : tmdb // ignore: cast_nullable_to_non_nullable
+                        as TMDbInfo?,
+            imdb:
+                null == imdb
+                    ? _value.imdb
+                    : imdb // ignore: cast_nullable_to_non_nullable
+                        as IMDbInfo,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of MovieDetail
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $IMDbInfoCopyWith<$Res> get imdb {
+    return $IMDbInfoCopyWith<$Res>(_value.imdb, (value) {
+      return _then(_value.copyWith(imdb: value) as $Val);
+    });
   }
 }
 
@@ -307,7 +515,12 @@ abstract class _$$MovieDetailImplCopyWith<$Res>
     @JsonKey(name: 'category') List<Category> categories,
     @JsonKey(name: 'country') List<Country> countries,
     List<EpisodeServer> episodes,
+    @JsonKey(name: 'tmdb') TMDbInfo? tmdb,
+    @JsonKey(name: 'imdb') IMDbInfo imdb,
   });
+
+  @override
+  $IMDbInfoCopyWith<$Res> get imdb;
 }
 
 /// @nodoc
@@ -351,117 +564,156 @@ class __$$MovieDetailImplCopyWithImpl<$Res>
     Object? categories = null,
     Object? countries = null,
     Object? episodes = null,
+    Object? tmdb = freezed,
+    Object? imdb = null,
   }) {
     return _then(
       _$MovieDetailImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as int,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        originName: freezed == originName
-            ? _value.originName
-            : originName // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        slug: null == slug
-            ? _value.slug
-            : slug // ignore: cast_nullable_to_non_nullable
-                  as String,
-        posterUrl: freezed == posterUrl
-            ? _value.posterUrl
-            : posterUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        thumbUrl: freezed == thumbUrl
-            ? _value.thumbUrl
-            : thumbUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        year: freezed == year
-            ? _value.year
-            : year // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        quality: freezed == quality
-            ? _value.quality
-            : quality // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        lang: freezed == lang
-            ? _value.lang
-            : lang // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        time: freezed == time
-            ? _value.time
-            : time // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        type: freezed == type
-            ? _value.type
-            : type // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        status: freezed == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        episodeCurrent: freezed == episodeCurrent
-            ? _value.episodeCurrent
-            : episodeCurrent // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        episodeTotal: freezed == episodeTotal
-            ? _value.episodeTotal
-            : episodeTotal // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        content: freezed == content
-            ? _value.content
-            : content // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        trailerUrl: freezed == trailerUrl
-            ? _value.trailerUrl
-            : trailerUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        isCopyright: freezed == isCopyright
-            ? _value.isCopyright
-            : isCopyright // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        keywords: null == keywords
-            ? _value._keywords
-            : keywords // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        view: freezed == view
-            ? _value.view
-            : view // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        chieurap: freezed == chieurap
-            ? _value.chieurap
-            : chieurap // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        subDocquyen: freezed == subDocquyen
-            ? _value.subDocquyen
-            : subDocquyen // ignore: cast_nullable_to_non_nullable
-                  as bool?,
-        showtimes: freezed == showtimes
-            ? _value.showtimes
-            : showtimes // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        actors: null == actors
-            ? _value._actors
-            : actors // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        directors: null == directors
-            ? _value._directors
-            : directors // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
-        categories: null == categories
-            ? _value._categories
-            : categories // ignore: cast_nullable_to_non_nullable
-                  as List<Category>,
-        countries: null == countries
-            ? _value._countries
-            : countries // ignore: cast_nullable_to_non_nullable
-                  as List<Country>,
-        episodes: null == episodes
-            ? _value._episodes
-            : episodes // ignore: cast_nullable_to_non_nullable
-                  as List<EpisodeServer>,
+        id:
+            null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                    as int,
+        name:
+            null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                    as String,
+        originName:
+            freezed == originName
+                ? _value.originName
+                : originName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        slug:
+            null == slug
+                ? _value.slug
+                : slug // ignore: cast_nullable_to_non_nullable
+                    as String,
+        posterUrl:
+            freezed == posterUrl
+                ? _value.posterUrl
+                : posterUrl // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        thumbUrl:
+            freezed == thumbUrl
+                ? _value.thumbUrl
+                : thumbUrl // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        year:
+            freezed == year
+                ? _value.year
+                : year // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        quality:
+            freezed == quality
+                ? _value.quality
+                : quality // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        lang:
+            freezed == lang
+                ? _value.lang
+                : lang // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        time:
+            freezed == time
+                ? _value.time
+                : time // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        type:
+            freezed == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        status:
+            freezed == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        episodeCurrent:
+            freezed == episodeCurrent
+                ? _value.episodeCurrent
+                : episodeCurrent // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        episodeTotal:
+            freezed == episodeTotal
+                ? _value.episodeTotal
+                : episodeTotal // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        content:
+            freezed == content
+                ? _value.content
+                : content // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        trailerUrl:
+            freezed == trailerUrl
+                ? _value.trailerUrl
+                : trailerUrl // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        isCopyright:
+            freezed == isCopyright
+                ? _value.isCopyright
+                : isCopyright // ignore: cast_nullable_to_non_nullable
+                    as bool?,
+        keywords:
+            null == keywords
+                ? _value._keywords
+                : keywords // ignore: cast_nullable_to_non_nullable
+                    as List<String>,
+        view:
+            freezed == view
+                ? _value.view
+                : view // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        chieurap:
+            freezed == chieurap
+                ? _value.chieurap
+                : chieurap // ignore: cast_nullable_to_non_nullable
+                    as bool?,
+        subDocquyen:
+            freezed == subDocquyen
+                ? _value.subDocquyen
+                : subDocquyen // ignore: cast_nullable_to_non_nullable
+                    as bool?,
+        showtimes:
+            freezed == showtimes
+                ? _value.showtimes
+                : showtimes // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        actors:
+            null == actors
+                ? _value._actors
+                : actors // ignore: cast_nullable_to_non_nullable
+                    as List<String>,
+        directors:
+            null == directors
+                ? _value._directors
+                : directors // ignore: cast_nullable_to_non_nullable
+                    as List<String>,
+        categories:
+            null == categories
+                ? _value._categories
+                : categories // ignore: cast_nullable_to_non_nullable
+                    as List<Category>,
+        countries:
+            null == countries
+                ? _value._countries
+                : countries // ignore: cast_nullable_to_non_nullable
+                    as List<Country>,
+        episodes:
+            null == episodes
+                ? _value._episodes
+                : episodes // ignore: cast_nullable_to_non_nullable
+                    as List<EpisodeServer>,
+        tmdb:
+            freezed == tmdb
+                ? _value.tmdb
+                : tmdb // ignore: cast_nullable_to_non_nullable
+                    as TMDbInfo?,
+        imdb:
+            null == imdb
+                ? _value.imdb
+                : imdb // ignore: cast_nullable_to_non_nullable
+                    as IMDbInfo,
       ),
     );
   }
@@ -498,6 +750,8 @@ class _$MovieDetailImpl implements _MovieDetail {
     @JsonKey(name: 'category') final List<Category> categories = const [],
     @JsonKey(name: 'country') final List<Country> countries = const [],
     final List<EpisodeServer> episodes = const [],
+    @JsonKey(name: 'tmdb') this.tmdb,
+    @JsonKey(name: 'imdb') this.imdb = const IMDbInfo(),
   }) : _keywords = keywords,
        _actors = actors,
        _directors = directors,
@@ -614,8 +868,15 @@ class _$MovieDetailImpl implements _MovieDetail {
   }
 
   @override
+  @JsonKey(name: 'tmdb')
+  final TMDbInfo? tmdb;
+  @override
+  @JsonKey(name: 'imdb')
+  final IMDbInfo imdb;
+
+  @override
   String toString() {
-    return 'MovieDetail(id: $id, name: $name, originName: $originName, slug: $slug, posterUrl: $posterUrl, thumbUrl: $thumbUrl, year: $year, quality: $quality, lang: $lang, time: $time, type: $type, status: $status, episodeCurrent: $episodeCurrent, episodeTotal: $episodeTotal, content: $content, trailerUrl: $trailerUrl, isCopyright: $isCopyright, keywords: $keywords, view: $view, chieurap: $chieurap, subDocquyen: $subDocquyen, showtimes: $showtimes, actors: $actors, directors: $directors, categories: $categories, countries: $countries, episodes: $episodes)';
+    return 'MovieDetail(id: $id, name: $name, originName: $originName, slug: $slug, posterUrl: $posterUrl, thumbUrl: $thumbUrl, year: $year, quality: $quality, lang: $lang, time: $time, type: $type, status: $status, episodeCurrent: $episodeCurrent, episodeTotal: $episodeTotal, content: $content, trailerUrl: $trailerUrl, isCopyright: $isCopyright, keywords: $keywords, view: $view, chieurap: $chieurap, subDocquyen: $subDocquyen, showtimes: $showtimes, actors: $actors, directors: $directors, categories: $categories, countries: $countries, episodes: $episodes, tmdb: $tmdb, imdb: $imdb)';
   }
 
   @override
@@ -668,7 +929,9 @@ class _$MovieDetailImpl implements _MovieDetail {
               other._countries,
               _countries,
             ) &&
-            const DeepCollectionEquality().equals(other._episodes, _episodes));
+            const DeepCollectionEquality().equals(other._episodes, _episodes) &&
+            (identical(other.tmdb, tmdb) || other.tmdb == tmdb) &&
+            (identical(other.imdb, imdb) || other.imdb == imdb));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -702,6 +965,8 @@ class _$MovieDetailImpl implements _MovieDetail {
     const DeepCollectionEquality().hash(_categories),
     const DeepCollectionEquality().hash(_countries),
     const DeepCollectionEquality().hash(_episodes),
+    tmdb,
+    imdb,
   ]);
 
   /// Create a copy of MovieDetail
@@ -747,6 +1012,8 @@ abstract class _MovieDetail implements MovieDetail {
     @JsonKey(name: 'category') final List<Category> categories,
     @JsonKey(name: 'country') final List<Country> countries,
     final List<EpisodeServer> episodes,
+    @JsonKey(name: 'tmdb') final TMDbInfo? tmdb,
+    @JsonKey(name: 'imdb') final IMDbInfo imdb,
   }) = _$MovieDetailImpl;
 
   factory _MovieDetail.fromJson(Map<String, dynamic> json) =
@@ -820,6 +1087,12 @@ abstract class _MovieDetail implements MovieDetail {
   List<Country> get countries;
   @override
   List<EpisodeServer> get episodes;
+  @override
+  @JsonKey(name: 'tmdb')
+  TMDbInfo? get tmdb;
+  @override
+  @JsonKey(name: 'imdb')
+  IMDbInfo get imdb;
 
   /// Create a copy of MovieDetail
   /// with the given fields replaced by the non-null parameter values.

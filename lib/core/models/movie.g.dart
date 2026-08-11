@@ -6,6 +6,18 @@ part of 'movie.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+TMDbInfo _$TMDbInfoFromJson(Map<String, dynamic> json) => TMDbInfo(
+  voteAverage: json['voteAverage'] as String?,
+  voteCount: (json['voteCount'] as num?)?.toInt(),
+  id: json['id'] as String?,
+);
+
+Map<String, dynamic> _$TMDbInfoToJson(TMDbInfo instance) => <String, dynamic>{
+  'voteAverage': instance.voteAverage,
+  'voteCount': instance.voteCount,
+  'id': instance.id,
+};
+
 _$MovieImpl _$$MovieImplFromJson(Map<String, dynamic> json) => _$MovieImpl(
   id: (json['_id'] as num).toInt(),
   name: json['name'] as String,
@@ -21,6 +33,10 @@ _$MovieImpl _$$MovieImplFromJson(Map<String, dynamic> json) => _$MovieImpl(
   status: json['status'] as String?,
   episodeCurrent: json['episode_current'] as String?,
   episodeTotal: json['episode_total'] as String?,
+  tmdb:
+      json['tmdb'] == null
+          ? null
+          : TMDbInfo.fromJson(json['tmdb'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$$MovieImplToJson(_$MovieImpl instance) =>
@@ -39,4 +55,5 @@ Map<String, dynamic> _$$MovieImplToJson(_$MovieImpl instance) =>
       'status': instance.status,
       'episode_current': instance.episodeCurrent,
       'episode_total': instance.episodeTotal,
+      'tmdb': instance.tmdb,
     };

@@ -9,9 +9,10 @@ part of 'episode.dart';
 _$EpisodeServerImpl _$$EpisodeServerImplFromJson(Map<String, dynamic> json) =>
     _$EpisodeServerImpl(
       serverName: json['server_name'] as String,
-      serverData: (json['server_data'] as List<dynamic>)
-          .map((e) => EpisodeData.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      serverData:
+          (json['server_data'] as List<dynamic>)
+              .map((e) => EpisodeData.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
 
 Map<String, dynamic> _$$EpisodeServerImplToJson(_$EpisodeServerImpl instance) =>

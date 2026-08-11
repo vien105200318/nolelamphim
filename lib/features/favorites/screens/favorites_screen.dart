@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/empty_state.dart';
 import '../../home/widgets/movie_card.dart';
 import '../providers/favorites_provider.dart';
 
+/// Yêu thích — spec §5.8: h1 "Phim yêu thích", empty + "Khám phá phim",
+/// lưới card 2-8 cột.
 class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
 
@@ -18,18 +22,14 @@ class FavoritesScreen extends ConsumerWidget {
         title: const Text('Phim yêu thích'),
       ),
       body: list.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.favorite_border,
-                      size: 64, color: AppColors.textMuted),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Chưa có phim yêu thích',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
-                  ),
-                ],
+          ? Padding(
+              padding: const EdgeInsets.all(16),
+              child: EmptyState(
+                icon: Icons.favorite_border,
+                title: 'Chưa có phim yêu thích',
+                subtitle: 'Bấm ♡ trên trang phim để lưu vào đây',
+                actionLabel: 'Khám phá phim',
+                onAction: () => context.go('/'),
               ),
             )
           : LayoutBuilder(
@@ -39,9 +39,9 @@ class FavoritesScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(12),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
-                    childAspectRatio: 0.65,
+                    childAspectRatio: 0.58,
                     crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
+                    mainAxisSpacing: 14,
                   ),
                   itemCount: list.length,
                   itemBuilder: (_, i) => MovieCard(movie: list[i]),

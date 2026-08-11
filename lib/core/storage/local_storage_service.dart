@@ -21,4 +21,28 @@ class LocalStorageService {
     final prefs = await _prefs;
     await prefs.setString(key, jsonEncode(items));
   }
+
+  Future<List<String>> readStringList(String key) async {
+    final prefs = await _prefs;
+    final raw = prefs.getString(key);
+    if (raw == null) return [];
+    return (jsonDecode(raw) as List<dynamic>).cast<String>();
+  }
+
+  Future<void> writeStringList(String key, List<String> items) async {
+    final prefs = await _prefs;
+    await prefs.setString(key, jsonEncode(items));
+  }
+
+  Future<Map<String, dynamic>> readMap(String key) async {
+    final prefs = await _prefs;
+    final raw = prefs.getString(key);
+    if (raw == null) return {};
+    return Map<String, dynamic>.from(jsonDecode(raw) as Map<String, dynamic>);
+  }
+
+  Future<void> writeMap(String key, Map<String, dynamic> map) async {
+    final prefs = await _prefs;
+    await prefs.setString(key, jsonEncode(map));
+  }
 }

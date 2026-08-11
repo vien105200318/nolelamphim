@@ -27,6 +27,7 @@ dependencies:
   json_annotation: ^4.9.0
   freezed_annotation: ^2.4.4
   collection: ^1.19.0
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -50,3 +51,14 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+  fonts:
+    - family: BeVietnamPro
+      fonts:
+        - asset: assets/fonts/BeVietnamPro-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/BeVietnamPro-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/BeVietnamPro-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/BeVietnamPro-Bold.ttf
+          weight: 700

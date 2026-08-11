@@ -41,6 +41,8 @@ mixin _$Movie {
   String? get episodeCurrent => throw _privateConstructorUsedError;
   @JsonKey(name: 'episode_total')
   String? get episodeTotal => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tmdb')
+  TMDbInfo? get tmdb => throw _privateConstructorUsedError;
 
   /// Serializes this Movie to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -71,6 +73,7 @@ abstract class $MovieCopyWith<$Res> {
     String? status,
     @JsonKey(name: 'episode_current') String? episodeCurrent,
     @JsonKey(name: 'episode_total') String? episodeTotal,
+    @JsonKey(name: 'tmdb') TMDbInfo? tmdb,
   });
 }
 
@@ -103,65 +106,85 @@ class _$MovieCopyWithImpl<$Res, $Val extends Movie>
     Object? status = freezed,
     Object? episodeCurrent = freezed,
     Object? episodeTotal = freezed,
+    Object? tmdb = freezed,
   }) {
     return _then(
       _value.copyWith(
-            id: null == id
-                ? _value.id
-                : id // ignore: cast_nullable_to_non_nullable
-                      as int,
-            name: null == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                      as String,
-            originName: freezed == originName
-                ? _value.originName
-                : originName // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            slug: null == slug
-                ? _value.slug
-                : slug // ignore: cast_nullable_to_non_nullable
-                      as String,
-            posterUrl: freezed == posterUrl
-                ? _value.posterUrl
-                : posterUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            thumbUrl: freezed == thumbUrl
-                ? _value.thumbUrl
-                : thumbUrl // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            year: freezed == year
-                ? _value.year
-                : year // ignore: cast_nullable_to_non_nullable
-                      as int?,
-            quality: freezed == quality
-                ? _value.quality
-                : quality // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            lang: freezed == lang
-                ? _value.lang
-                : lang // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            time: freezed == time
-                ? _value.time
-                : time // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            type: freezed == type
-                ? _value.type
-                : type // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            status: freezed == status
-                ? _value.status
-                : status // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            episodeCurrent: freezed == episodeCurrent
-                ? _value.episodeCurrent
-                : episodeCurrent // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            episodeTotal: freezed == episodeTotal
-                ? _value.episodeTotal
-                : episodeTotal // ignore: cast_nullable_to_non_nullable
-                      as String?,
+            id:
+                null == id
+                    ? _value.id
+                    : id // ignore: cast_nullable_to_non_nullable
+                        as int,
+            name:
+                null == name
+                    ? _value.name
+                    : name // ignore: cast_nullable_to_non_nullable
+                        as String,
+            originName:
+                freezed == originName
+                    ? _value.originName
+                    : originName // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            slug:
+                null == slug
+                    ? _value.slug
+                    : slug // ignore: cast_nullable_to_non_nullable
+                        as String,
+            posterUrl:
+                freezed == posterUrl
+                    ? _value.posterUrl
+                    : posterUrl // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            thumbUrl:
+                freezed == thumbUrl
+                    ? _value.thumbUrl
+                    : thumbUrl // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            year:
+                freezed == year
+                    ? _value.year
+                    : year // ignore: cast_nullable_to_non_nullable
+                        as int?,
+            quality:
+                freezed == quality
+                    ? _value.quality
+                    : quality // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            lang:
+                freezed == lang
+                    ? _value.lang
+                    : lang // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            time:
+                freezed == time
+                    ? _value.time
+                    : time // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            type:
+                freezed == type
+                    ? _value.type
+                    : type // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            status:
+                freezed == status
+                    ? _value.status
+                    : status // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            episodeCurrent:
+                freezed == episodeCurrent
+                    ? _value.episodeCurrent
+                    : episodeCurrent // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            episodeTotal:
+                freezed == episodeTotal
+                    ? _value.episodeTotal
+                    : episodeTotal // ignore: cast_nullable_to_non_nullable
+                        as String?,
+            tmdb:
+                freezed == tmdb
+                    ? _value.tmdb
+                    : tmdb // ignore: cast_nullable_to_non_nullable
+                        as TMDbInfo?,
           )
           as $Val,
     );
@@ -191,6 +214,7 @@ abstract class _$$MovieImplCopyWith<$Res> implements $MovieCopyWith<$Res> {
     String? status,
     @JsonKey(name: 'episode_current') String? episodeCurrent,
     @JsonKey(name: 'episode_total') String? episodeTotal,
+    @JsonKey(name: 'tmdb') TMDbInfo? tmdb,
   });
 }
 
@@ -222,65 +246,85 @@ class __$$MovieImplCopyWithImpl<$Res>
     Object? status = freezed,
     Object? episodeCurrent = freezed,
     Object? episodeTotal = freezed,
+    Object? tmdb = freezed,
   }) {
     return _then(
       _$MovieImpl(
-        id: null == id
-            ? _value.id
-            : id // ignore: cast_nullable_to_non_nullable
-                  as int,
-        name: null == name
-            ? _value.name
-            : name // ignore: cast_nullable_to_non_nullable
-                  as String,
-        originName: freezed == originName
-            ? _value.originName
-            : originName // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        slug: null == slug
-            ? _value.slug
-            : slug // ignore: cast_nullable_to_non_nullable
-                  as String,
-        posterUrl: freezed == posterUrl
-            ? _value.posterUrl
-            : posterUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        thumbUrl: freezed == thumbUrl
-            ? _value.thumbUrl
-            : thumbUrl // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        year: freezed == year
-            ? _value.year
-            : year // ignore: cast_nullable_to_non_nullable
-                  as int?,
-        quality: freezed == quality
-            ? _value.quality
-            : quality // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        lang: freezed == lang
-            ? _value.lang
-            : lang // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        time: freezed == time
-            ? _value.time
-            : time // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        type: freezed == type
-            ? _value.type
-            : type // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        status: freezed == status
-            ? _value.status
-            : status // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        episodeCurrent: freezed == episodeCurrent
-            ? _value.episodeCurrent
-            : episodeCurrent // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        episodeTotal: freezed == episodeTotal
-            ? _value.episodeTotal
-            : episodeTotal // ignore: cast_nullable_to_non_nullable
-                  as String?,
+        id:
+            null == id
+                ? _value.id
+                : id // ignore: cast_nullable_to_non_nullable
+                    as int,
+        name:
+            null == name
+                ? _value.name
+                : name // ignore: cast_nullable_to_non_nullable
+                    as String,
+        originName:
+            freezed == originName
+                ? _value.originName
+                : originName // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        slug:
+            null == slug
+                ? _value.slug
+                : slug // ignore: cast_nullable_to_non_nullable
+                    as String,
+        posterUrl:
+            freezed == posterUrl
+                ? _value.posterUrl
+                : posterUrl // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        thumbUrl:
+            freezed == thumbUrl
+                ? _value.thumbUrl
+                : thumbUrl // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        year:
+            freezed == year
+                ? _value.year
+                : year // ignore: cast_nullable_to_non_nullable
+                    as int?,
+        quality:
+            freezed == quality
+                ? _value.quality
+                : quality // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        lang:
+            freezed == lang
+                ? _value.lang
+                : lang // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        time:
+            freezed == time
+                ? _value.time
+                : time // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        type:
+            freezed == type
+                ? _value.type
+                : type // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        status:
+            freezed == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        episodeCurrent:
+            freezed == episodeCurrent
+                ? _value.episodeCurrent
+                : episodeCurrent // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        episodeTotal:
+            freezed == episodeTotal
+                ? _value.episodeTotal
+                : episodeTotal // ignore: cast_nullable_to_non_nullable
+                    as String?,
+        tmdb:
+            freezed == tmdb
+                ? _value.tmdb
+                : tmdb // ignore: cast_nullable_to_non_nullable
+                    as TMDbInfo?,
       ),
     );
   }
@@ -304,6 +348,7 @@ class _$MovieImpl implements _Movie {
     this.status,
     @JsonKey(name: 'episode_current') this.episodeCurrent,
     @JsonKey(name: 'episode_total') this.episodeTotal,
+    @JsonKey(name: 'tmdb') this.tmdb,
   });
 
   factory _$MovieImpl.fromJson(Map<String, dynamic> json) =>
@@ -343,10 +388,13 @@ class _$MovieImpl implements _Movie {
   @override
   @JsonKey(name: 'episode_total')
   final String? episodeTotal;
+  @override
+  @JsonKey(name: 'tmdb')
+  final TMDbInfo? tmdb;
 
   @override
   String toString() {
-    return 'Movie(id: $id, name: $name, originName: $originName, slug: $slug, posterUrl: $posterUrl, thumbUrl: $thumbUrl, year: $year, quality: $quality, lang: $lang, time: $time, type: $type, status: $status, episodeCurrent: $episodeCurrent, episodeTotal: $episodeTotal)';
+    return 'Movie(id: $id, name: $name, originName: $originName, slug: $slug, posterUrl: $posterUrl, thumbUrl: $thumbUrl, year: $year, quality: $quality, lang: $lang, time: $time, type: $type, status: $status, episodeCurrent: $episodeCurrent, episodeTotal: $episodeTotal, tmdb: $tmdb)';
   }
 
   @override
@@ -372,7 +420,8 @@ class _$MovieImpl implements _Movie {
             (identical(other.episodeCurrent, episodeCurrent) ||
                 other.episodeCurrent == episodeCurrent) &&
             (identical(other.episodeTotal, episodeTotal) ||
-                other.episodeTotal == episodeTotal));
+                other.episodeTotal == episodeTotal) &&
+            (identical(other.tmdb, tmdb) || other.tmdb == tmdb));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -393,6 +442,7 @@ class _$MovieImpl implements _Movie {
     status,
     episodeCurrent,
     episodeTotal,
+    tmdb,
   );
 
   /// Create a copy of Movie
@@ -425,6 +475,7 @@ abstract class _Movie implements Movie {
     final String? status,
     @JsonKey(name: 'episode_current') final String? episodeCurrent,
     @JsonKey(name: 'episode_total') final String? episodeTotal,
+    @JsonKey(name: 'tmdb') final TMDbInfo? tmdb,
   }) = _$MovieImpl;
 
   factory _Movie.fromJson(Map<String, dynamic> json) = _$MovieImpl.fromJson;
@@ -463,6 +514,9 @@ abstract class _Movie implements Movie {
   @override
   @JsonKey(name: 'episode_total')
   String? get episodeTotal;
+  @override
+  @JsonKey(name: 'tmdb')
+  TMDbInfo? get tmdb;
 
   /// Create a copy of Movie
   /// with the given fields replaced by the non-null parameter values.

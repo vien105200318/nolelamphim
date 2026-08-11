@@ -7,11 +7,13 @@ import 'movie_card.dart';
 class MovieHorizontalList extends StatelessWidget {
   final String title;
   final List<Movie> movies;
+  final MovieDot? dot;
 
   const MovieHorizontalList({
     super.key,
     required this.title,
     required this.movies,
+    this.dot,
   });
 
   @override
@@ -60,7 +62,7 @@ class MovieHorizontalList extends StatelessWidget {
             separatorBuilder: (_, _) => const SizedBox(width: 10),
             itemBuilder: (_, index) => SizedBox(
               width: 140,
-              child: MovieCard(movie: movies[index]),
+              child: MovieCard(movie: movies[index], dot: dot),
             ),
           ),
         ),
