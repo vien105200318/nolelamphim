@@ -61,11 +61,11 @@ class _GlassBottomNav extends StatelessWidget {
   });
 
   static const _icons = <IconData>[
-    Icons.home_outlined,
-    Icons.search_outlined,
-    Icons.grid_view_outlined,
-    Icons.favorite_outline,
-    Icons.history_outlined,
+    Icons.home_rounded,
+    Icons.search_rounded,
+    Icons.grid_view_rounded,
+    Icons.favorite_rounded,
+    Icons.history_rounded,
   ];
 
   static const _labels = ['Trang chủ', 'Tìm kiếm', 'Danh mục', 'Yêu thích', 'Đã xem'];
@@ -116,49 +116,54 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOut,
-            width: 46,
-            height: 30,
-            decoration: selected
-                ? const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.gradientStart,
-                        AppColors.gradientMid,
-                        AppColors.gradientEnd,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x404A9EFF),
-                        blurRadius: 12,
-                        offset: Offset(0, 4),
-                      ),
+      child: Center(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          height: 36,
+          padding: EdgeInsets.symmetric(horizontal: selected ? 14 : 0),
+          decoration: selected
+              ? BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      AppColors.gradientStart,
+                      AppColors.gradientMid,
+                      AppColors.gradientEnd,
                     ],
-                  )
-                : null,
-            child: Icon(
-              icon,
-              size: 20,
-              color: selected ? Colors.white : AppColors.textMuted,
-            ),
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.gradientMid.withValues(alpha: 0.45),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                )
+              : null,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: selected ? Colors.white : AppColors.textMuted,
+              ),
+              if (selected) ...[
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              color: selected ? AppColors.textPrimary : AppColors.textMuted,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
