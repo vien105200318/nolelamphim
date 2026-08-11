@@ -437,6 +437,7 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
         active: enabled,
         onTap: onTap,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon,
