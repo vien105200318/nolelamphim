@@ -1,0 +1,71 @@
+name: Build iOS (IPA)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version (tuỳ chọn, vd: 1.0.1) — dùng để đặt tên file'
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-ipa:
+    name: Build Unsigned IPA
+    runs-on: macos-latest
+
+    steps:
+      - name: Validate & clean version
+        run: |
+          v="${{ inputs.version_name }}"
+          if [ -n "$v" ]; then
+            v="${v#v}"; v="${v#V}"
+            if ! echo "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "Error: version phải có dạng số (vd: 1.0.1 hoặc v1.0.1)"
+              exit 1
+            fi
+          fi
+          echo "CLEAN_VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Update iOS Deployment Target
+        run: |
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 13.0/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' ios/Runner.xcodeproj/project.pbxproj
+
+      - name: Build iOS App
+        run: flutter build ios --release --no-codesign
+
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          APP_PATH=$(find build/ios -name "*.app" | head -n 1)
+          echo "Found app at: $APP_PATH"
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: .app file not found!"
+            exit 1
+          fi
+          cp -r "$APP_PATH" Payload/
+          if [ -n "$CLEAN_VERSION" ]; then
+            zip -qr "nolelamphim-$CLEAN_VERSION-unsigned.ipa" Payload
+          else
+            zip -qr "nolelamphim-unsigned.ipa" Payload
+          fi
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: nolelamphim-*.ipa
+          retention-days: 7
+          if-no-files-found: error
