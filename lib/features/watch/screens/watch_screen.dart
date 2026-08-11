@@ -65,19 +65,27 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
             )),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+              padding: const EdgeInsets.only(top: 16, bottom: 40),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildPlayer(context, movie.thumbUrl ?? movie.posterUrl ?? '', url, nextEp),
-                  const SizedBox(height: 14),
-                  _buildBreadcrumb(context, movie.name, currentEp.name),
-                  if (movie.episodes.length > 1) ...[
-                    const SizedBox(height: 12),
-                    _buildServerTabs(movie.episodes),
-                  ],
-                  const SizedBox(height: 12),
-                  _buildEpisodeNav(context, movie.name, prevEp, nextEp),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 14),
+                        _buildBreadcrumb(context, movie.name, currentEp.name),
+                        if (movie.episodes.length > 1) ...[
+                          const SizedBox(height: 12),
+                          _buildServerTabs(movie.episodes),
+                        ],
+                        const SizedBox(height: 12),
+                        _buildEpisodeNav(context, movie.name, prevEp, nextEp),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -157,15 +165,11 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
 
   Widget _buildPlayer(BuildContext context, String poster,
       String url, EpisodeData? nextEp) {
-    return Container(
-      decoration: glassFrameDecoration(radius: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
               Container(color: Colors.black),
               if (!_started)
                 GestureDetector(
@@ -271,8 +275,6 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
                 ),
             ],
           ),
-        ),
-      ),
     );
   }
 
