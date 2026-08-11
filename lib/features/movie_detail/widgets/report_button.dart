@@ -18,11 +18,15 @@ class ReportButton extends StatefulWidget {
   final String name;
   final String? episode;
 
+  /// Khi `true`: nút trải full-width, kiểu phẳng (dùng bên trong liquid glass panel).
+  final bool fullWidth;
+
   const ReportButton({
     super.key,
     required this.slug,
     required this.name,
     this.episode,
+    this.fullWidth = false,
   });
 
   @override
@@ -88,7 +92,8 @@ class _ReportButtonState extends State<ReportButton> {
     return GestureDetector(
       onTap: _open,
       child: Container(
-        height: 36,
+        height: widget.fullWidth ? 40 : 36,
+        width: widget.fullWidth ? double.infinity : null,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -100,9 +105,11 @@ class _ReportButtonState extends State<ReportButton> {
           color: AppColors.glassBackdrop,
           border: Border.all(color: AppColors.glassBorder),
         ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+        child: Row(
+          mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisAlignment:
+              widget.fullWidth ? MainAxisAlignment.center : MainAxisAlignment.start,
+          children: const [
             Icon(Icons.flag_outlined, size: 15, color: AppColors.textSecondary),
             SizedBox(width: 6),
             Text(

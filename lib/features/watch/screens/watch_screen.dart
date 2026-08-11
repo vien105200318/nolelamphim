@@ -365,45 +365,66 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
 
   Widget _buildEpisodeNav(BuildContext context, String movieName,
       EpisodeData? prevEp, EpisodeData? nextEp) {
-    return Row(
-      children: [
-        _navButton(
-          enabled: prevEp != null,
-          label: prevEp != null ? '← ${prevEp.name}' : '← Hết',
-          onTap: prevEp == null
-              ? null
-              : () => context.push('/xem/${widget.slug}/${prevEp.slug}',
-                  extra: movieName),
-        ),
-        const SizedBox(width: 8),
-        _navButton(
-          enabled: true,
-          label: 'Danh sách tập',
-          onTap: () => context.push('/phim/${widget.slug}'),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: ReportButton(
+    return LiquidGlassPanel(
+      radius: 18,
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _navButton(
+                  enabled: prevEp != null,
+                  icon: Icons.skip_previous_rounded,
+                  label: prevEp != null ? prevEp.name : 'Hết',
+                  onTap: prevEp == null
+                      ? null
+                      : () => context.push('/xem/${widget.slug}/${prevEp.slug}',
+                          extra: movieName),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _navButton(
+                enabled: true,
+                icon: Icons.view_list_rounded,
+                label: 'Danh sách tập',
+                onTap: () => context.push('/phim/${widget.slug}'),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _navButton(
+                  enabled: nextEp != null,
+                  icon: Icons.skip_next_rounded,
+                  label: nextEp != null ? nextEp.name : 'Hết',
+                  onTap: nextEp == null
+                      ? null
+                      : () => context.push('/xem/${widget.slug}/${nextEp.slug}',
+                          extra: movieName),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Divider(
+            height: 1,
+            color: Colors.white.withValues(alpha: 0.08),
+          ),
+          const SizedBox(height: 6),
+          ReportButton(
             slug: widget.slug,
             name: movieName,
             episode: _episodeSlug,
+            fullWidth: true,
           ),
-        ),
-        const SizedBox(width: 8),
-        _navButton(
-          enabled: nextEp != null,
-          label: nextEp != null ? '${nextEp.name} →' : 'Hết →',
-          onTap: nextEp == null
-              ? null
-              : () => context.push('/xem/${widget.slug}/${nextEp.slug}',
-                  extra: movieName),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _navButton({
     required bool enabled,
+    required IconData icon,
     required String label,
     required VoidCallback? onTap,
   }) {
@@ -411,20 +432,34 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
       opacity: enabled ? 1 : 0.4,
       child: GlassTile(
         radius: 12,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+        active: enabled,
         onTap: onTap,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: enabled ? AppColors.textSecondary : AppColors.textMuted,
-            fontSize: 12,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon,
+                size: 16,
+                color: enabled ? Colors.white : AppColors.textMuted),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: enabled ? Colors.white : AppColors.textMuted,
+                  fontSize: 12,
+                  fontWeight: enabled ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
-    if (!enabled) {
-      return IgnorePointer(child: child);
-    }
+    if (!enabled) return IgnorePointer(child: child);
     return child;
   }
 }
