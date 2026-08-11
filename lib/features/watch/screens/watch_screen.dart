@@ -65,7 +65,10 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
             )),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.only(top: 16, bottom: 40),
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+                bottom: 40,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

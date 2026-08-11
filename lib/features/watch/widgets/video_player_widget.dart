@@ -301,6 +301,7 @@ class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
                 _PlayerTopBar(
                   movieName: widget.movieName,
                   episode: widget.episode,
+                  addSystemTopInset: false,
                   onBack: () => Navigator.of(context).pop(),
                 ),
                 _CenterPlayButton(
@@ -440,6 +441,7 @@ class _FullscreenOverlayState extends State<_FullscreenOverlay> {
               _PlayerTopBar(
                 movieName: widget.movieName,
                 episode: widget.episode,
+                addSystemTopInset: true,
                 onBack: widget.onExit,
               ),
               _CenterPlayButton(
@@ -470,11 +472,13 @@ class _PlayerTopBar extends StatelessWidget {
   final String movieName;
   final String episode;
   final VoidCallback onBack;
+  final bool addSystemTopInset;
 
   const _PlayerTopBar({
     required this.movieName,
     required this.episode,
     required this.onBack,
+    this.addSystemTopInset = false,
   });
 
   @override
@@ -485,7 +489,7 @@ class _PlayerTopBar extends StatelessWidget {
       right: 0,
       child: Container(
         padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + 8,
+          top: (addSystemTopInset ? MediaQuery.of(context).padding.top : 0) + 8,
           left: 8,
           right: 8,
           bottom: 16,
