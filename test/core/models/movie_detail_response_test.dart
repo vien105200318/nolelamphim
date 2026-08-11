@@ -105,6 +105,24 @@ void main() {
           'https://example.com/video.mp4');
     });
 
+    test('handles category/country with `id` key (real API)', () {
+      final json = Map<String, dynamic>.from(validJson);
+      final movieJson = json['movie'] as Map<String, dynamic>;
+      movieJson['category'] = [
+        {'id': 15, 'name': 'Chính Kịch', 'slug': 'chinh-kich'}
+      ];
+      movieJson['country'] = [
+        {'id': 30, 'name': 'Brazil', 'slug': 'brazil'}
+      ];
+
+      final response = MovieDetailResponse.fromJson(json);
+      final movie = response.movie!;
+      expect(movie.categories[0].id, 15);
+      expect(movie.categories[0].name, 'Chính Kịch');
+      expect(movie.countries[0].id, 30);
+      expect(movie.countries[0].name, 'Brazil');
+    });
+
     test('handles missing optional fields gracefully', () {
       final minimalJson = {
         'status': false,

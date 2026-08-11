@@ -11,6 +11,9 @@ class Country with _$Country {
     required String slug,
   }) = _Country;
 
-  factory Country.fromJson(Map<String, dynamic> json) =>
-      _$CountryFromJson(json);
+  factory Country.fromJson(Map<String, dynamic> json) {
+    final map = Map<String, dynamic>.from(json);
+    map['_id'] = map['_id'] ?? map['id'] ?? 0;
+    return _$CountryFromJson(map);
+  }
 }
