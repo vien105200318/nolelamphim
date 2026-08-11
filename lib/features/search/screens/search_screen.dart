@@ -140,16 +140,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           Expanded(
             child: isSearching
                 ? _buildSearchingBody(query, filter, pagedAsync, suggestionsAsync)
-                : _buildIdle(recentSearches),
+                : _buildIdle(recentSearches, pagedAsync),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildIdle(List<String> recentSearches) {
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+  Widget _buildIdle(
+    List<String> recentSearches,
+    AsyncValue<PagedMovies> pagedAsync,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (recentSearches.isNotEmpty) ...[
           Padding(
@@ -219,26 +222,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
         ],
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 48),
-          child: Column(
-            children: [
-              const Icon(Icons.search,
-                  size: 64, color: AppColors.textMuted),
-              const SizedBox(height: 16),
-              Text(
-                'Tìm kiếm phim yêu thích',
-                style:
-                    TextStyle(color: AppColors.textSecondary, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Nhập tên phim để bắt đầu tìm kiếm',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 14),
-              ),
-            ],
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: Text(
+            'Phim mới nhất',
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: pagedAsync.when(
+            data: (paged) => _buildResults(
+              _sorted(paged.items),
+              paged.totalPages,
+              emptyText: 'Không có phim mới',
+            ),
+            loading: () => const _SearchLoadingGrid(),
+            error: (_, _) => _buildError(),
           ),
         ),
       ],
@@ -308,7 +313,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildResults(List<Movie> movies, int totalPages) {
+  Widget _buildResults(List<Movie> movies, int totalPages,
+      {String emptyText = 'Không tìm thấy kết quả'}) {
     if (movies.isEmpty) {
       return Center(
         child: Column(
@@ -317,7 +323,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             Icon(Icons.movie_outlined, size: 48, color: AppColors.textMuted),
             const SizedBox(height: 12),
             Text(
-              'Không tìm thấy kết quả',
+              emptyText,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nolelamphim/features/home/providers/home_provider.dart';
 import 'package:nolelamphim/features/search/screens/search_screen.dart';
 import 'package:nolelamphim/features/search/providers/search_provider.dart';
 
@@ -10,6 +11,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            searchPagedProvider.overrideWith(
+              (ref) async => const PagedMovies(items: [], totalPages: 1),
+            ),
             categoriesProvider.overrideWith((ref) async => []),
             countriesProvider.overrideWith((ref) async => []),
             yearsProvider.overrideWith((ref) async => []),
@@ -23,8 +27,7 @@ void main() {
       expect(find.text('Thể loại'), findsWidgets);
       expect(find.text('Quốc gia'), findsWidgets);
       expect(find.text('Năm'), findsWidgets);
-      expect(find.text('Tìm kiếm phim yêu thích'), findsOneWidget);
-      expect(find.text('Nhập tên phim để bắt đầu tìm kiếm'), findsOneWidget);
+      expect(find.text('Phim mới nhất'), findsOneWidget);
     });
 
     testWidgets('typing shows clear button on TextField', (tester) async {
@@ -32,7 +35,9 @@ void main() {
         ProviderScope(
           overrides: [
             searchQueryProvider.overrideWith((ref) => ''),
-            searchResultsProvider.overrideWith((ref) async => []),
+            searchPagedProvider.overrideWith(
+              (ref) async => const PagedMovies(items: [], totalPages: 1),
+            ),
             categoriesProvider.overrideWith((ref) async => []),
             countriesProvider.overrideWith((ref) async => []),
             yearsProvider.overrideWith((ref) async => []),

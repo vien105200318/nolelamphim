@@ -7,6 +7,7 @@ import '../features/favorites/screens/favorites_screen.dart';
 import '../features/favorites/screens/history_screen.dart';
 import '../features/movie_detail/screens/movie_detail_screen.dart';
 import '../features/watch/screens/watch_screen.dart';
+import '../features/actor/screens/actor_screen.dart';
 import '../shared/widgets/app_scaffold.dart';
 import '../features/tv/widgets/tv_scaffold.dart';
 import '../features/tv/screens/tv_home_screen.dart';
@@ -74,6 +75,10 @@ final _mobileRouter = GoRouter(
       builder: (_, state) => MovieDetailScreen(
         slug: state.pathParameters['slug']!,
       ),
+    ),
+    GoRoute(
+      path: '/dien-vien',
+      builder: (_, _) => const ActorScreen(),
     ),
     GoRoute(
       path: '/xem/:slug/:episode',

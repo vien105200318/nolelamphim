@@ -46,7 +46,7 @@ final searchPagedProvider = FutureProvider.autoDispose<PagedMovies>((ref) async 
       path = ApiEndpoints.yearMovies(filter.value);
     }
   } else {
-    return const PagedMovies(items: [], totalPages: 1);
+    path = ApiEndpoints.newMovies;
   }
   final response = await api.get(path, params: params);
   final map = response.data as Map<String, dynamic>;

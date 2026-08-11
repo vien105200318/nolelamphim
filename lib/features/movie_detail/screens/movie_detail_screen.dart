@@ -95,7 +95,7 @@ class _DetailBody extends ConsumerWidget {
                   ],
                   if (movie.actors.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildSection('Diễn viên', movie.actors.join(', ')),
+                    _buildActorSection(context),
                   ],
                   if (movie.directors.isNotEmpty) ...[
                     const SizedBox(height: 16),
@@ -423,6 +423,40 @@ class _DetailBody extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActorSection(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/dien-vien'),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: _buildSection('Diễn viên', movie.actors.join(', ')),
+          ),
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              'Tất cả diễn viên',
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const SizedBox(width: 2),
+          const Padding(
+            padding: EdgeInsets.only(top: 2),
+            child: Icon(
+              Icons.chevron_right,
+              size: 18,
+              color: AppColors.textMuted,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
