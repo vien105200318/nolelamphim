@@ -27,10 +27,9 @@ void main() {
     expect(iconRect.top, greaterThan(700));
     expect(iconRect.bottom, lessThan(scaffoldRect.bottom));
 
-    // Body content must be on screen.
+    // Body must extend behind the nav bar (extendBody), content visible.
     final bodyText = tester.getRect(find.text('BODY CONTENT HERE'));
     expect(bodyText.height, greaterThan(0));
-    expect(bodyText.bottom, lessThan(iconRect.top));
   });
 
   testWidgets('nav tabs navigate', (tester) async {

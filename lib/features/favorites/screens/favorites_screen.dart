@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../home/widgets/movie_card.dart';
 import '../providers/favorites_provider.dart';
@@ -36,7 +37,8 @@ class FavoritesScreen extends ConsumerWidget {
               builder: (context, constraints) {
                 final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
                 return GridView.builder(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.fromLTRB(12, 12, 12,
+                      AppScaffold.navBarBottomPadding(context) + 12),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
                     childAspectRatio: 0.58,

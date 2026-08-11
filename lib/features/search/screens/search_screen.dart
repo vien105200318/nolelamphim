@@ -7,6 +7,7 @@ import '../widgets/search_bar_widget.dart';
 import '../widgets/search_filters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/movie.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 import '../../../shared/widgets/glass_pagination.dart';
 import '../../home/providers/home_provider.dart';
 import '../../home/widgets/movie_card.dart';
@@ -342,7 +343,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               builder: (context, constraints) {
                 final crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
                 return GridView.builder(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.fromLTRB(12, 12, 12,
+                      AppScaffold.navBarBottomPadding(context) + 12),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
                     childAspectRatio: 0.58,

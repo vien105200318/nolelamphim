@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 import '../../../shared/widgets/glass_panel.dart';
 import '../../../shared/widgets/liquid_background.dart';
 import '../providers/home_provider.dart';
@@ -74,7 +75,11 @@ class HomeScreen extends ConsumerWidget {
               padding: EdgeInsets.zero,
               sliver: _buildNewMoviesGrid(ref),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            SliverPadding(
+              padding:
+                  EdgeInsets.only(bottom: AppScaffold.navBarBottomPadding(context)),
+              sliver: const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            ),
           ],
         ),
       ),

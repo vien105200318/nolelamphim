@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/category.dart';
 import '../../../core/models/country.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 import '../../search/providers/search_provider.dart';
 
 class CategoryScreen extends ConsumerStatefulWidget {
@@ -79,7 +80,8 @@ class _CategoriesTab extends ConsumerWidget {
 
   Widget _buildGrid(BuildContext context, List<Category> items) {
     return GridView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.fromLTRB(
+          12, 12, 12, AppScaffold.navBarBottomPadding(context) + 12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         childAspectRatio: 1.6,
@@ -116,7 +118,8 @@ class _CountriesTab extends ConsumerWidget {
 
   Widget _buildGrid(BuildContext context, List<Country> items) {
     return GridView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.fromLTRB(
+          12, 12, 12, AppScaffold.navBarBottomPadding(context) + 12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         childAspectRatio: 1.6,
@@ -153,7 +156,8 @@ class _YearsTab extends ConsumerWidget {
 
   Widget _buildGrid(BuildContext context, List<String> items) {
     return GridView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.fromLTRB(
+          12, 12, 12, AppScaffold.navBarBottomPadding(context) + 12),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         childAspectRatio: 1.4,
@@ -213,7 +217,8 @@ class _ShimmerGrid extends StatelessWidget {
       baseColor: AppColors.bgCard,
       highlightColor: AppColors.bgSurface,
       child: GridView.builder(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.fromLTRB(
+          12, 12, 12, AppScaffold.navBarBottomPadding(context) + 12),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           childAspectRatio: 1.6,

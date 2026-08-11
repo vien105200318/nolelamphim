@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_network_image.dart';
+import '../../../shared/widgets/app_scaffold.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/glass_panel.dart';
 import '../providers/history_provider.dart';
@@ -45,7 +46,8 @@ class HistoryScreen extends ConsumerWidget {
               ),
             )
           : ListView.separated(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.fromLTRB(12, 12, 12,
+                  AppScaffold.navBarBottomPadding(context) + 12),
               itemCount: list.length,
               separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (_, i) => _HistoryRow(

@@ -12,6 +12,15 @@ class AppScaffold extends StatelessWidget {
 
   const AppScaffold({super.key, required this.child});
 
+  /// Chiều cao phần nội dung kính: pill 48 + padding dọc 10+10.
+  static const double _glassContentHeight = 68;
+
+  /// Padding dưới cho body để nội dung cuối không bị thanh điều hướng che.
+  static double navBarBottomPadding(BuildContext context) {
+    final bottom = MediaQuery.of(context).padding.bottom;
+    return _glassContentHeight + 4 + (bottom == 0 ? 10 : bottom) + 12;
+  }
+
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
     if (location.startsWith('/search')) return 1;
@@ -26,6 +35,7 @@ class AppScaffold extends StatelessWidget {
     final index = _currentIndex(context);
     return Scaffold(
       backgroundColor: AppColors.bgDark,
+      extendBody: true,
       body: child,
       bottomNavigationBar: _GlassBottomNav(
         selectedIndex: index,
@@ -87,7 +97,11 @@ class _GlassBottomNav extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: DecoratedBox(
-              decoration: liquidGlassDecoration(radius: 24, flat: true),
+              decoration: liquidGlassDecoration(
+                radius: 24,
+                flat: true,
+                backdrop: AppColors.glassBackdrop.withValues(alpha: 0.40),
+              ),
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

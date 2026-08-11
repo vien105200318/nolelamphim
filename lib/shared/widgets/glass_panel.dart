@@ -65,11 +65,12 @@ Color _white(double alpha) => Colors.white.withValues(alpha: alpha);
 BoxDecoration liquidGlassDecoration({
   double radius = 24,
   bool flat = false,
+  Color? backdrop,
 }) {
   return BoxDecoration(
     borderRadius: BorderRadius.circular(radius),
     gradient: GlassStyle.whiteGradient(const [0.18, 0.04, 0.09]),
-    color: AppColors.glassBackdrop,
+    color: backdrop ?? AppColors.glassBackdrop,
     border: Border.all(color: _white(0.22)),
     boxShadow: flat
         ? const []
