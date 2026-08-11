@@ -234,6 +234,8 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
                   url: url,
                   movieName: widget.movieName,
                   episode: currentEpisodeName(),
+                  movieSlug: widget.slug,
+                  episodeSlug: _episodeSlug,
                 ),
               if (nextEp != null)
                 Positioned(

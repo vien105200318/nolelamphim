@@ -1,27 +1,34 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import '../../../core/pip/pip_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../providers/watch_progress_provider.dart';
 
-class VideoPlayerWidget extends StatefulWidget {
+class VideoPlayerWidget extends ConsumerStatefulWidget {
   final String url;
   final String movieName;
   final String episode;
+  final String movieSlug;
+  final String episodeSlug;
 
   const VideoPlayerWidget({
     super.key,
     required this.url,
     required this.movieName,
     required this.episode,
+    required this.movieSlug,
+    required this.episodeSlug,
   });
 
   @override
-  State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+  ConsumerState<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
 }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+class _VideoPlayerWidgetState extends ConsumerState<VideoPlayerWidget> {
   late VideoPlayerController _controller;
   late Future<void> _initializeFuture;
   bool _controlsVisible = true;
@@ -29,6 +36,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _isFullscreen = false;
   OverlayEntry? _fullscreenEntry;
   bool _pipAvailable = false;
+  final ValueNotifier<double> _speed = ValueNotifier<double>(1.0);
+  int _lastSavedSeconds = -1;
 
   @override
   void initState() {
@@ -39,6 +48,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _controller.addListener(_onControllerUpdate);
     _startHideTimer();
     _initPiP();
+    _restoreProgress();
   }
 
   Future<void> _initPiP() async {
@@ -57,13 +67,43 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     );
   }
 
+  Future<void> _restoreProgress() async {
+    final saved = ref
+        .read(watchProgressProvider.notifier)
+        .progress(widget.movieSlug, widget.episodeSlug);
+    if (saved == null || saved < 5) return;
+    await _initializeFuture;
+    if (!mounted) return;
+    final duration = _controller.value.duration;
+    if (duration.inSeconds > 0 && saved >= duration.inSeconds - 3) return;
+    await _controller.seekTo(Duration(seconds: saved));
+  }
+
+  void _saveProgress(int seconds) {
+    if (seconds <= 5) return;
+    final duration = _controller.value.duration;
+    if (duration.inSeconds > 0 && seconds >= duration.inSeconds - 5) {
+      ref
+          .read(watchProgressProvider.notifier)
+          .clear(widget.movieSlug, widget.episodeSlug);
+      return;
+    }
+    ref
+        .read(watchProgressProvider.notifier)
+        .save(widget.movieSlug, widget.episodeSlug, seconds);
+  }
+
   @override
   void dispose() {
+    if (_controller.value.isInitialized) {
+      _saveProgress(_controller.value.position.inSeconds);
+    }
     _fullscreenEntry?.remove();
     _fullscreenEntry = null;
     _controller.removeListener(_onControllerUpdate);
     _controller.dispose();
     _hideTimer?.cancel();
+    _speed.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -74,6 +114,20 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   void _onControllerUpdate() {
     if (mounted) setState(() {});
+    final value = _controller.value;
+    if (!value.isInitialized) return;
+    if (value.isCompleted) {
+      ref
+          .read(watchProgressProvider.notifier)
+          .clear(widget.movieSlug, widget.episodeSlug);
+      _lastSavedSeconds = -1;
+      return;
+    }
+    final position = value.position.inSeconds;
+    if (position - _lastSavedSeconds >= 5) {
+      _lastSavedSeconds = position;
+      _saveProgress(position);
+    }
   }
 
   void _startHideTimer() {
@@ -101,6 +155,68 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     }
   }
 
+  void _setSpeed(double speed) {
+    _controller.setPlaybackSpeed(speed);
+    _speed.value = speed;
+    _startHideTimer();
+  }
+
+  void _showSpeedMenu() {
+    final current = _speed.value;
+    const speeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.bgSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  'Tốc độ phát',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              ...speeds.map((s) {
+                final active = s == current;
+                return ListTile(
+                  dense: true,
+                  trailing: active
+                      ? const Icon(Icons.check,
+                          color: AppColors.gradientStart, size: 20)
+                      : null,
+                  title: Text(
+                    '${s}x',
+                    style: TextStyle(
+                      color: active
+                          ? AppColors.gradientStart
+                          : Colors.white,
+                      fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
+                  onTap: () {
+                    _setSpeed(s);
+                    Navigator.of(sheetContext).pop();
+                  },
+                );
+              }),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _toggleFullscreen() {
     if (_isFullscreen) {
       _exitFullscreen();
@@ -118,7 +234,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         movieName: widget.movieName,
         episode: widget.episode,
         pipAvailable: _pipAvailable,
+        speed: _speed,
         onPip: _enterPiP,
+        onSpeedTap: _showSpeedMenu,
         onExit: _exitFullscreen,
       ),
     );
@@ -193,7 +311,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   controller: _controller,
                   isFullscreen: false,
                   pipAvailable: _pipAvailable,
+                  speed: _speed,
                   onPlayPause: _togglePlay,
+                  onSpeedTap: _showSpeedMenu,
                   onFullscreenToggle: _toggleFullscreen,
                   onPip: _enterPiP,
                 ),
@@ -211,7 +331,9 @@ class _FullscreenOverlay extends StatefulWidget {
   final String movieName;
   final String episode;
   final bool pipAvailable;
+  final ValueListenable<double> speed;
   final VoidCallback? onPip;
+  final VoidCallback onSpeedTap;
   final VoidCallback onExit;
 
   const _FullscreenOverlay({
@@ -219,7 +341,9 @@ class _FullscreenOverlay extends StatefulWidget {
     required this.movieName,
     required this.episode,
     required this.pipAvailable,
+    required this.speed,
     required this.onPip,
+    required this.onSpeedTap,
     required this.onExit,
   });
 
@@ -229,6 +353,7 @@ class _FullscreenOverlay extends StatefulWidget {
 
 class _FullscreenOverlayState extends State<_FullscreenOverlay> {
   bool _controlsVisible = true;
+  bool _rotationLocked = false;
   Timer? _hideTimer;
 
   @override
@@ -275,6 +400,26 @@ class _FullscreenOverlayState extends State<_FullscreenOverlay> {
     }
   }
 
+  void _toggleRotationLock() {
+    setState(() {
+      _rotationLocked = !_rotationLocked;
+    });
+    if (_rotationLocked) {
+      final mq = MediaQuery.of(context);
+      final notchLeft = mq.viewPadding.left > mq.viewPadding.right;
+      SystemChrome.setPreferredOrientations([
+        notchLeft
+            ? DeviceOrientation.landscapeLeft
+            : DeviceOrientation.landscapeRight,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -305,7 +450,11 @@ class _FullscreenOverlayState extends State<_FullscreenOverlay> {
                 controller: widget.controller,
                 isFullscreen: true,
                 pipAvailable: widget.pipAvailable,
+                speed: widget.speed,
+                rotationLocked: _rotationLocked,
                 onPlayPause: _togglePlay,
+                onSpeedTap: widget.onSpeedTap,
+                onRotationLockToggle: _toggleRotationLock,
                 onFullscreenToggle: widget.onExit,
                 onPip: widget.onPip,
               ),
@@ -424,16 +573,24 @@ class _PlayerBottomBar extends StatelessWidget {
   final VideoPlayerController controller;
   final bool isFullscreen;
   final bool pipAvailable;
+  final ValueListenable<double> speed;
   final VoidCallback onPlayPause;
+  final VoidCallback onSpeedTap;
   final VoidCallback onFullscreenToggle;
+  final bool? rotationLocked;
+  final VoidCallback? onRotationLockToggle;
   final VoidCallback? onPip;
 
   const _PlayerBottomBar({
     required this.controller,
     required this.isFullscreen,
     required this.pipAvailable,
+    required this.speed,
     required this.onPlayPause,
+    required this.onSpeedTap,
     required this.onFullscreenToggle,
+    this.rotationLocked,
+    this.onRotationLockToggle,
     this.onPip,
   });
 
@@ -491,6 +648,35 @@ class _PlayerBottomBar extends StatelessWidget {
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
                 const Spacer(),
+                ValueListenableBuilder<double>(
+                  valueListenable: speed,
+                  builder: (context, s, _) => TextButton(
+                    onPressed: onSpeedTap,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                    child: Text(
+                      '${s}x',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                if (rotationLocked != null && onRotationLockToggle != null)
+                  IconButton(
+                    icon: Icon(
+                      rotationLocked!
+                          ? Icons.screen_lock_rotation
+                          : Icons.screen_rotation,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    tooltip: rotationLocked! ? 'Mở khóa xoay' : 'Khóa xoay',
+                    onPressed: onRotationLockToggle,
+                  ),
                 if (pipAvailable && onPip != null)
                   IconButton(
                     icon: const Icon(
