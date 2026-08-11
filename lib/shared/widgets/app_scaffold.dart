@@ -1,5 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
@@ -85,6 +87,37 @@ class _GlassBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).padding.bottom;
+    // BackdropFilter trong bottomNavigationBar gây "RenderBox was not laid out"
+    // trên Android emulator (Scaffold vẽ body & nav ở 2 pass riêng). iOS ổn
+    // nên chỉ bật blur trên iOS/macOS, Android dùng kính ảo (đục hơn).
+    final useBlur =
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+    final glass = DecoratedBox(
+      decoration: liquidGlassDecoration(
+        radius: 24,
+        flat: true,
+        backdrop: AppColors.glassBackdrop.withValues(
+          alpha: useBlur ? 0.40 : 0.48,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        child: Row(
+          children: List.generate(_icons.length, (i) {
+            final selected = i == selectedIndex;
+            return Expanded(
+              child: _NavItem(
+                icon: _icons[i],
+                label: _labels[i],
+                selected: selected,
+                onTap: () => onSelect(i),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
     return Padding(
       padding: EdgeInsets.fromLTRB(12, 4, 12, bottomInset == 0 ? 10 : bottomInset),
       child: DecoratedBox(
@@ -94,33 +127,7 @@ class _GlassBottomNav extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: DecoratedBox(
-              decoration: liquidGlassDecoration(
-                radius: 24,
-                flat: true,
-                backdrop: AppColors.glassBackdrop.withValues(alpha: 0.40),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                child: Row(
-                  children: List.generate(_icons.length, (i) {
-                    final selected = i == selectedIndex;
-                    return Expanded(
-                      child: _NavItem(
-                        icon: _icons[i],
-                        label: _labels[i],
-                        selected: selected,
-                        onTap: () => onSelect(i),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-            ),
-          ),
+          child: useBlur ? BackdropFilter(filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), child: glass) : glass,
         ),
       ),
     );
