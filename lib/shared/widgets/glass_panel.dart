@@ -68,27 +68,29 @@ BoxDecoration liquidGlassDecoration({
 }) {
   return BoxDecoration(
     borderRadius: BorderRadius.circular(radius),
-    gradient: GlassStyle.whiteGradient(const [0.09, 0.02, 0.06]),
+    gradient: GlassStyle.whiteGradient(const [0.18, 0.04, 0.09]),
     color: AppColors.glassBackdrop,
-    border: Border.all(color: _white(0.16)),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.55),
-        blurRadius: 40,
-        offset: const Offset(0, 12),
-        spreadRadius: -12,
-      ),
-      BoxShadow(color: _white(0.28), offset: const Offset(0, 1)),
-      BoxShadow(
-        color: _white(0.05),
-        offset: const Offset(0, -1),
-        blurRadius: 0,
-      ),
-      const BoxShadow(
-          color: Color(0x12FFFFFF), offset: Offset(-1, 0), blurRadius: 0),
-      const BoxShadow(
-          color: Color(0x12FFFFFF), offset: Offset(1, 0), blurRadius: 0),
-    ],
+    border: Border.all(color: _white(0.22)),
+    boxShadow: flat
+        ? const []
+        : [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.55),
+              blurRadius: 40,
+              offset: const Offset(0, 12),
+              spreadRadius: -12,
+            ),
+            BoxShadow(color: _white(0.34), offset: const Offset(0, 1)),
+            BoxShadow(
+              color: _white(0.05),
+              offset: const Offset(0, -1),
+              blurRadius: 0,
+            ),
+            const BoxShadow(
+                color: Color(0x14FFFFFF), offset: Offset(-1, 0), blurRadius: 0),
+            const BoxShadow(
+                color: Color(0x14FFFFFF), offset: Offset(1, 0), blurRadius: 0),
+          ],
   );
 }
 

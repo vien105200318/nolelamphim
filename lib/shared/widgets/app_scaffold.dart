@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
@@ -76,21 +78,34 @@ class _GlassBottomNav extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(12, 4, 12, bottomInset == 0 ? 10 : bottomInset),
       child: DecoratedBox(
-        decoration: liquidGlassDecoration(radius: 24),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Row(
-            children: List.generate(_icons.length, (i) {
-              final selected = i == selectedIndex;
-              return Expanded(
-                child: _NavItem(
-                  icon: _icons[i],
-                  label: _labels[i],
-                  selected: selected,
-                  onTap: () => onSelect(i),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: liquidGlassDecoration(radius: 24).boxShadow,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: DecoratedBox(
+              decoration: liquidGlassDecoration(radius: 24, flat: true),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                child: Row(
+                  children: List.generate(_icons.length, (i) {
+                    final selected = i == selectedIndex;
+                    return Expanded(
+                      child: _NavItem(
+                        icon: _icons[i],
+                        label: _labels[i],
+                        selected: selected,
+                        onTap: () => onSelect(i),
+                      ),
+                    );
+                  }),
                 ),
-              );
-            }),
+              ),
+            ),
           ),
         ),
       ),
