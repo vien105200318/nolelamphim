@@ -78,7 +78,7 @@ class _GlassBottomNav extends StatelessWidget {
       child: DecoratedBox(
         decoration: liquidGlassDecoration(radius: 24),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             children: List.generate(_icons.length, (i) {
               final selected = i == selectedIndex;
@@ -123,8 +123,8 @@ class _NavItem extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeOutCubic,
-            width: 48,
-            height: 30,
+            width: 60,
+            height: 38,
             alignment: Alignment.center,
             decoration: selected
                 ? BoxDecoration(
@@ -135,7 +135,7 @@ class _NavItem extends StatelessWidget {
                         AppColors.gradientEnd,
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(19),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.gradientMid.withValues(alpha: 0.45),
@@ -147,7 +147,7 @@ class _NavItem extends StatelessWidget {
                 : null,
             child: Icon(
               icon,
-              size: 21,
+              size: 26,
               color: selected ? Colors.white : AppColors.textMuted,
             ),
           ),
