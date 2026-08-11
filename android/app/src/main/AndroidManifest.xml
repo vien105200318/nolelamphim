@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Cần thiết cho bản release: debug/profile đã có sẵn ở manifest riêng,
+         nhưng bản release phải khai báo ở đây mới tải được API + ảnh poster. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <application
         android:label="nolelamphim"
         android:name="${applicationName}"

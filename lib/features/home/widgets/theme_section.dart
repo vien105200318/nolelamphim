@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_image_cache.dart';
 import '../providers/home_provider.dart';
 
 /// Khối "Chủ đề" — hàng ngang các thẻ kính (ảnh + gradient + nhãn),
@@ -180,6 +181,7 @@ class _ThemeCard extends ConsumerWidget {
     final movie = movies.first;
     return CachedNetworkImage(
       imageUrl: movie.posterUrl ?? movie.thumbUrl ?? '',
+      cacheManager: AppImageCache.instance,
       fit: BoxFit.cover,
       errorWidget: (_, _, _) => Container(color: AppColors.bgCard),
     );

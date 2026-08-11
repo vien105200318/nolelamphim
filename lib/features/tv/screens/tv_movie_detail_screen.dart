@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/movie_detail.dart';
 import '../../../core/models/episode.dart';
+import '../../../shared/widgets/app_image_cache.dart';
 import '../../movie_detail/providers/movie_detail_provider.dart';
 import '../widgets/tv_loading.dart';
 
@@ -58,6 +59,7 @@ class TvMovieDetailScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                   child: CachedNetworkImage(
                     imageUrl: movie.posterUrl ?? '',
+                    cacheManager: AppImageCache.instance,
                     width: 360,
                     height: 520,
                     fit: BoxFit.cover,

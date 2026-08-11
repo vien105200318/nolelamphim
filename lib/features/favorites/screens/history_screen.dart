@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_image_cache.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/glass_panel.dart';
 import '../providers/history_provider.dart';
@@ -89,6 +90,7 @@ class _HistoryRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: CachedNetworkImage(
                 imageUrl: item.thumbUrl ?? '',
+                cacheManager: AppImageCache.instance,
                 width: 56,
                 height: 80,
                 fit: BoxFit.cover,

@@ -177,14 +177,14 @@ class _CategoryRow extends ConsumerWidget {
               ),
             ),
             SizedBox(
-              height: 240,
+              height: 265,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: movies.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 10),
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
                 itemBuilder: (_, index) => SizedBox(
-                  width: 135,
+                  width: 150,
                   child: MovieCard(movie: movies[index]),
                 ),
               ),
@@ -267,12 +267,12 @@ class _GridSkeleton extends StatelessWidget {
       baseColor: AppColors.bgCard,
       highlightColor: AppColors.bgSurface,
       child: GridView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.58,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 14,
+          childAspectRatio: 0.55,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 16,
         ),
         itemCount: 6,
         shrinkWrap: true,

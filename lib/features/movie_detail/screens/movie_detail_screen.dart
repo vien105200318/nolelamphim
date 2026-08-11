@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/models/movie_detail.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_image_cache.dart';
 import '../../../shared/widgets/glass_panel.dart';
 import '../../favorites/providers/favorites_provider.dart';
 import '../providers/movie_detail_provider.dart';
@@ -169,6 +170,7 @@ class _DetailBody extends ConsumerWidget {
           children: [
             CachedNetworkImage(
               imageUrl: _banner,
+              cacheManager: AppImageCache.instance,
               fit: BoxFit.cover,
               errorWidget: (_, _, _) => Container(
                 color: AppColors.bgCard,

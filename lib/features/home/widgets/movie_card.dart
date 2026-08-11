@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_image_cache.dart';
 import '../../favorites/providers/favorites_provider.dart';
 
 enum MovieDot { newMovie, hot }
@@ -74,6 +75,7 @@ class MovieCard extends ConsumerWidget {
                   children: [
                     CachedNetworkImage(
                       imageUrl: movie.thumbUrl ?? '',
+                      cacheManager: AppImageCache.instance,
                       width: width,
                       fit: BoxFit.cover,
                       placeholder: (_, _) => Shimmer.fromColors(
@@ -157,21 +159,21 @@ class MovieCard extends ConsumerWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
               height: 1.25,
             ),
           ),
           if (_meta != null)
             Padding(
-              padding: const EdgeInsets.only(top: 2),
+              padding: const EdgeInsets.only(top: 3),
               child: Text(
                 _meta!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.textMuted,
-                  fontSize: 11,
+                  fontSize: 12,
                 ),
               ),
             ),

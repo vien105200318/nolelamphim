@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/app_image_cache.dart';
 import '../../favorites/providers/history_provider.dart';
 
 /// "Tiếp tục xem" — lịch sử xem gần đây, khớp web `ContinueWatching.astro`.
@@ -97,6 +98,7 @@ class _HistoryCard extends StatelessWidget {
                 children: [
                   CachedNetworkImage(
                     imageUrl: item.thumbUrl ?? '',
+                    cacheManager: AppImageCache.instance,
                     fit: BoxFit.cover,
                     errorWidget: (_, _, _) => Container(
                       color: AppColors.bgCard,
