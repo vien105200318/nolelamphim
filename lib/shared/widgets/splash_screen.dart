@@ -51,6 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (_showChild) return widget.child;
 
     return Stack(
+      alignment: Alignment.topLeft,
       children: [
         widget.child,
         FadeTransition(

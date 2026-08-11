@@ -116,54 +116,53 @@ class _NavItem extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Center(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          height: 36,
-          padding: EdgeInsets.symmetric(horizontal: selected ? 14 : 0),
-          decoration: selected
-              ? BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppColors.gradientStart,
-                      AppColors.gradientMid,
-                      AppColors.gradientEnd,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.gradientMid.withValues(alpha: 0.45),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            width: 48,
+            height: 30,
+            alignment: Alignment.center,
+            decoration: selected
+                ? BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        AppColors.gradientStart,
+                        AppColors.gradientMid,
+                        AppColors.gradientEnd,
+                      ],
                     ),
-                  ],
-                )
-              : null,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 20,
-                color: selected ? Colors.white : AppColors.textMuted,
-              ),
-              if (selected) ...[
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ],
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.gradientMid.withValues(alpha: 0.45),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  )
+                : null,
+            child: Icon(
+              icon,
+              size: 21,
+              color: selected ? Colors.white : AppColors.textMuted,
+            ),
           ),
-        ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? AppColors.textPrimary : AppColors.textMuted,
+            ),
+          ),
+        ],
       ),
     );
   }
