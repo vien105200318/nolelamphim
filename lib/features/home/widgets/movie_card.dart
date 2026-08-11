@@ -1,11 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/widgets/app_image_cache.dart';
+import '../../../shared/widgets/app_network_image.dart';
 import '../../favorites/providers/favorites_provider.dart';
 
 enum MovieDot { newMovie, hot }
@@ -73,17 +72,16 @@ class MovieCard extends ConsumerWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    CachedNetworkImage(
+                    AppNetworkImage(
                       imageUrl: movie.thumbUrl ?? '',
-                      cacheManager: AppImageCache.instance,
                       width: width,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) => Shimmer.fromColors(
+                      placeholder: (_) => Shimmer.fromColors(
                         baseColor: AppColors.bgCard,
                         highlightColor: AppColors.bgSurface,
                         child: Container(color: AppColors.bgCard),
                       ),
-                      errorWidget: (_, _, _) => Container(
+                      error: (_) => Container(
                         color: AppColors.bgCard,
                         child: const Icon(
                           Icons.movie,

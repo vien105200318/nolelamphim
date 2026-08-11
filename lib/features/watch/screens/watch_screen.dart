@@ -1,10 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/episode.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/widgets/app_image_cache.dart';
+import '../../../shared/widgets/app_network_image.dart';
 import '../../../shared/widgets/glass_panel.dart';
 import '../../favorites/providers/history_provider.dart';
 import '../../movie_detail/widgets/report_button.dart';
@@ -175,11 +174,10 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
                     fit: StackFit.expand,
                     children: [
                       if (poster.isNotEmpty)
-                        CachedNetworkImage(
+                        AppNetworkImage(
                           imageUrl: poster,
-                          cacheManager: AppImageCache.instance,
                           fit: BoxFit.cover,
-                          errorWidget: (_, _, _) => Container(color: Colors.black),
+                          error: (_) => Container(color: Colors.black),
                         ),
                       Container(color: Colors.black.withValues(alpha: 0.35)),
                       Center(

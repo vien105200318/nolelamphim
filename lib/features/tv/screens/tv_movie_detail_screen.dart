@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/movie_detail.dart';
 import '../../../core/models/episode.dart';
-import '../../../shared/widgets/app_image_cache.dart';
+import '../../../shared/widgets/app_network_image.dart';
 import '../../movie_detail/providers/movie_detail_provider.dart';
 import '../widgets/tv_loading.dart';
 
@@ -57,18 +56,17 @@ class TvMovieDetailScreen extends ConsumerWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: CachedNetworkImage(
+                  child: AppNetworkImage(
                     imageUrl: movie.posterUrl ?? '',
-                    cacheManager: AppImageCache.instance,
                     width: 360,
                     height: 520,
                     fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
+                    placeholder: (_) => Container(
                       width: 360,
                       height: 520,
                       color: AppColors.bgCard,
                     ),
-                    errorWidget: (_, _, _) => Container(
+                    error: (_) => Container(
                       width: 360,
                       height: 520,
                       color: AppColors.bgCard,

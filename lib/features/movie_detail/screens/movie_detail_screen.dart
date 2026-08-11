@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/models/movie_detail.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/widgets/app_image_cache.dart';
+import '../../../shared/widgets/app_network_image.dart';
 import '../../../shared/widgets/glass_panel.dart';
 import '../../favorites/providers/favorites_provider.dart';
 import '../providers/movie_detail_provider.dart';
@@ -168,11 +167,10 @@ class _DetailBody extends ConsumerWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            CachedNetworkImage(
+            AppNetworkImage(
               imageUrl: _banner,
-              cacheManager: AppImageCache.instance,
               fit: BoxFit.cover,
-              errorWidget: (_, _, _) => Container(
+              error: (_) => Container(
                 color: AppColors.bgCard,
                 child: const Icon(Icons.movie,
                     size: 64, color: AppColors.textMuted),

@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/models/movie.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/widgets/app_image_cache.dart';
+import '../../../shared/widgets/app_network_image.dart';
 
 /// Hero carousel mobile — khớp web `HeroCarousel.astro`:
 /// tự chạy (autoplay), overlay gradient dưới lên, pill "Nổi bật · năm"
@@ -163,21 +162,10 @@ class _HeroSlide extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              CachedNetworkImage(
+              AppNetworkImage(
                 imageUrl: imageUrl,
-                cacheManager: AppImageCache.instance,
                 fit: BoxFit.cover,
-                placeholder: (_, _) => Container(
-                  color: AppColors.bgCard,
-                  child: const Center(
-                    child: Icon(
-                      Icons.movie,
-                      size: 48,
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                ),
-                errorWidget: (_, _, _) => Container(
+                placeholder: (_) => Container(
                   color: AppColors.bgCard,
                   child: const Center(
                     child: Icon(

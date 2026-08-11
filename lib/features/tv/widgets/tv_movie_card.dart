@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/movie.dart';
-import '../../../shared/widgets/app_image_cache.dart';
+import '../../../shared/widgets/app_network_image.dart';
 
 class TvMovieCard extends StatelessWidget {
   final Movie movie;
@@ -43,12 +42,11 @@ class TvMovieCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CachedNetworkImage(
+                  AppNetworkImage(
                     imageUrl: movie.thumbUrl ?? movie.posterUrl ?? '',
-                    cacheManager: AppImageCache.instance,
                     fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(color: AppColors.bgCard),
-                    errorWidget: (_, _, _) => Container(
+                    placeholder: (_) => Container(color: AppColors.bgCard),
+                    error: (_) => Container(
                       color: AppColors.bgCard,
                       child: const Icon(Icons.movie, color: AppColors.textMuted, size: 32),
                     ),

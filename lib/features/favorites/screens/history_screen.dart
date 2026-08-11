@@ -1,9 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/widgets/app_image_cache.dart';
+import '../../../shared/widgets/app_network_image.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/glass_panel.dart';
 import '../providers/history_provider.dart';
@@ -88,13 +87,12 @@ class _HistoryRow extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
+              child: AppNetworkImage(
                 imageUrl: item.thumbUrl ?? '',
-                cacheManager: AppImageCache.instance,
                 width: 56,
                 height: 80,
                 fit: BoxFit.cover,
-                errorWidget: (_, _, _) => Container(
+                error: (_) => Container(
                   width: 56,
                   height: 80,
                   color: AppColors.bgCard,

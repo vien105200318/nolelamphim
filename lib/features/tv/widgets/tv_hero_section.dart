@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/movie.dart';
-import '../../../shared/widgets/app_image_cache.dart';
+import '../../../shared/widgets/app_network_image.dart';
 
 class TvHeroSection extends StatefulWidget {
   final List<Movie> movies;
@@ -119,12 +118,11 @@ class _HeroCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    CachedNetworkImage(
+                    AppNetworkImage(
                       imageUrl: movie.posterUrl ?? movie.thumbUrl ?? '',
-                      cacheManager: AppImageCache.instance,
                       fit: BoxFit.cover,
-                      placeholder: (_, _) => Container(color: AppColors.bgCard),
-                      errorWidget: (_, _, _) => Container(
+                      placeholder: (_) => Container(color: AppColors.bgCard),
+                      error: (_) => Container(
                         color: AppColors.bgCard,
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
