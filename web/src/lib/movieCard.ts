@@ -48,7 +48,7 @@ export function movieCardHTML(movie: CardMovie, dot?: 'new' | 'hot'): string {
       <div class="relative aspect-[2/3] rounded-xl overflow-hidden bg-bg-card glass-frame poster-shell${movie.thumb_url ? ' shimmer' : ''} transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:shadow-[0_18px_40px_-12px_rgba(196,75,237,0.3)] group-hover:ring-1 group-hover:ring-[#C44BED]/35">
         ${
           movie.thumb_url
-            ? `<img src="${escapeHTML(imgUrl(movie.thumb_url, 320))}" alt="${name}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />`
+            ? `<img src="${escapeHTML(imgUrl(movie.thumb_url, 320))}" srcset="${escapeHTML(imgUrl(movie.thumb_url, 160))} 160w, ${escapeHTML(imgUrl(movie.thumb_url, 320))} 320w, ${escapeHTML(imgUrl(movie.thumb_url, 640))} 640w" sizes="(max-width: 640px) 160px, (max-width: 1024px) 320px, 320px" width="320" height="480" alt="${name}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />`
             : `<div class="w-full h-full flex items-center justify-center text-text-muted"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M18 3v2h-2V3H8v2H6V3H4v18h2v-2h2v2h8v-2h2v2h2V3h-2zM8 17H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6V7h2v2zm10 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/></svg></div>`
         }
         <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"></div>
