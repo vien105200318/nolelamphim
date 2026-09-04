@@ -1,0 +1,441 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { SITE_URL } from '../lib/site'
+
+const title = 'Phim DNA — Khám phá DNA phim của bạn'
+const description = 'Trả lời 5 câu hỏi ngắn để khám phá "DNA phim" cá nhân. Bạn là Nhà Thám Hiểm Lãng Mạn hay Chiến Binh Đêm? Xem ngay!'
+---
+
+<BaseLayout title={title} description={description} ogImage={`${SITE_URL}/phim-dna.png`}>
+  <div id="phim-dna" class="max-w-3xl mx-auto px-4 py-8 min-h-[80vh]">
+
+    <!-- LANDING -->
+    <div id="dna-landing" class="flex flex-col items-center justify-center text-center gap-6 py-16">
+      <div class="text-6xl mb-2">🧬</div>
+      <h1 class="text-3xl sm:text-4xl font-bold text-text-primary leading-tight">Phim DNA</h1>
+      <p class="text-text-secondary text-sm sm:text-base max-w-md leading-relaxed">
+        Mỗi người có một "DNA phim" riêng. Trả lời 5 câu hỏi ngắn — chúng tôi sẽ phân tích thể loại yêu thích của bạn và gợi ý phim hợp nhất.
+      </p>
+      <button
+        id="dna-start"
+        class="mt-4 px-8 py-3 rounded-2xl bg-gradient-to-r from-[#FF6B9D] to-[#C44BED] text-white font-semibold text-sm shadow-[0_8px_32px_rgba(196,75,237,0.4)] hover:shadow-[0_12px_40px_rgba(196,75,237,0.5)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+      >
+        Bắt đầu ngay
+      </button>
+      <p class="text-text-muted text-xs">Chỉ mất 30 giây</p>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="dna-quiz" class="hidden">
+      <div class="flex items-center gap-3 mb-6">
+        <span id="dna-progress-text" class="text-xs text-text-muted font-medium">1 / 5</span>
+        <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div id="dna-progress-bar" class="h-full rounded-full bg-gradient-to-r from-[#FF6B9D] to-[#C44BED] transition-all duration-500 ease-out" style="width:20%"></div>
+        </div>
+      </div>
+      <h2 id="dna-question-title" class="text-xl sm:text-2xl font-bold text-text-primary mb-6"></h2>
+      <div id="dna-options" class="grid grid-cols-2 gap-3"></div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="dna-result" class="hidden">
+      <div class="text-center mb-8">
+        <div id="dna-avatar" class="text-6xl mb-3"></div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-text-primary mb-2">Bạn là...</h1>
+        <h2 id="dna-type-name" class="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#FF6B9D] via-[#C44BED] to-[#4A9EFF] mb-2"></h2>
+        <p id="dna-type-desc" class="text-text-secondary text-sm max-w-md mx-auto leading-relaxed"></p>
+      </div>
+
+      <!-- DNA BARS -->
+      <div class="mb-8">
+        <h3 class="text-sm font-semibold text-text-secondary mb-4">DNA Phim của bạn</h3>
+        <div id="dna-bars" class="space-y-3"></div>
+      </div>
+
+      <!-- RECOMMENDATIONS -->
+      <div class="mb-8">
+        <h3 class="text-sm font-semibold text-text-secondary mb-4">Phim dành cho bạn</h3>
+        <div id="dna-movies" class="space-y-3"></div>
+      </div>
+
+      <!-- SHARE -->
+      <div class="text-center space-y-3 mb-8">
+        <button
+          id="dna-share"
+          class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B9D] to-[#C44BED] text-white font-semibold text-sm shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+        >
+          Chia sẻ kết quả
+        </button>
+        <button
+          id="dna-retry"
+          class="px-6 py-2.5 rounded-xl glass-tile text-text-secondary text-sm font-medium hover:text-white transition-colors"
+        >
+          Làm lại
+        </button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="dna-loading" class="hidden flex flex-col items-center justify-center py-20 gap-4">
+      <div class="w-10 h-10 border-3 border-[#C44BED]/30 border-t-[#C44BED] rounded-full animate-spin"></div>
+      <p class="text-text-muted text-sm">Đang phân tích DNA phim của bạn...</p>
+    </div>
+  </div>
+
+  <script>
+    // @ts-nocheck
+    // --- DNA PROFILE TYPES ---
+    const DNA_PROFILES = [
+      {
+        id: 'romantic-explorer',
+        name: 'Nhà Thám Hiểm Lãng Mạn',
+        emoji: '🧭💕',
+        desc: 'Bạn yêu thích những cuộc phiêu lưu đầy cảm xúc — nơi hành động gặp gỡ tình yêu, và mỗi chuyến đi đều có ý nghĩa.',
+        genres: ['lang-man', 'phieu-luu'],
+        color1: '#FF6B9D',
+        color2: '#C44BED',
+      },
+      {
+        id: 'night-warrior',
+        name: 'Chiến Binh Đêm',
+        emoji: '⚔️🌑',
+        desc: 'Bạn bị thu hút bởi sự hồi hộp, kịch tính và những trận chiến nghẹt thở. Đêm khuya là lúc bạn thăng hoa.',
+        genres: ['hanh-dong', 'giat-gan'],
+        color1: '#FF6B9D',
+        color2: '#FF4444',
+      },
+      {
+        id: 'mastermind',
+        name: 'Bộ Não Hack Não',
+        emoji: '🧠🔮',
+        desc: 'Bạn thích suy luận, khám phá bí ẩn và những bộ phim thách thức tư duy. Không gì thỏa mãn bằng một plot twist hoàn hảo.',
+        genres: ['bi-an', 'khoa-hoc-vien-tuong'],
+        color1: '#4A9EFF',
+        color2: '#C44BED',
+      },
+      {
+        id: 'storyteller',
+        name: 'Người Kể Chuyện',
+        emoji: '📖✨',
+        desc: 'Bạn sống vì cảm xúc, thích những câu chuyện sâu sắc về con người, gia đình và cuộc sống. Mỗi bộ phim là một bài học.',
+        genres: ['drama', 'gia-dinh'],
+        color1: '#FFB03C',
+        color2: '#FF6B9D',
+      },
+      {
+        id: 'comedy-king',
+        name: 'Hoàng Tử/Нữ Hoàng Cười',
+        emoji: '😂👑',
+        desc: 'Bạn mang theo tiếng cười! Bạn thích những bộ phim vui nhộn, thoải mái và luôn tìm thấy niềm vui trong cuộc sống.',
+        genres: ['hai', 'hoat-hinh'],
+        color1: '#FFD700',
+        color2: '#00D6C8',
+      },
+      {
+        id: 'dark-hunter',
+        name: 'Thợ Săn Bóng Tối',
+        emoji: '🦇💀',
+        desc: 'Bạn không sợ bóng tối — bạn tò mò về nó. Kinh dị, hình sự, những góc khuất của xã hội thu hút bạn.',
+        genres: ['kinh-di', 'toi-pham'],
+        color1: '#8B00FF',
+        color2: '#FF4444',
+      },
+      {
+        id: 'time-traveler',
+        name: 'Nhà Du Hành Thời Gian',
+        emoji: '🚀⏰',
+        desc: 'Tương lai, quá khứ, những thế giới chưa tồn tại — bạn luôn mơ về điều không thể và tin vào vô hạn.',
+        genres: ['khoa-hoc-vien-tuong', 'gia-tuong'],
+        color1: '#00D6C8',
+        color2: '#4A9EFF',
+      },
+    ]
+
+    // --- QUIZ DATA ---
+    const QUESTIONS = [
+      {
+        q: 'Tâm trạng hôm nay?',
+        options: [
+          { label: 'Tươi sáng', emoji: '🌟', scores: { hai: 2, 'gia-dinh': 1, 'lang-man': 1 } },
+          { label: 'U tối', emoji: '🌑', scores: { 'giat-gan': 2, 'bi-an': 1, 'kinh-di': 1 } },
+          { label: 'Hồi hộp', emoji: '⚡', scores: { 'hanh-dong': 2, 'phieu-luu': 1, 'hinh-su': 1 } },
+          { label: 'Rùng mình', emoji: '💀', scores: { 'kinh-di': 2, 'giat-gan': 1, 'bi-an': 1 } },
+        ],
+      },
+      {
+        q: 'Bạn thích bối cảnh nào?',
+        options: [
+          { label: 'Hiện đại', emoji: '🏙️', scores: { drama: 2, 'hinh-su': 1, 'lang-man': 1 } },
+          { label: 'Cổ đại', emoji: '🏯', scores: { 'co-trang': 2, 'vo-thuat': 1, 'gia-tuong': 1 } },
+          { label: 'Tương lai', emoji: '🚀', scores: { 'khoa-hoc-vien-tuong': 2, 'hanh-dong': 1, 'phieu-luu': 1 } },
+          { label: 'Kỳ ảo', emoji: '🧙', scores: { 'gia-tuong': 2, 'phieu-luu': 1, 'hoat-hinh': 1 } },
+        ],
+      },
+      {
+        q: 'Tốc độ phim bạn thích?',
+        options: [
+          { label: 'Nhanh, bùng nổ', emoji: '🏃', scores: { 'hanh-dong': 2, 'phieu-luu': 1, 'giat-gan': 1 } },
+          { label: 'Trung bình', emoji: '🚶', scores: { drama: 2, hai: 1, 'lang-man': 1 } },
+          { label: 'Chậm, lắng đọng', emoji: '🧘', scores: { drama: 2, 'bi-an': 1, 'lang-man': 1 } },
+          { label: 'Thay đổi liên tục', emoji: '🎢', scores: { 'giat-gan': 2, 'hanh-dong': 1, 'bi-an': 1 } },
+        ],
+      },
+      {
+        q: 'Chủ đề yêu thích?',
+        options: [
+          { label: 'Tình cảm con người', emoji: '💕', scores: { 'lang-man': 2, drama: 1, 'gia-dinh': 1 } },
+          { label: 'Hành động đốt cháy', emoji: '💥', scores: { 'hanh-dong': 2, 'phieu-luu': 1, 'hinh-su': 1 } },
+          { label: 'Gia đình ấm áp', emoji: '🏠', scores: { 'gia-dinh': 2, hai: 1, 'hoat-hinh': 1 } },
+          { label: 'Trí tuệ hack não', emoji: '🧠', scores: { 'bi-an': 2, 'khoa-hoc-vien-tuong': 1, 'giat-gan': 1 } },
+        ],
+      },
+      {
+        q: 'Cuối ngày, bạn muốn...',
+        options: [
+          { label: 'Thư giãn', emoji: '😌', scores: { hai: 2, 'hoat-hinh': 1, 'lang-man': 1 } },
+          { label: 'Cười nghiêng ngả', emoji: '😂', scores: { hai: 2, 'gia-dinh': 1, 'lang-man': 1 } },
+          { label: 'Xúc động', emoji: '😢', scores: { drama: 2, 'lang-man': 1, 'gia-dinh': 1 } },
+          { label: 'Suy nghĩ', emoji: '🤔', scores: { 'bi-an': 2, 'khoa-hoc-vien-tuong': 1, 'giat-gan': 1 } },
+        ],
+      },
+    ]
+
+    // --- GENRE TOTALS for normalization ---
+    const GENRE_MAX_SCORES: Record<string, number> = {}
+    QUESTIONS.forEach((q) =>
+      q.options.forEach((o) =>
+        Object.entries(o.scores).forEach(([g, s]) => {
+          GENRE_MAX_SCORES[g] = (GENRE_MAX_SCORES[g] || 0) + s
+        })
+      )
+    )
+
+    // --- STATE ---
+    let currentQ = 0
+    const answers: number[] = []
+
+    // --- DOM ---
+    const $ = (sel: string) => document.querySelector<HTMLElement>(sel)
+    const landing = $('#dna-landing')
+    const quiz = $('#dna-quiz')
+    const result = $('#dna-result')
+    const loading = $('#dna-loading')
+    const progressText = $('#dna-progress-text')
+    const progressBar = $('#dna-progress-bar')
+    const questionTitle = $('#dna-question-title')
+    const optionsEl = $('#dna-options')
+
+    // --- START ---
+    $('#dna-start')?.addEventListener('click', () => {
+      landing.classList.add('hidden')
+      quiz.classList.remove('hidden')
+      renderQuestion()
+    })
+
+    // --- RENDER QUESTION ---
+    function renderQuestion() {
+      const q = QUESTIONS[currentQ]
+      questionTitle.textContent = q.q
+      progressText.textContent = `${currentQ + 1} / ${QUESTIONS.length}`
+      progressBar.style.width = `${((currentQ + 1) / QUESTIONS.length) * 100}%`
+
+      optionsEl.innerHTML = ''
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button')
+        btn.className =
+          'flex flex-col items-center gap-2 p-4 rounded-2xl glass-tile hover:bg-white/[0.08] hover:border-[#C44BED]/40 border border-white/10 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]'
+        btn.innerHTML = `
+          <span class="text-3xl">${opt.emoji}</span>
+          <span class="text-text-secondary text-sm font-medium">${opt.label}</span>
+        `
+        btn.addEventListener('click', () => selectOption(i))
+        optionsEl.appendChild(btn)
+      })
+    }
+
+    // --- SELECT OPTION ---
+    function selectOption(idx) {
+      answers.push(idx)
+      currentQ++
+      if (currentQ < QUESTIONS.length) {
+        renderQuestion()
+      } else {
+        showResult()
+      }
+    }
+
+    // --- CALCULATE DNA ---
+    function calculateDNA() {
+      const totals: Record<string, number> = {}
+      answers.forEach((ansIdx, qIdx) => {
+        const opt = QUESTIONS[qIdx].options[ansIdx]
+        Object.entries(opt.scores).forEach(([g, s]) => {
+          totals[g] = (totals[g] || 0) + s
+        })
+      })
+
+      const normalized = Object.entries(totals)
+        .map(([genre, score]) => ({
+          genre,
+          score,
+          pct: Math.round((score / (GENRE_MAX_SCORES[genre] || 1)) * 100),
+        }))
+        .sort((a, b) => b.score - a.score)
+
+      // match to DNA profile
+      const topGenres = normalized.slice(0, 2).map((n) => n.genre)
+      let bestProfile = DNA_PROFILES[0]
+      let bestMatch = 0
+      DNA_PROFILES.forEach((p) => {
+        const overlap = p.genres.filter((g) => topGenres.includes(g)).length
+        const totalScore = p.genres.reduce((sum, g) => sum + (totals[g] || 0), 0)
+        const score = overlap * 100 + totalScore
+        if (score > bestMatch) {
+          bestMatch = score
+          bestProfile = p
+        }
+      })
+
+      return { profile: bestProfile, genres: normalized }
+    }
+
+    // --- GENRE DISPLAY NAMES ---
+    const GENRE_NAMES: Record<string, string> = {
+      'hai': 'Hài',
+      'hanh-dong': 'Hành Động',
+      'lang-man': 'Lãng Mạn',
+      'drama': 'Drama',
+      'gia-dinh': 'Gia Đình',
+      'bi-an': 'Bí Ẩn',
+      'giat-gan': 'Giật Gân',
+      'kinh-di': 'Kinh Dị',
+      'khoa-hoc-vien-tuong': 'Khoa Học Viễn Tưởng',
+      'gia-tuong': 'Giả Tưởng',
+      'phieu-luu': 'Phiêu Lưu',
+      'hinh-su': 'Hình Sự',
+      'hoat-hinh': 'Hoạt Hình',
+      'co-trang': 'Cổ Trang',
+      'vo-thuat': 'Võ Thuật',
+      'hoc-duong': 'Học Đường',
+    }
+
+    // --- SHOW RESULT ---
+    async function showResult() {
+      quiz.classList.add('hidden')
+      loading.classList.remove('hidden')
+
+      const { profile, genres } = calculateDNA()
+
+      // render profile
+      $('#dna-avatar')!.textContent = profile.emoji
+      $('#dna-type-name')!.textContent = profile.name
+      $('#dna-type-desc')!.textContent = profile.desc
+
+      // render DNA bars (top 6 genres)
+      const barsEl = $('#dna-bars')!
+      barsEl.innerHTML = ''
+      const top6 = genres.slice(0, 6)
+      top6.forEach((g, i) => {
+        const name = GENRE_NAMES[g.genre] || g.genre
+        const pct = g.pct
+        const bar = document.createElement('div')
+        bar.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs text-text-secondary font-medium">${name}</span>
+            <span class="text-xs text-text-muted">${pct}%</span>
+          </div>
+          <div class="h-2.5 rounded-full bg-white/10 overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-1000 ease-out" style="width:0%;background:linear-gradient(90deg,${profile.color1},${profile.color2})"></div>
+          </div>
+        `
+        barsEl.appendChild(bar)
+        // animate bar
+        setTimeout(() => {
+          const inner = bar.querySelector<HTMLElement>('div > div:last-child')
+          if (inner) inner.style.width = `${pct}%`
+        }, 100 + i * 120)
+      })
+
+      // fetch movies for top 2 genres
+      const moviesEl = $('#dna-movies')!
+      moviesEl.innerHTML = ''
+      const fetchGenres = profile.genres.slice(0, 2)
+
+      // fetch movies from the top genre categories
+      const allMovies = []
+      for (const genreSlug of fetchGenres) {
+        try {
+          const res = await fetch(`https://vsmov.com/api/the-loai/${genreSlug}?page=1&limit=4`, {
+            signal: AbortSignal.timeout(8000),
+          })
+          if (res.ok) {
+            const data = await res.json()
+            const items = data?.items || data?.data?.items || []
+            allMovies.push(...items.slice(0, 3))
+          }
+        } catch {}
+      }
+
+      // deduplicate by slug
+      const seen = new Set()
+      const unique = allMovies.filter((m) => {
+        if (!m.slug || seen.has(m.slug)) return false
+        seen.add(m.slug)
+        return true
+      })
+
+      if (unique.length > 0) {
+        unique.slice(0, 6).forEach((m) => {
+          const name = m.name || m.origin_name || 'Phim không tên'
+          const year = m.year ? ` (${m.year})` : ''
+          const episode = m.episode_current || ''
+          const card = document.createElement('a')
+          card.href = `/phim/${m.slug}`
+          card.className =
+            'flex items-center gap-3 p-3 rounded-xl glass-tile hover:bg-white/[0.06] transition-all duration-200 group'
+          card.innerHTML = `
+            ${m.thumb_url ? `<img src="${m.thumb_url.startsWith('http') ? m.thumb_url : 'https://vsmov.com' + m.thumb_url}" alt="" class="w-12 h-[72px] rounded-lg object-cover shrink-0" loading="lazy" decoding="async" />` : ''}
+            <div class="min-w-0">
+              <p class="text-sm text-text-primary font-medium truncate group-hover:text-white transition-colors">${name}${year}</p>
+              ${episode ? `<p class="text-xs text-text-muted mt-0.5">${episode}</p>` : ''}
+            </div>
+          `
+          moviesEl.appendChild(card)
+        })
+      } else {
+        moviesEl.innerHTML = '<p class="text-text-muted text-xs">Không thể tải phim gợi ý lúc này. Thử lại sau!</p>'
+      }
+
+      loading!.classList.add('hidden')
+      result!.classList.remove('hidden')
+    }
+
+    // --- SHARE ---
+    $('#dna-share')?.addEventListener('click', async () => {
+      const { profile } = calculateDNA()
+      const text = `Tôi là "${profile.name}" ${profile.emoji} trên Nô Lệ Làm Phim!\n\n${profile.desc}\n\nKhám phá DNA phim của bạn:`
+      const url = window.location.href
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'Phim DNA', text, url })
+        } catch {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(`${text}\n${url}`)
+          alert('Đã sao chép kết quả!')
+        } catch {
+          prompt('Sao chép kết quả:', `${text}\n${url}`)
+        }
+      }
+    })
+
+    // --- RETRY ---
+    $('#dna-retry')?.addEventListener('click', () => {
+      currentQ = 0
+      answers.length = 0
+      result!.classList.add('hidden')
+      quiz!.classList.remove('hidden')
+      renderQuestion()
+    })
+  </script>
+</BaseLayout>
