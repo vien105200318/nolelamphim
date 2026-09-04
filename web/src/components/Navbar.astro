@@ -72,6 +72,15 @@ const activeIndex = links.findIndex((l) => isActive(pathname, l.href))
           })
         }
       </div>
+
+      <div class="hidden md:flex items-center gap-1.5 shrink-0">
+        <a href="/api/random" class="w-9 h-9 rounded-xl glass-tile flex items-center justify-center text-text-secondary hover:text-white transition-colors" aria-label="Phim bất kỳ" title="Phim bất kỳ">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7h4l6 10h4M3 7l-1-1M10 11l2 2m7-6l3-3m0 0l-3-3m3 3H16m5 10l-3 3m0-3l3-3m-3 3h-3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="/phim-dna" class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FF6B9D]/25 to-[#C44BED]/25 border border-[#C44BED]/30 flex items-center justify-center text-[#FF6B9D] hover:text-white transition-colors" aria-label="Phim DNA" title="Phim DNA">
+          <span class="text-sm">🧬</span>
+        </a>
+      </div>
     </div>
 
     <div class="mode-switch relative hidden sm:block shrink-0">
@@ -209,6 +218,14 @@ const activeIndex = links.findIndex((l) => isActive(pathname, l.href))
             )
           })
         }
+        <div class="flex items-center gap-2 px-3 py-2 mt-1 border-t border-white/5">
+          <a href="/api/random" class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl glass-tile text-text-secondary text-sm font-medium hover:text-white transition-colors">
+            🎲 Phim bất kỳ
+          </a>
+          <a href="/phim-dna" class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6B9D]/20 to-[#C44BED]/20 border border-[#C44BED]/30 text-[#FF6B9D] text-sm font-medium hover:text-white transition-colors">
+            🧬 Phim DNA
+          </a>
+        </div>
       </div>
     </div>
   </div>
