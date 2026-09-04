@@ -51,6 +51,25 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
           </button>
         ))
     }
+
+    <form id="episode-jump" class="episode-jump ml-auto flex items-center gap-1.5 hidden" role="search" aria-label="Nhảy tới tập">
+      <input
+        id="episode-jump-input"
+        type="number"
+        min="1"
+        inputmode="numeric"
+        placeholder="Số tập"
+        aria-label="Nhập số tập"
+        class="w-20 px-2.5 py-1.5 rounded-xl glass-tile bg-transparent text-text-secondary text-xs outline-none placeholder:text-text-muted focus:ring-1 focus:ring-[#C44BED]/40 text-center"
+      />
+      <button
+        type="submit"
+        class="px-3 py-1.5 rounded-xl glass-tile text-text-secondary text-xs hover:text-white transition-colors"
+      >
+        Nhảy
+      </button>
+    </form>
+
     {
       totalPages > 1 && (
         <span class="ep-count text-[11px] text-text-muted ml-auto">
@@ -118,9 +137,28 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
     const pagination = document.getElementById('episode-pagination')
     const serverBtns = Array.from(list.querySelectorAll<HTMLButtonElement>('.ep-server'))
     const countEl = list.querySelector<HTMLElement>('.ep-count')
+    const jumpForm = document.getElementById('episode-jump') as HTMLFormElement | null
+    const jumpInput = document.getElementById('episode-jump-input') as HTMLInputElement | null
 
     let serverIdx = 0
     let page = 1
+
+    function toggleJumpVisibility() {
+      const totalItems = currentServer().items.length
+      if (jumpForm) jumpForm.classList.toggle('hidden', totalItems <= PER_PAGE)
+    }
+
+    jumpForm?.addEventListener('submit', (e) => {
+      e.preventDefault()
+      const value = Number(jumpInput?.value)
+      if (!value || Number.isNaN(value)) return
+      const items = currentServer().items
+      const it = items.find((x) => {
+        const num = Number((x.name || '').match(/\d+/)?.[0])
+        return num === value
+      })
+      if (it) window.location.href = `/xem/${slug}/${it.slug}`
+    })
 
     function currentServer() {
       return servers[serverIdx] || servers[0] || { name: '', items: [] }
@@ -169,6 +207,7 @@ const dataAttr = serverData.length > 0 ? JSON.stringify(serverData) : '[]'
       })
 
       if (countEl) countEl.textContent = `${items.length} tập`
+      toggleJumpVisibility()
 
       if (pagination) {
         pagination.innerHTML =

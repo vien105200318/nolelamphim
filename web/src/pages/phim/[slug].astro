@@ -72,7 +72,7 @@ const breadcrumb = [
   { name: 'Trang chủ', path: '/' },
   { name: movie.name, path: `/phim/${slug}` },
 ]
-const ogImage = image ? `${SITE_URL}${imgUrl(image, 1200)}` : undefined
+const ogImage = `${SITE_URL}/og/${slug}.png`
 
 function youtubeEmbedUrl(url: string | null | undefined): string {
   if (!url) return ''
