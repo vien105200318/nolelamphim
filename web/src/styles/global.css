@@ -175,9 +175,11 @@ body::before {
 }
 
 /* Dropdown (suggestions, filter) — nền đục hơn glass-tile để chữ nổi rõ khi
-   che poster/section phía dưới, vẫn giữ liquid glass look với blur */
+   che poster/section phía dưới, vẫn giữ liquid glass look với blur.
+   KHÔNG set position ở đây: dropdown dùng utility `absolute` từ Tailwind
+   (định vị theo `.relative` cha). Set position:relative ở đây sẽ ghi đè
+   `.absolute` trong @layer utilities và làm dropdown nằm trong flow (bị chèn). */
 .glass-dropdown {
-  position: relative;
   isolation: isolate;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.035) 45%, rgba(255, 255, 255, 0.07) 100%),
