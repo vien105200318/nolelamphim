@@ -3,6 +3,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro'
 import ReportButton from '../../../components/ReportButton.astro'
 import { getMovieDetail, getMovieEpisodes } from '../../../lib/api'
 import { imgUrl } from '../../../lib/img'
+import { SITE_URL } from '../../../lib/site'
 import { breadcrumbLd } from '../../../lib/seo'
 
 const slug = Astro.params.slug ?? ''
@@ -46,7 +47,7 @@ const breadcrumb = [
 ]
 ---
 
-<BaseLayout title={pageTitle} description={`Xem ${movie.name} ${currentEp ? `tập ${currentEp.name}` : ''} HD VietSub miễn phí tại Nô Lệ Làm Phim.`}>
+<BaseLayout title={pageTitle} description={`Xem ${movie.name} ${currentEp ? `tập ${currentEp.name}` : ''} HD VietSub miễn phí tại Nô Lệ Làm Phim.`} ogImage={`${SITE_URL}/og/${slug}.png`}>
   <script is:inline set:html={breadcrumbLd(breadcrumb)} type="application/ld+json" />
   {embedOrigin && <link rel="preconnect" href={embedOrigin} slot="head" />}
   {
