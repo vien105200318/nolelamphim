@@ -78,6 +78,13 @@ Astro.response.headers.set(
     </a>
     <Navbar />
     <main class="flex-1" id="main-content">
+      <noscript>
+        <div class="mx-auto max-w-xl mt-8 p-4 rounded-xl glass-tile text-center">
+          <p class="text-text-secondary text-sm">
+            Trang này cần JavaScript để hoạt động. Vui lòng bật JavaScript trong trình duyệt.
+          </p>
+        </div>
+      </noscript>
       <slot />
     </main>
     <Footer />
