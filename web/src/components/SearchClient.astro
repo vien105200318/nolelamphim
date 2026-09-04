@@ -13,132 +13,174 @@ interface Props {
 const { initialQuery = '', initialResults = [], initialLabel = '', initialTotalPages = 1, initialFilter = null } = Astro.props
 
 const filterConfig = [
-  { key: 'category', label: 'Thể loại' },
-  { key: 'country', label: 'Quốc gia' },
-  { key: 'year', label: 'Năm' },
+  { key: 'category', label: 'Thể loại', hint: 'Chọn thể loại' },
+  { key: 'country', label: 'Quốc gia', hint: 'Chọn quốc gia' },
+  { key: 'year', label: 'Năm', hint: 'Chọn năm' },
 ]
 ---
 
-<div
-  class="search-client px-4 md:px-8 py-6"
-  data-initial-results={JSON.stringify(
-    initialResults.map((m) => ({
-      slug: m.slug,
-      name: m.name,
-      year: m.year,
-      thumb_url: m.thumb_url,
-      episode_current: m.episode_current,
-      quality: m.quality,
-      lang: m.lang,
-      tmdb_vote: m.tmdb?.vote_average,
-    })),
-  )}
-  data-initial-label={initialLabel}
-  data-initial-total-pages={initialTotalPages}
-  data-initial-filter={initialFilter ? JSON.stringify(initialFilter) : ''}
->
+<main class="search-client px-4 md:px-8 py-6 md:py-8 max-w-[1600px] mx-auto w-full">
+  <div
+    class="sr-only"
+    data-initial-results={JSON.stringify(
+      initialResults.map((m) => ({
+        slug: m.slug,
+        name: m.name,
+        year: m.year,
+        thumb_url: m.thumb_url,
+        episode_current: m.episode_current,
+        quality: m.quality,
+        lang: m.lang,
+        tmdb_vote: m.tmdb?.vote_average,
+      })),
+    )}
+    data-initial-label={initialLabel}
+    data-initial-total-pages={initialTotalPages}
+    data-initial-filter={initialFilter ? JSON.stringify(initialFilter) : ''}
+  />
+
+  <div class="mb-6 md:mb-8">
+    <h1 class="text-xl md:text-2xl font-semibold text-text-primary mb-1">Tìm kiếm phim</h1>
+    <p class="text-sm text-text-secondary">Tra cứu theo tên phim hoặc lọc theo thể loại, quốc gia, năm phát hành.</p>
+  </div>
+
   <div class="relative mb-5">
-    <div class="glass-tile rounded-2xl px-5 py-3.5 flex items-center gap-3">
-      <svg class="w-5 h-5 shrink-0 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="glass-tile group rounded-2xl md:rounded-3xl px-4 md:px-5 py-4 flex items-center gap-3 transition-shadow focus-within:ring-2 focus-within:ring-[#C44BED]/40 focus-within:ring-offset-2 focus-within:ring-offset-transparent">
+      <svg class="w-5 h-5 shrink-0 text-text-muted group-focus-within:text-[#C44BED] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
       <input
         id="search-input"
         type="text"
         value={initialQuery}
-        placeholder="Tìm kiếm phim..."
+        placeholder="Nhập tên phim để tìm kiếm..."
         autocomplete="off"
-        class="flex-1 bg-transparent text-text-primary outline-none placeholder:text-text-muted text-sm"
+        autocapitalize="off"
+        spellcheck="false"
+        role="combobox"
+        aria-expanded="false"
+        aria-controls="search-suggestions"
+        aria-autocomplete="list"
+        aria-label="Tìm kiếm phim"
+        class="flex-1 min-w-0 bg-transparent text-text-primary outline-none placeholder:text-text-muted text-[15px] md:text-base"
       />
-      <button id="search-clear" class="hidden text-text-muted hover:text-white transition-colors" aria-label="Xoá">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+      <button id="search-clear" class="hidden text-text-muted hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5" aria-label="Xoá từ khoá" type="button">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
         </svg>
       </button>
+      <button id="search-submit" type="button" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl liquid-glass text-sm font-medium text-white shrink-0 hover:bg-white/10 transition-colors" aria-label="Tìm kiếm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        Tìm
+      </button>
     </div>
 
-    <div id="search-suggestions" class="dropdown absolute top-full left-0 right-0 mt-2 z-30 rounded-2xl glass-tile p-2 shadow-2xl max-h-[60vh] overflow-y-auto"></div>
+    <div
+      id="search-suggestions"
+      role="listbox"
+      aria-label="Gợi ý tìm kiếm"
+      class="dropdown absolute top-full left-0 right-0 mt-2 z-40 w-full rounded-2xl glass-tile p-1.5 shadow-2xl max-h-[60vh] overflow-y-auto"
+    ></div>
   </div>
 
-  <div id="recent-searches" class="flex items-center gap-2 mb-6 flex-wrap"></div>
+  <div id="recent-searches" class="flex items-center gap-2 mb-5 flex-wrap" aria-label="Tìm kiếm gần đây"></div>
 
-  <div class="flex items-center gap-2 mb-6 flex-wrap">
+  <div class="flex flex-wrap items-center gap-2 mb-6">
     {
       filterConfig.map(({ key, label }) => (
         <div class="relative">
           <button
             type="button"
-            class="filter-chip px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 glass-tile text-text-secondary"
+            class="filter-chip glass-tile text-text-secondary px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 hover:text-white"
             data-key={key}
+            aria-haspopup="listbox"
+            aria-expanded="false"
           >
-            <span class="filter-chip-label flex items-center gap-1">
-              {label}
-              <svg class="w-3 h-3 transition-transform duration-200" fill="currentColor" viewBox="0 0 24 24">
+            <span class="filter-chip-label flex items-center gap-1.5">
+              <span class="filter-chip-text">{label}</span>
+              <svg class="filter-chevron w-3 h-3 transition-transform duration-200" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M7 10l5 5 5-5z" />
               </svg>
             </span>
           </button>
-          <div class="filter-dropdown dropdown absolute top-full left-0 mt-1 z-20 w-52 max-h-60 overflow-y-auto rounded-xl glass-tile py-1 shadow-2xl" data-dropdown={key}>
-            <div class="p-4 text-sm text-text-muted text-center">Đang tải...</div>
+          <div
+            class="filter-dropdown dropdown absolute top-full left-0 mt-2 z-30 w-56 max-w-[calc(100vw-2.5rem)] max-h-72 overflow-y-auto rounded-xl glass-tile py-1.5 shadow-2xl"
+            data-dropdown={key}
+            role="listbox"
+            aria-label={label}
+          >
+            <div class="px-4 py-3 text-sm text-text-muted text-center">Đang tải...</div>
           </div>
         </div>
       ))
     }
 
-    <button type="button" id="filter-clear" class="hidden px-3 py-2 rounded-xl text-[11px] font-medium text-text-muted hover:text-white glass-tile">
-      ✕ Xoá
+    <button type="button" id="filter-clear" class="hidden px-3 py-2 rounded-xl text-[11px] font-medium text-text-muted hover:text-white glass-tile" aria-label="Xoá bộ lọc">
+      <span class="flex items-center gap-1">
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        Xoá lọc
+      </span>
     </button>
-
-    <div id="sort-row" class="hidden flex items-center gap-1.5 ml-auto">
-      <span class="text-[10px] text-text-muted mr-1">Sắp xếp:</span>
-      <button type="button" class="sort-btn px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all text-text-muted hover:text-white" data-sort="name">
-        Tên
-      </button>
-      <button type="button" class="sort-btn px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all text-text-muted hover:text-white" data-sort="year">
-        Năm
-      </button>
-    </div>
   </div>
 
-  <p id="filter-label" class="text-xs text-text-muted mb-4">{initialLabel}</p>
+  <div id="result-header" class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <p id="filter-label" class="text-sm text-text-secondary" role="status">{initialLabel}</p>
+  </div>
+
+  <p id="results-status" class="mb-4 text-xs text-text-muted" aria-live="polite"></p>
 
   <div id="search-results">
     {
       initialResults.length > 0 ? (
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
-          {initialResults.map((movie) => <MovieCard movie={movie} />)}
+          {
+            initialResults.map((movie) => <MovieCard movie={movie} />)
+          }
         </div>
       ) : (
-        <div class="content-card px-8 py-16 flex flex-col items-center">
-          <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4">
-            <svg class="w-7 h-7 text-text-muted" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-            </svg>
+        <div id="search-empty">
+          <div class="content-card px-8 py-14 flex flex-col items-center text-center">
+            <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4">
+              <svg class="w-7 h-7 text-text-muted" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+              </svg>
+            </div>
+            <p class="text-text-secondary text-sm">Chưa có kết quả. Thử nhập từ khoá hoặc chọn bộ lọc.</p>
           </div>
-          <p class="text-text-secondary text-sm">{initialQuery ? 'Không tìm thấy kết quả' : 'Chọn thể loại hoặc tìm kiếm phim'}</p>
         </div>
       )
     }
   </div>
 
-  <div id="search-pagination" class="flex flex-wrap items-center justify-center gap-1.5 mt-6"></div>
-
-  <div id="search-loading" class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
-    {
-      Array.from({ length: 10 }).map((_, i) => (
-        <div>
-          <div class="aspect-[2/3] rounded-xl shimmer" />
-          <div class="mt-2.5 h-3 shimmer rounded w-3/4" />
-          <div class="mt-1.5 h-2.5 shimmer rounded w-1/2" />
-        </div>
-      ))
-    }
+  <div id="search-loading" class="hidden">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">
+      {
+        Array.from({ length: 16 }).map(() => (
+          <div>
+            <div class="aspect-[2/3] rounded-xl shimmer" />
+            <div class="mt-2.5 h-3 shimmer rounded w-3/4" />
+            <div class="mt-1.5 h-2.5 shimmer rounded w-1/2" />
+          </div>
+        ))
+      }
+    </div>
   </div>
-</div>
+
+  <div id="search-pagination" class="flex flex-wrap items-center justify-center gap-1.5 mt-8"></div>
+
+  <div id="sort-row" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 glass-tile rounded-full px-2 py-1.5 flex items-center gap-1 shadow-2xl">
+    <span class="text-[11px] text-text-muted pl-2">Sắp xếp:</span>
+    <button type="button" class="sort-btn px-2.5 py-1 rounded-full text-[11px] font-medium transition-all text-text-muted hover:text-white" data-sort="name" aria-pressed="false">Tên</button>
+    <button type="button" class="sort-btn px-2.5 py-1 rounded-full text-[11px] font-medium transition-all text-text-muted hover:text-white" data-sort="year" aria-pressed="false">Năm</button>
+  </div>
+</main>
 
 <script>
   import { gridHTML, escapeHTML } from '../scripts/cards'
   import { imgUrl } from '../lib/img'
+  import { arrowButtonsHTML } from '../scripts/pagination'
   import { getRecentSearches, saveRecentSearches } from '../scripts/store'
   import {
     getNewMovies,
@@ -151,7 +193,6 @@ const filterConfig = [
     getYears,
   } from '../lib/api'
   import { SEARCH_LIMIT, SUGGESTION_LIMIT } from '../lib/constants'
-  import { pageList } from '../lib/pagination'
   import { registerPageInit } from '../scripts/lifecycle'
 
   registerPageInit(() => {
@@ -159,16 +200,16 @@ const filterConfig = [
     if (!root) return () => {}
     const ac = new AbortController()
 
+    const metaHolder = root.querySelector<HTMLElement>('[data-initial-results]')
     let initialResults: { slug: string; name: string; year?: number; thumb_url?: string; _id?: number; episode_current?: string; quality?: string; lang?: string; tmdb_vote?: string; tmdb?: { vote_average?: string } }[] = []
     try {
-      initialResults = JSON.parse(root.dataset.initialResults || '[]')
+      initialResults = JSON.parse(metaHolder?.dataset.initialResults || '[]')
     } catch {
       initialResults = []
     }
-    let initialLabel = root.dataset.initialLabel || ''
     let initialFilter: { type: string; label: string; value: string } | null = null
     try {
-      const raw = root.dataset.initialFilter
+      const raw = metaHolder?.dataset.initialFilter
       if (raw) initialFilter = JSON.parse(raw)
     } catch {
       initialFilter = null
@@ -176,13 +217,16 @@ const filterConfig = [
 
     const input = document.getElementById('search-input') as HTMLInputElement
     const clearBtn = document.getElementById('search-clear')
-    const suggestionsEl = document.getElementById('search-suggestions')
-    const recentEl = document.getElementById('recent-searches')
-    const resultsEl = document.getElementById('search-results')
-    const loadingEl = document.getElementById('search-loading')
-    const labelEl = document.getElementById('filter-label')
-    const sortRow = document.getElementById('sort-row')
-    const filterClear = document.getElementById('filter-clear')
+    const submitBtn = document.getElementById('search-submit')
+    const suggestionsEl = document.getElementById('search-suggestions') as HTMLElement
+    const recentEl = document.getElementById('recent-searches') as HTMLElement
+    const resultsEl = document.getElementById('search-results') as HTMLElement
+    const loadingEl = document.getElementById('search-loading') as HTMLElement
+    const labelEl = document.getElementById('filter-label') as HTMLElement
+    const resultsStatus = document.getElementById('results-status') as HTMLElement
+    const sortRow = document.getElementById('sort-row') as HTMLElement
+    const filterClear = document.getElementById('filter-clear') as HTMLElement
+    const paginationEl = document.getElementById('search-pagination') as HTMLElement
     const chipBtns = Array.from(root.querySelectorAll<HTMLButtonElement>('.filter-chip'))
     const dropdownEls = Array.from(root.querySelectorAll<HTMLElement>('.filter-dropdown'))
 
@@ -190,7 +234,7 @@ const filterConfig = [
     let results = initialResults
     let loading = false
     let page = 1
-    let totalPages = Number(root.dataset.initialTotalPages) || 1
+    let totalPages = Number(metaHolder?.dataset.initialTotalPages) || 1
     let categories: { slug: string; name: string }[] = []
     let countries: { slug: string; name: string }[] = []
     let years: { slug: string; name: string }[] = []
@@ -204,6 +248,8 @@ const filterConfig = [
 
     let searchTimer: ReturnType<typeof setTimeout> | undefined
     let suggestTimer: ReturnType<typeof setTimeout> | undefined
+    let highlightIndex = -1
+    let highlights: { slug: string; name: string } | undefined
 
     const filterLabelMap = (type: string, label: string) =>
       type === 'category' ? `Thể loại: ${label}` : type === 'country' ? `Quốc gia: ${label}` : `Năm: ${label}`
@@ -252,14 +298,10 @@ const filterConfig = [
         query = q
         input.value = q
         clearBtn?.classList.toggle('hidden', !q)
-        if (suggestTimer) clearTimeout(suggestTimer)
-        suggestionsEl?.classList.remove('open')
-        suggestionsEl && (suggestionsEl.innerHTML = '')
-        showSuggestions = false
+        closeSuggestions()
         activeFilter = f ? decodeFilter(f) : null
         paintChips()
         paintRecent()
-        paintSuggestions()
         if (q.trim()) runSearch(p, false, true)
         else fetchByFilter(activeFilter, p, { skipSync: true })
       })
@@ -267,23 +309,27 @@ const filterConfig = [
 
     function setLoading(v: boolean) {
       loading = v
-      loadingEl?.classList.toggle('hidden', !v)
-      if (resultsEl) resultsEl.style.display = v ? 'none' : ''
+      loadingEl.classList.toggle('hidden', !v)
+      resultsEl.style.display = v ? 'none' : ''
     }
 
     function showEmpty(message: string, retryable = false) {
-      if (!resultsEl) return
       resultsEl.innerHTML = `
-        <div class="content-card px-8 py-16 flex flex-col items-center">
+        <div class="content-card px-8 py-14 flex flex-col items-center text-center">
           <div class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4">
-            <svg class="w-7 h-7 text-text-muted" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-7 h-7 text-text-muted" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </svg>
           </div>
           <p class="text-text-secondary text-sm">${escapeHTML(message)}</p>
-          ${retryable ? `<button type="button" id="empty-retry" class="mt-4 px-4 py-2 rounded-xl glass-tile text-xs text-text-secondary hover:text-white transition-colors">Thử lại</button>` : ''}
+          ${
+            retryable
+              ? `<button type="button" id="empty-retry" class="mt-4 px-4 py-2 rounded-xl glass-tile text-xs text-text-secondary hover:text-white transition-colors">Thử lại</button>`
+              : ''
+          }
         </div>
       `
+      resultsEl.style.display = ''
       document.getElementById('empty-retry')?.addEventListener('click', () => {
         if (query.trim()) runSearch(page)
         else fetchByFilter(activeFilter, page)
@@ -291,24 +337,28 @@ const filterConfig = [
     }
 
     function renderResults() {
-      if (!resultsEl) return
       const sorted =
         sortBy === 'name'
-          ? [...results].sort((a, b) => a.name.localeCompare(b.name))
+          ? [...results].sort((a, b) => a.name.localeCompare(b.name, 'vi'))
           : sortBy === 'year'
             ? [...results].sort((a, b) => (b.year || 0) - (a.year || 0))
             : results
       if (sorted.length === 0) {
-        showEmpty(query.trim() ? 'Không tìm thấy kết quả' : 'Chọn thể loại hoặc tìm kiếm phim')
-      } else {
-        resultsEl.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">${gridHTML(sorted)}</div>`
+        showEmpty(query.trim() ? `Không tìm thấy phim nào cho "${query.trim()}"` : 'Chưa có kết quả. Thử nhập từ khoá hoặc chọn bộ lọc.')
+        return
       }
+      resultsEl.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2.5">${gridHTML(sorted)}</div>`
+      renderStatus()
+    }
+
+    function renderStatus() {
+      resultsStatus.textContent = results.length > 0 ? `Hiển thị ${results.length} phim` : ''
     }
 
     function setLabel(text: string) {
-      initialLabel = text
-      if (labelEl) labelEl.textContent = text
-      sortRow?.classList.toggle('hidden', results.length === 0)
+      labelEl.textContent = text
+      renderStatus()
+      sortRow.classList.toggle('hidden', results.length === 0)
     }
 
     function goToPage(p: number) {
@@ -318,35 +368,23 @@ const filterConfig = [
     }
 
     function renderPagination() {
-      const el = document.getElementById('search-pagination')
-      if (!el) return
-      if (totalPages <= 1) {
-        el.innerHTML = ''
+      if (totalPages <= 1 || results.length === 0) {
+        paginationEl.innerHTML = ''
         return
       }
-      const pages = pageList(page, totalPages)
-      el.innerHTML = `
-        <button type="button" class="sp-first w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>«</button>
-        <button type="button" class="sp-prev w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page <= 1 ? 'disabled' : ''}>‹</button>
-        ${pages
-          .map((p) =>
-            p === '...'
-              ? `<span class="px-2 text-text-muted text-xs">...</span>`
-              : `<button type="button" class="sp-page w-9 h-9 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  p === page ? 'pagination-active' : 'glass-tile text-text-secondary hover:text-white'
-                }" data-page="${p}">${p}</button>`,
-          )
-          .join('')}
-        <button type="button" class="sp-next w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page >= totalPages ? 'disabled' : ''}>›</button>
-        <button type="button" class="sp-last w-9 h-9 rounded-xl glass-tile text-text-secondary hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors" ${page >= totalPages ? 'disabled' : ''}>»</button>
-      `
-      el.querySelectorAll<HTMLButtonElement>('.sp-page').forEach((btn) => {
+      paginationEl.innerHTML = arrowButtonsHTML(page, totalPages, 'sp-page')
+      paginationEl.querySelectorAll<HTMLButtonElement>('.sp-page').forEach((btn) => {
         btn.addEventListener('click', () => goToPage(Number(btn.dataset.page)))
       })
-      el.querySelector('.sp-first')?.addEventListener('click', () => goToPage(1))
-      el.querySelector('.sp-prev')?.addEventListener('click', () => goToPage(Math.max(1, page - 1)))
-      el.querySelector('.sp-next')?.addEventListener('click', () => goToPage(Math.min(totalPages, page + 1)))
-      el.querySelector('.sp-last')?.addEventListener('click', () => goToPage(totalPages))
+      paginationEl.querySelectorAll<HTMLButtonElement>('[data-nav]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const nav = btn.dataset.nav
+          if (nav === 'first') goToPage(1)
+          else if (nav === 'prev') goToPage(Math.max(1, page - 1))
+          else if (nav === 'next') goToPage(Math.min(totalPages, page + 1))
+          else if (nav === 'last') goToPage(totalPages)
+        })
+      })
     }
 
     async function fetchByFilter(
@@ -394,7 +432,7 @@ const filterConfig = [
     async function runSearch(targetPage = 1, push = false, skipSync = false) {
       const q = query.trim()
       if (!q) {
-        setLabel('')
+        setLabel('Phim mới nhất')
         fetchByFilter(activeFilter, 1, { push, skipSync })
         return
       }
@@ -423,42 +461,90 @@ const filterConfig = [
     async function loadSuggestions() {
       const q = query.trim()
       if (!q) return
+      if (suggestTimer) clearTimeout(suggestTimer)
       suggestTimer = setTimeout(async () => {
         try {
           const data = await searchMovies(q, 1, SUGGESTION_LIMIT)
           suggestionQuery = q
-          suggestions = Array.isArray(data.items) ? data.items : []
-          showSuggestions = suggestions.length > 0 && suggestionQuery === q
+          suggestions = Array.isArray(data.items) ? data.items.slice(0, 8) : []
+          showSuggestions = suggestions.length > 0 && suggestionQuery === q && document.activeElement === input
           paintSuggestions()
         } catch {
           suggestions = []
           paintSuggestions()
         }
-      }, 250)
+      }, 220)
+    }
+
+    function setInputExpanded(open: boolean) {
+      input.setAttribute('aria-expanded', open ? 'true' : 'false')
+    }
+
+    function highlightQuery(text: string, q: string): string {
+      const clean = q.trim()
+      if (!clean) return escapeHTML(text)
+      const idx = text.toLowerCase().indexOf(clean.toLowerCase())
+      if (idx === -1) return escapeHTML(text)
+      return `${escapeHTML(text.slice(0, idx))}<mark class="bg-transparent bg-gradient-to-r from-[#C44BED]/30 to-[#4A9EFF]/30 text-white rounded px-0.5">${escapeHTML(text.slice(idx, idx + clean.length))}</mark>${escapeHTML(text.slice(idx + clean.length))}`
     }
 
     function paintSuggestions() {
-      if (!suggestionsEl) return
-      if (showSuggestions && suggestions.length > 0) {
-        suggestionsEl.innerHTML = suggestions
+      if (!showSuggestions || suggestions.length === 0) {
+        closeSuggestions()
+        return
+      }
+      highlightIndex = Math.min(highlightIndex, suggestions.length - 1)
+      highlights = highlightIndex >= 0 ? { slug: suggestions[highlightIndex].slug, name: suggestions[highlightIndex].name } : undefined
+      suggestionsEl.innerHTML =
+        suggestions
           .map(
-            (m) => `
-              <a href="/phim/${escapeHTML(m.slug)}" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
-                ${m.thumb_url ? `<div class="relative w-9 h-12 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame poster-shell"><img src="${escapeHTML(imgUrl(m.thumb_url, 300))}" alt="${escapeHTML(m.name)}" class="w-full h-full object-cover" /></div>` : ''}
+            (m, i) => `
+              <a
+                href="/phim/${escapeHTML(m.slug)}"
+                role="option"
+                id="sug-${i}"
+                aria-selected="${i === highlightIndex}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${i === highlightIndex ? 'bg-white/10' : 'hover:bg-white/5'} text-text-secondary hover:text-white"
+              >
+                ${m.thumb_url ? `<div class="relative w-9 h-13 rounded-md overflow-hidden shrink-0 bg-bg-card glass-frame poster-shell"><img src="${escapeHTML(imgUrl(m.thumb_url, 300))}" alt="" loading="lazy" decoding="async" class="w-full h-full object-cover" /></div>` : '<div class="w-9 shrink-0"></div>'}
                 <div class="min-w-0">
-                  <p class="text-xs text-text-primary truncate">${escapeHTML(m.name)}</p>
-                  ${m.origin_name ? `<p class="text-[10px] text-text-muted truncate">${escapeHTML(m.origin_name)}</p>` : ''}
+                  <p class="text-sm text-text-primary truncate">${highlightQuery(m.name, suggestionQuery)}</p>
+                  ${m.origin_name ? `<p class="text-[11px] text-text-muted truncate">${escapeHTML(m.origin_name)}</p>` : ''}
                 </div>
-                ${m.year ? `<span class="ml-auto text-[10px] text-text-muted shrink-0">${m.year}</span>` : ''}
+                ${m.year ? `<span class="ml-auto text-[11px] text-text-muted shrink-0 tabular-nums">${m.year}</span>` : ''}
               </a>
             `,
           )
-          .join('')
-        suggestionsEl.classList.add('open')
+          .join('') +
+        `<div class="suggest-footer px-3 py-2.5 mt-1 border-t border-white/10 flex items-center justify-between">
+          <span class="text-[11px] text-text-muted">Nhấn Enter để xem tất cả</span>
+          <span class="flex items-center gap-0.5 text-[10px] text-text-muted">
+            <kbd class="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono">↑↓</kbd>
+            <span>điều hướng</span>
+          </span>
+        </div>`
+      suggestionsEl.classList.add('open')
+      setInputExpanded(true)
+      updateActiveDescendant()
+    }
+
+    function updateActiveDescendant() {
+      if (highlightIndex >= 0) {
+        input.setAttribute('aria-activedescendant', `sug-${highlightIndex}`)
       } else {
-        suggestionsEl.innerHTML = ''
-        suggestionsEl.classList.remove('open')
+        input.removeAttribute('aria-activedescendant')
       }
+    }
+
+    function closeSuggestions() {
+      suggestionsEl.innerHTML = ''
+      suggestionsEl.classList.remove('open')
+      showSuggestions = false
+      highlightIndex = -1
+      highlights = undefined
+      setInputExpanded(false)
+      input.removeAttribute('aria-activedescendant')
+      if (suggestTimer) clearTimeout(suggestTimer)
     }
 
     function recordSearch(q: string) {
@@ -471,22 +557,26 @@ const filterConfig = [
     }
 
     function paintRecent() {
-      if (!recentEl) return
       if (query.trim() || recentSearches.length === 0) {
         recentEl.innerHTML = ''
         return
       }
       recentEl.innerHTML =
-        `<span class="text-[10px] text-text-muted">Gần đây:</span>` +
+        `<span class="text-[11px] text-text-muted mr-1">Tìm kiếm gần đây:</span>` +
         recentSearches
-          .map((q) => `<button type="button" class="recent-chip px-3 py-1.5 rounded-xl glass-tile text-[11px] text-text-secondary hover:text-white transition-colors" data-q="${escapeHTML(q)}">${escapeHTML(q)}</button>`)
+          .map(
+            (q) =>
+              `<button type="button" class="recent-chip px-3 py-1.5 rounded-xl glass-tile text-[12px] text-text-secondary hover:text-white transition-colors" data-q="${escapeHTML(q)}">${escapeHTML(q)}</button>`,
+          )
           .join('') +
-        `<button type="button" id="recent-clear" class="px-2 py-1 text-[10px] text-text-muted hover:text-white transition-colors">Xoá</button>`
+        `<button type="button" id="recent-clear" class="px-2 py-1 text-[11px] text-text-muted hover:text-white transition-colors" aria-label="Xoá lịch sử tìm kiếm">Xoá</button>`
       recentEl.querySelectorAll<HTMLButtonElement>('.recent-chip').forEach((btn) => {
         btn.addEventListener('click', () => {
           query = btn.dataset.q || ''
           input.value = query
+          clearBtn?.classList.toggle('hidden', !query)
           recordSearch(query)
+          closeSuggestions()
           runSearch(1, true)
         })
       })
@@ -515,12 +605,15 @@ const filterConfig = [
         const key = el.dataset.dropdown
         const items = key === 'category' ? categories : key === 'country' ? countries : years
         if (items.length === 0) return
-        el.innerHTML = items
-          .map(
-            (item) =>
-              `<button type="button" class="filter-option w-full text-left px-4 py-2 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors" data-type="${key}" data-label="${escapeHTML(item.name)}" data-value="${escapeHTML(item.slug)}">${escapeHTML(item.name)}</button>`,
-          )
-          .join('')
+        const selected = activeFilter && activeFilter.type === key ? activeFilter.value : ''
+        el.innerHTML =
+          `<button type="button" role="option" aria-selected="${!selected ? 'true' : 'false'}" class="filter-option w-full text-left px-4 py-2 text-sm text-text-secondary hover:text-white hover:bg-white/5 transition-colors ${!selected ? 'text-white bg-white/10' : ''}" data-type="${key}" data-label="" data-value="">Tất cả</button>` +
+          items
+            .map(
+              (item) =>
+                `<button type="button" role="option" aria-selected="${selected === item.slug ? 'true' : 'false'}" class="filter-option w-full text-left px-4 py-2 text-sm ${selected === item.slug ? 'text-white bg-white/10' : 'text-text-secondary hover:text-white hover:bg-white/5'} transition-colors" data-type="${key}" data-label="${escapeHTML(item.name)}" data-value="${escapeHTML(item.slug)}">${escapeHTML(item.name)}${selected === item.slug ? `<span class="ml-1 text-[#C44BED]">✓</span>` : ''}</button>`,
+            )
+            .join('')
       })
     }
 
@@ -529,35 +622,42 @@ const filterConfig = [
         const key = btn.dataset.key
         const active = activeFilter?.type === key
         btn.className = active
-          ? `filter-chip px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 glass-tile-active text-white`
-          : `filter-chip px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 glass-tile text-text-secondary`
-        const labelSpan = btn.querySelector('.filter-chip-label')
+          ? `filter-chip glass-tile-active text-white px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200`
+          : `filter-chip glass-tile text-text-secondary px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 hover:text-white`
+        const labelSpan = btn.querySelector('.filter-chip-text')
         if (labelSpan && labelSpan.firstChild) {
           ;(labelSpan.firstChild as Text).textContent = active ? activeFilter?.label || '' : btn.dataset.key === 'category' ? 'Thể loại' : btn.dataset.key === 'country' ? 'Quốc gia' : 'Năm'
         }
+        const chevron = btn.querySelector('.filter-chevron')
+        if (chevron) chevron.classList.toggle('rotate-180', active)
       })
       filterClear?.classList.toggle('hidden', !activeFilter)
     }
 
     function selectFilter(type: string, label: string, value: string) {
-      openDropdown = null
-      dropdownEls.forEach((el) => el.classList.remove('open'))
+      if (!value) {
+        activeFilter = null
+      } else {
+        activeFilter = { type, label, value }
+      }
+      closeAllDropdowns()
       query = ''
       input.value = ''
-      activeFilter = { type, label, value }
+      clearBtn?.classList.add('hidden')
       paintChips()
-      fetchByFilter(activeFilter, 1, { push: true })
       paintRecent()
       paintSuggestions()
+      fetchByFilter(activeFilter, 1, { push: true })
     }
 
-    function clearFilter() {
-      activeFilter = null
-      query = ''
-      input.value = ''
-      paintChips()
-      fetchByFilter(null, 1, { push: true })
-      paintRecent()
+    function closeAllDropdowns() {
+      openDropdown = null
+      dropdownEls.forEach((el) => {
+        el.classList.remove('open')
+        const key = el.dataset.dropdown
+        const chip = chipBtns.find((c) => c.dataset.key === key)
+        chip?.setAttribute('aria-expanded', 'false')
+      })
     }
 
     input?.addEventListener('input', () => {
@@ -568,13 +668,10 @@ const filterConfig = [
         paintChips()
       }
       paintRecent()
-      if (suggestTimer) clearTimeout(suggestTimer)
+      closeSuggestions()
       if (searchTimer) clearTimeout(searchTimer)
       if (!query.trim()) {
-        suggestionsEl?.classList.remove('open')
-        suggestionsEl && (suggestionsEl.innerHTML = '')
-        showSuggestions = false
-        searchTimer = setTimeout(() => runSearch(1), 100)
+        searchTimer = setTimeout(() => runSearch(1), 120)
         return
       }
       loadSuggestions()
@@ -582,14 +679,56 @@ const filterConfig = [
     })
 
     input?.addEventListener('keydown', (e) => {
+      if (showSuggestions && suggestions.length > 0) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          highlightIndex = (highlightIndex + 1) % suggestions.length
+          paintHighlightOnly()
+          return
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          highlightIndex = highlightIndex <= 0 ? suggestions.length - 1 : highlightIndex - 1
+          paintHighlightOnly()
+          return
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          closeSuggestions()
+          return
+        }
+      }
       if (e.key === 'Enter') {
-        recordSearch(query)
-        showSuggestions = false
-        suggestionsEl?.classList.remove('open')
-        paintSuggestions()
-        runSearch(1, true)
+        e.preventDefault()
+        if (query.trim()) {
+          recordSearch(query)
+          const selected = highlights
+          closeSuggestions()
+          if (selected) {
+            location.href = `/phim/${selected.slug}`
+            return
+          }
+          runSearch(1, true)
+        }
       }
     })
+
+    function paintHighlightOnly() {
+      suggestionsEl.querySelectorAll<HTMLElement>('[role="option"]').forEach((el, i) => {
+        const on = i === highlightIndex
+        if (i < suggestions.length) {
+          el.classList.toggle('bg-white/10', on)
+          el.classList.toggle('hover:bg-white/5', !on)
+          el.setAttribute('aria-selected', on ? 'true' : 'false')
+          if (on) {
+            const m = suggestions[i]
+            highlights = { slug: m.slug, name: m.name }
+            el.scrollIntoView({ block: 'nearest' })
+          }
+        }
+      })
+      updateActiveDescendant()
+    }
 
     input?.addEventListener('focus', () => {
       if (query.trim() && suggestions.length > 0) {
@@ -602,11 +741,16 @@ const filterConfig = [
       query = ''
       input.value = ''
       clearBtn.classList.add('hidden')
-      if (suggestTimer) clearTimeout(suggestTimer)
-      suggestionsEl?.classList.remove('open')
-      suggestionsEl && (suggestionsEl.innerHTML = '')
+      closeSuggestions()
       runSearch(1, true)
       paintRecent()
+      input.focus()
+    })
+
+    submitBtn?.addEventListener('click', () => {
+      recordSearch(query)
+      closeSuggestions()
+      runSearch(1, true)
     })
 
     chipBtns.forEach((btn) => {
@@ -614,8 +758,10 @@ const filterConfig = [
         const key = btn.dataset.key || ''
         openDropdown = openDropdown === key ? null : key
         dropdownEls.forEach((el) => {
-          el.classList.toggle('open', el.dataset.dropdown === key && openDropdown === key)
+          const isOpen = el.dataset.dropdown === key && openDropdown === key
+          el.classList.toggle('open', isOpen)
         })
+        btn.setAttribute('aria-expanded', openDropdown === key ? 'true' : 'false')
       })
     })
 
@@ -627,11 +773,18 @@ const filterConfig = [
         return
       }
       if (target.closest('.filter-chip') || target.closest('.filter-dropdown')) return
-      dropdownEls.forEach((el) => el.classList.remove('open'))
-      openDropdown = null
+      closeAllDropdowns()
     })
 
-    filterClear?.addEventListener('click', clearFilter)
+    filterClear?.addEventListener('click', () => {
+      activeFilter = null
+      query = ''
+      input.value = ''
+      clearBtn?.classList.add('hidden')
+      paintChips()
+      paintRecent()
+      fetchByFilter(null, 1, { push: true })
+    })
 
     document.querySelectorAll<HTMLButtonElement>('.sort-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -640,22 +793,34 @@ const filterConfig = [
         document.querySelectorAll<HTMLButtonElement>('.sort-btn').forEach((b) => {
           const active = sortBy === b.dataset.sort
           b.className = active
-            ? `sort-btn px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all sort-active`
-            : `sort-btn px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all text-text-muted hover:text-white`
+            ? `sort-btn px-2.5 py-1 rounded-full text-[11px] font-medium transition-all sort-active`
+            : `sort-btn px-2.5 py-1 rounded-full text-[11px] font-medium transition-all text-text-muted hover:text-white`
+          b.setAttribute('aria-pressed', active ? 'true' : 'false')
         })
         renderResults()
       })
     })
 
-    const box = root.querySelector('.relative.mb-5')
-    box?.addEventListener('focusout', () => {
-      setTimeout(() => {
-        if (!box.contains(document.activeElement)) {
-          showSuggestions = false
-          paintSuggestions()
-        }
-      }, 120)
-    })
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      if (!root.contains(target)) {
+        closeSuggestions()
+      }
+    }, { signal: ac.signal })
+
+    input?.addEventListener(
+      'focusout',
+      (e) => {
+        const related = e.relatedTarget as HTMLElement | null
+        if (related && suggestionsEl.contains(related)) return
+        setTimeout(() => {
+          if (document.activeElement === input) return
+          if (document.activeElement && input.parentElement?.contains(document.activeElement)) return
+          closeSuggestions()
+        }, 120)
+      },
+      { signal: ac.signal },
+    )
 
     loadMeta()
     paintChips()
@@ -663,7 +828,7 @@ const filterConfig = [
     paintSuggestions()
     renderResults()
     renderPagination()
-    sortRow?.classList.toggle('hidden', results.length === 0)
+    sortRow.classList.toggle('hidden', results.length === 0)
 
     return () => ac.abort()
   })
